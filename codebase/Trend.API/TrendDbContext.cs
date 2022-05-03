@@ -8,6 +8,7 @@ namespace Trend.API.Models
         // The documentation for Entity Framework:
         // https://docs.microsoft.com/en-us/ef/core/
 
+
         // import transactions
         // write a couple linq queries as per above, 
         // figure out how to specify those params through the API. 

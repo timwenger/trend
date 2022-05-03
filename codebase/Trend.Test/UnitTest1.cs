@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System;
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
@@ -8,6 +10,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Trend.API.Controllers;
+using Trend.API.Filters;
 using Trend.API.Models;
 
 namespace Trend.Test
@@ -15,51 +18,89 @@ namespace Trend.Test
 
     // how to mock the db and use an in-memory db
     // https://docs.microsoft.com/en-us/ef/ef6/fundamentals/testing/mocking
+
+    // testing Entity framework core
+    // https://docs.microsoft.com/en-us/ef/core/testing/
+
+    // https://stackoverflow.com/questions/39481353/how-do-i-moq-the-applicationdbcontext-in-net-core
+
     [TestClass]
     public class UnitTest1
     {
-        [TestMethod]
-        public void TestMethod1()
-        {
-        }
+        //[TestMethod]
+        //public void TestMethod1()
+        //{
+        //}
+
+        //[TestMethod]
+        //public async Task GetAllCategories_orders_by_name()
+        //{
+        //    var data = new List<Transaction>
+        //    {
+        //        new Transaction { TransactionDescription = "BBB" },
+        //        new Transaction { TransactionDescription = "ZZZ" },
+        //        new Transaction { TransactionDescription = "AAA" },
+        //    }.AsQueryable();
+
+        //    var mockSet = new Mock<DbSet<Transaction>>();
+
+        //    mockSet.As<IDbAsyncEnumerable<Transaction>>()
+        //        .Setup(m => m.GetAsyncEnumerator())
+        //        .Returns(new TestDbAsyncEnumerator<Transaction>(data.GetEnumerator()));
+
+        //    mockSet.As<IQueryable<Transaction>>()
+        //        .Setup(m => m.Provider)
+        //        .Returns(new TestDbAsyncQueryProvider<Transaction>(data.Provider));
+
+        //    mockSet.As<IQueryable<Transaction>>().Setup(m => m.Expression).Returns(data.Expression);
+        //    mockSet.As<IQueryable<Transaction>>().Setup(m => m.ElementType).Returns(data.ElementType);
+        //    mockSet.As<IQueryable<Transaction>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
+
+        //    var optionsBuilder = new DbContextOptionsBuilder<TrendDbContext>();
+        //    var mockContext = new Mock<TrendDbContext>(optionsBuilder.Options);
+        //    mockContext.Setup(t => t.Transactions).Returns(mockSet.Object);
+
+        //    var service = new TransactionsController(mockContext.Object);
+
+        //    // I need to return a list / array. Not Ok(list) like I do in TransactionsController
+        //    // maybe I need to make utility method that the http method and the unit tests can use.
+
+
+        //    var transactionFilters = new TransactionFilters();
+
+        //    Transaction[] transactions = await transactionFilters.GetTransactionQuery(mockContext.Object).ToArrayAsync();
+        //    Assert.AreEqual(3, transactions);
+        //    Assert.AreEqual("AAA", transactions[0].TransactionDescription);
+        //    Assert.AreEqual("BBB", transactions[1].TransactionDescription);
+        //    Assert.AreEqual("ZZZ", transactions[2].TransactionDescription);
+        //}
+
 
         [TestMethod]
-        public async Task GetAllCategories_orders_by_name()
+        public async Task UsingInMemoryDb()
         {
-            var data = new List<Category>
+            // Now that I am using an in-memory db, I need a way to seed the db with this data...
+            // until then, the test won't pass because there are 0 results in the returned transactns array
+            var data = new List<Transaction>
             {
-                new Category { CategoryName = "BBB" },
-                new Category { CategoryName = "ZZZ" },
-                new Category { CategoryName = "AAA" },
+                new Transaction { TransactionDescription = "BBB" },
+                new Transaction { TransactionDescription = "ZZZ" },
+                new Transaction { TransactionDescription = "AAA" },
             }.AsQueryable();
 
-            var mockSet = new Mock<DbSet<Category>>();
 
-            mockSet.As<IDbAsyncEnumerable<Category>>()
-                .Setup(m => m.GetAsyncEnumerator())
-                .Returns(new TestDbAsyncEnumerator<Category>(data.GetEnumerator()));
+            var optionsBuilder = new DbContextOptionsBuilder<TrendDbContext>();
+            optionsBuilder.UseInMemoryDatabase("UnitTestDb");
+            var _dbContext = new TrendDbContext(optionsBuilder.Options);
 
-            mockSet.As<IQueryable<Category>>()
-                .Setup(m => m.Provider)
-                .Returns(new TestDbAsyncQueryProvider<Category>(data.Provider));
+            var transactionFilters = new TransactionFilters();
 
-            mockSet.As<IQueryable<Category>>().Setup(m => m.Expression).Returns(data.Expression);
-            mockSet.As<IQueryable<Category>>().Setup(m => m.ElementType).Returns(data.ElementType);
-            mockSet.As<IQueryable<Category>>().Setup(m => m.GetEnumerator()).Returns(data.GetEnumerator());
+            Transaction[] transactions = await transactionFilters.GetTransactionQuery(_dbContext).ToArrayAsync();
 
-            var mockContext = new Mock<TrendDbContext>();
-            mockContext.Setup(c => c.Categories).Returns(mockSet.Object);
-
-            var service = new CategoriesController(mockContext.Object);
-
-            // I need to return a list / array. Not Ok(list) like I do in CategoriesController
-            // maybe I need to make utility method that the http method and the unit tests can use.
-            var categories = await service.GetAllCategories();
-
-            Assert.AreEqual(3, categories);
-            Assert.AreEqual("AAA", categories[0].Name);
-            Assert.AreEqual("BBB", zv[1].Name);
-            Assert.AreEqual("ZZZ", blogs[2].Name);
+            Assert.AreEqual(3, transactions);
+            Assert.AreEqual("AAA", transactions[0].TransactionDescription);
+            Assert.AreEqual("BBB", transactions[1].TransactionDescription);
+            Assert.AreEqual("ZZZ", transactions[2].TransactionDescription);
         }
     }
 
