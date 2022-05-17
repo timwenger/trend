@@ -1,14 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { HeroesComponent } from './heroes/heroes.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { HeroDetailComponent } from './hero-detail/hero-detail.component';
+import { TransactionsComponent } from './transactions/transactions.component';
 
 const routes: Routes = [
-  { path: 'heroes', component: HeroesComponent },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'detail/:id', component: HeroDetailComponent },
+  { path: 'transactions', component: TransactionsComponent },
+  { path: '', redirectTo: '/transactions', pathMatch: 'full' },
+  //{ path: 'detail/:id', component: HeroDetailComponent }, // make into transaction details component
 ];
 
 @NgModule({

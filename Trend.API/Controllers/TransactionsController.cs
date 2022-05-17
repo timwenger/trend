@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Trend.API.Filters;
@@ -21,6 +22,7 @@ namespace Trend.API.Controllers
             _dbContext.Database.EnsureCreated();
         }
 
+        [EnableCors("AngularDebugging")]
         [HttpGet]
         public async Task<ActionResult> GetAllTransactions()
         {
