@@ -9,9 +9,12 @@ import { HeroDetailComponent } from './hero-detail/hero-detail.component';
 import { MessagesComponent } from './messages/messages.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { HttpClientModule } from '@angular/common/http';
-import { HttpClientInMemoryWebApiModule } from 'angular-in-memory-web-api';
 import { HeroSearchComponent } from './hero-search/hero-search.component';
 import { TransactionsComponent } from './transactions/transactions.component';
+
+import { ButtonModule} from 'primeng/button';
+import {CalendarModule} from 'primeng/calendar';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -21,13 +24,17 @@ import { TransactionsComponent } from './transactions/transactions.component';
     MessagesComponent,
     DashboardComponent,
     HeroSearchComponent,
-    TransactionsComponent
+    TransactionsComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
     HttpClientModule,
+
+    ButtonModule,
+    CalendarModule,
+    BrowserAnimationsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

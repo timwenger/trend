@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Transaction } from '../transaction';
 
+
 @Component({
   selector: 'app-transactions',
   templateUrl: './transactions.component.html',
@@ -9,10 +10,12 @@ import { Transaction } from '../transaction';
 })
 export class TransactionsComponent implements OnInit {
   transactions: Transaction[] = [];
+  dateOfOldest!: Date;
 
   constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
+    this.dateOfOldest = new Date();
     this.getTransactions();
   }
 
