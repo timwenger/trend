@@ -1,6 +1,17 @@
 <p>Oldest transaction</p>
-<p-calendar [formControl]="dateOfOldest" [showIcon]="true"></p-calendar>
+<p-calendar [formControl]="dateOfOldestTransaction" [showIcon]="true" dateFormat="yy/mm/dd"></p-calendar>
 <p>Latest transaction</p>
-<p-calendar [formControl]="dateOfLatest" [showIcon]="true"></p-calendar>
+<p-calendar [formControl]="dateOfLatestTransaction" [showIcon]="true" dateFormat="yy/mm/dd"></p-calendar>
 <p>Choose your categories</p> 
-<p-multiSelect [options]="allCategories" [(ngModel)]="selectedCategories" optionLabel="categoryName"></p-multiSelect>
+<p-multiSelect 
+	[options]="allCategories" 
+	[(ngModel)]="selectedCategories" 
+	optionLabel="categoryName" 
+	display="chip"
+	selectedItemsLabel="{0} items selected">
+</p-multiSelect>
+
+<p></p>
+<p-button label="Get Transactions" (onClick)="buttonClicked($event)"></p-button>
+
+<app-transactions [filter]="configuredFilter"></app-transactions>

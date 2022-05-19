@@ -24,17 +24,17 @@ namespace Trend.API.Controllers
 
         [EnableCors("AngularDebugging")]
         [HttpGet]
-        public async Task<ActionResult> GetAllTransactions()
+        public async Task<ActionResult> GetAllTransactions([FromQuery] TransactionFilters transactionFilters)
         {
             // loading data from related tables
             // https://docs.microsoft.com/en-us/ef/core/querying/related-data/
 
-            var transactionFilters = new TransactionFilters
-            {
-                DateFilter = true,
-                DateOldest = new DateTime(2022, 1, 1),
-                DateLatest = new DateTime(2022, 1, 31)
-            };
+            //var transactionFilters = new TransactionFilters
+            //{
+            //    DateFilter = true,
+            //    DateOldest = new DateTime(2022, 1, 1),
+            //    DateLatest = new DateTime(2022, 1, 31)
+            //};
 
             Transaction[] filteredTransactions = await transactionFilters.GetTransactionQuery(_dbContext).Include(trans => trans.Category).ToArrayAsync();
             //Transaction[] transactions = await _dbContext.Transactions.ToArrayAsync();

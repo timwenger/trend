@@ -4,6 +4,7 @@ import { Observable, of, tap, catchError } from 'rxjs';
 import { MessageService } from './message.service';
 import { Transaction } from './transaction';
 import { Category } from './category';
+import { TransactionFilters } from './transactionfilters';
 
 
 @Injectable({
@@ -19,17 +20,27 @@ export class ApiService {
       'Content-Type': 'application/json',
     }),
   };
+
+  filter  = {
+    dateFilter: true,
+    dateOldest: "2022/02/09",
+    dateLatest: "2022/04/03",
+    categoryFilter: true,
+    selectedCategoryIds: [1,2,3,4,5]
+  }
   
   constructor(
     private http: HttpClient,
     private messageService: MessageService,
     ) { }
 
-  
+   
   
 
-  getTransactions(): Observable<Transaction[]> {
-    return this.http.get<Transaction[]>(this.baseUrl + this.transactionsApiUrl)
+  getTransactions(filter: TransactionFilters): Observable<Transaction[]> {
+    let url = this.baseUrl + this.transactionsApiUrl;
+    this.filter = filter;
+    return this.http.get<Transaction[]>(url, {params:this.filter})
     .pipe(
       tap(_ => this.logMsg('fetched transactions')),
       catchError(this.handleError<Transaction[]>('getTransactions', []))
