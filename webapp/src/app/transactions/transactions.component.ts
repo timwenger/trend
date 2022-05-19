@@ -10,12 +10,11 @@ import { Transaction } from '../transaction';
 })
 export class TransactionsComponent implements OnInit {
   transactions: Transaction[] = [];
-  dateOfOldest!: Date;
+
 
   constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
-    this.dateOfOldest = new Date();
     this.getTransactions();
   }
 

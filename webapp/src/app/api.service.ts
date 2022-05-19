@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of, tap, catchError } from 'rxjs';
 import { MessageService } from './message.service';
 import { Transaction } from './transaction';
+import { Category } from './category';
 
 
 @Injectable({
@@ -10,7 +11,9 @@ import { Transaction } from './transaction';
 })
 
 export class ApiService {
-  private transactionsApiUrl = 'https://localhost:7247/api/Transactions' // 'api/transactions';  // URL to web api
+  private baseUrl = 'https://localhost:7247/api'; 
+  private transactionsApiUrl = '/Transactions';
+  private categoriesApiUrl = '/Categories';
   httpOptions = {
     headers: new HttpHeaders({ 
       'Content-Type': 'application/json',
@@ -26,10 +29,18 @@ export class ApiService {
   
 
   getTransactions(): Observable<Transaction[]> {
-    return this.http.get<Transaction[]>(this.transactionsApiUrl)
+    return this.http.get<Transaction[]>(this.baseUrl + this.transactionsApiUrl)
     .pipe(
       tap(_ => this.logMsg('fetched transactions')),
       catchError(this.handleError<Transaction[]>('getTransactions', []))
+    );
+  }
+
+  getCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(this.baseUrl + this.categoriesApiUrl)
+    .pipe(
+      tap(_ => this.logMsg('fetched transactions')),
+      catchError(this.handleError<Category[]>('getCategories', []))
     );
   }
 

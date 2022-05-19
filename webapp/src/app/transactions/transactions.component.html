@@ -1,10 +1,5 @@
 <h2>My Transactions</h2>
 
-<div class="p-field p-col-12 p-md-4">
-  <label for="icon">Date of oldest Transaction</label>
-  <p-calendar [(ngModel)]= "dateOfOldest" [showIcon]="true" inputId="icon"></p-calendar>
-</div>
-
 <ul>
   <li *ngFor="let trans of transactions">
     <p> {{trans.transactionDescription}} </p>

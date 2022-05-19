@@ -1,0 +1,6 @@
+<p>Oldest transaction</p>
+<p-calendar [formControl]="dateOfOldest" [showIcon]="true"></p-calendar>
+<p>Latest transaction</p>
+<p-calendar [formControl]="dateOfLatest" [showIcon]="true"></p-calendar>
+<p>Choose your categories</p> 
+<p-multiSelect [options]="allCategories" [(ngModel)]="selectedCategories" optionLabel="categoryName"></p-multiSelect>
