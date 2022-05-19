@@ -39,13 +39,20 @@ export class TransactionsFilterComponent implements OnInit {
     {
       ids.push(this.selectedCategories[i].id);      
     }
+    // if no categories are selected, the turn off the filter
+    let categoryFilterIsUsed = ids.length > 0;
 
     this.configuredFilter = {
       dateFilter: true,
-      dateOldest: "2021/12/01",//this.dateOfLatestTransaction.value,
-      dateLatest: "2022/05/01",//this.dateOfLatestTransaction.value,
-      categoryFilter: true,
+      dateOldest: this.getShortDate(this.dateOfOldestTransaction.value), // "2021/12/01"
+      dateLatest: this.getShortDate(this.dateOfLatestTransaction.value),
+      categoryFilter: categoryFilterIsUsed,
       selectedCategoryIds: ids,
     }
+  }
+
+  getShortDate(dateStr:string){
+    let d = new Date(Date.parse(dateStr));
+  return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
   }
 }

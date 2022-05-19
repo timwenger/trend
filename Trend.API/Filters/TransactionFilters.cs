@@ -10,7 +10,7 @@ namespace Trend.API.Filters
         public DateTime DateLatest { get; set; }
 
         public bool CategoryFilter { get; set; }
-        public List<int> SelectedCategoryIds{ get; set; }
+        public List<int>? SelectedCategoryIds { get; set; }
 
         public IQueryable<Transaction> GetTransactionQuery(TrendDbContext dbContext)
         {
@@ -21,7 +21,7 @@ namespace Trend.API.Filters
                 .Where(t => DateTime.Compare(t.DateOfTransaction, DateOldest) >= 0)
                 .Where(t => DateTime.Compare(t.DateOfTransaction, DateLatest) <= 0);
 
-            if (CategoryFilter)
+            if (CategoryFilter && SelectedCategoryIds != null)
                 query = query
                 .Where(t => SelectedCategoryIds.Contains( t.CategoryId) );
 
