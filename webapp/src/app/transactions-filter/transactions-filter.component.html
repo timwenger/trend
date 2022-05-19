@@ -1,15 +1,31 @@
-<p>Oldest transaction</p>
-<p-calendar [formControl]="dateOfOldestTransaction" [showIcon]="true" dateFormat="yy/mm/dd"></p-calendar>
-<p>Latest transaction</p>
-<p-calendar [formControl]="dateOfLatestTransaction" [showIcon]="true" dateFormat="yy/mm/dd"></p-calendar>
+<form [formGroup]="filterForm">
+
+	<label for="oldest-date">Oldest Date: </label>
+	<p-calendar id="oldest-date" formControlName="dateOfOldestTransaction" [showIcon]="true" dateFormat="yy/mm/dd"></p-calendar>
+  
+	<label for="latest-date">Oldest Date: </label>
+	<p-calendar id="latest-date" formControlName="dateOfLatestTransaction" [showIcon]="true" dateFormat="yy/mm/dd"></p-calendar>
+  
+	<label for="categories-dropdown">Categories: </label>
+	<p-multiSelect 
+		id="categories-dropdown"
+		formControlName="categoriesDropdown"
+		[options]="allCategories" 
+		[(ngModel)]="selectedCategories" 
+		optionLabel="categoryName" 
+		display="chip"
+		selectedItemsLabel="{0} items selected">
+	</p-multiSelect>
+
+	<div *ngIf="filterForm.errors != null && filterForm.dirty">
+        {{ filterForm.errors['datesError']['message']}}
+	</div>
+
+  </form>
+
+
 <p>Choose your categories</p> 
-<p-multiSelect 
-	[options]="allCategories" 
-	[(ngModel)]="selectedCategories" 
-	optionLabel="categoryName" 
-	display="chip"
-	selectedItemsLabel="{0} items selected">
-</p-multiSelect>
+
 
 <p></p>
 <p-button label="Get Transactions" (onClick)="buttonClicked($event)"></p-button>

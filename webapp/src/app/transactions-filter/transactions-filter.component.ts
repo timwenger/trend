@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl} from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup} from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category } from '../category';
 import { TransactionFilters } from '../transactionfilters';
@@ -10,19 +10,47 @@ import { TransactionFilters } from '../transactionfilters';
   styleUrls: ['./transactions-filter.component.css']
 })
 export class TransactionsFilterComponent implements OnInit {
+  filterForm!: FormGroup
   configuredFilter!: TransactionFilters;  
-  dateOfOldestTransaction= new FormControl(new Date());
-  dateOfLatestTransaction= new FormControl(new Date());
 
   allCategories: Category[] = [];
   selectedCategories: Category[] = [];
 
 
-  constructor(private apiService: ApiService) { }
-
+  constructor(
+    private apiService: ApiService,
+    ) { }
+  
   ngOnInit(): void {
     this.getCategories();
+    this.createForm();
+    
   }
+
+  createForm() {
+    this.filterForm = new FormGroup({
+      dateOfOldestTransaction: new FormControl(new Date()),
+      dateOfLatestTransaction: new FormControl(new Date()),
+      categoriesDropdown: new FormControl(''),
+    }, {validators: this.dateValidator('dateOfOldestTransaction', 'dateOfLatestTransaction')});
+  }
+  
+  dateValidator(oldest: string, latest: string) {
+    return (group: AbstractControl): object | null => {
+      let fgroup = group as FormGroup
+      let oldestDate = fgroup.controls[oldest].value;
+      let latestDate = fgroup.controls[latest].value;
+      if (oldestDate > latestDate) {
+        return {
+          datesError: {message: "Oldest date is more recent than latest date!"}
+        };
+      }
+      return null;
+    }
+  }
+
+
+
 
   getCategories(){
     this.apiService.getCategories()
@@ -44,8 +72,8 @@ export class TransactionsFilterComponent implements OnInit {
 
     this.configuredFilter = {
       dateFilter: true,
-      dateOldest: this.getShortDate(this.dateOfOldestTransaction.value), // "2021/12/01"
-      dateLatest: this.getShortDate(this.dateOfLatestTransaction.value),
+      dateOldest: this.getShortDate(this.filterForm.controls['dateOfOldestTransaction'].value),
+      dateLatest: this.getShortDate(this.filterForm.controls['dateOfLatestTransaction'].value),
       categoryFilter: categoryFilterIsUsed,
       selectedCategoryIds: ids,
     }
