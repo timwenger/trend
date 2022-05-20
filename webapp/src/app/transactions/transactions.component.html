@@ -1,7 +1,33 @@
-<h2>My Transactions</h2>
+<!-- <h2>My Transactions</h2>
 
 <ul>
   <li *ngFor="let trans of transactions">
     <p> {{trans.transactionDescription}} </p>
   </li>
-</ul>
+</ul> -->
+
+<p></p>
+<p-card header="Summary" [style]="{'width': '25rem', 'margin-bottom': '2em'}">
+  <ng-template pTemplate="header">
+  </ng-template>
+  <p>Total = {{totalAmount | currency}}</p>
+</p-card>
+<p></p>
+
+<p-table [value]="transactions" responsiveLayout="scroll" sortField="dateOfTransaction" styleClass="p-datatable-striped">
+  <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="dateOfTransaction">Date <p-sortIcon field="dateOfTransaction"></p-sortIcon></th><th pSortableColumn="category.categoryName">Category <p-sortIcon field="category.categoryName"></p-sortIcon></th>
+        <th pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon></th>
+        <th>Description</th>
+      </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-transaction>
+      <tr>
+          <td>{{transaction.dateOfTransaction | date}}</td>
+          <td>{{transaction.category.categoryName}}</td>
+          <td>{{transaction.amount | currency}}</td>
+          <td>{{transaction.transactionDescription}}</td>
+      </tr>
+  </ng-template>
+</p-table>

@@ -3,31 +3,26 @@
 	<label for="oldest-date">Oldest Date: </label>
 	<p-calendar id="oldest-date" formControlName="dateOfOldestTransaction" [showIcon]="true" dateFormat="yy/mm/dd"></p-calendar>
   
-	<label for="latest-date">Oldest Date: </label>
+	<label for="latest-date">Latest Date: </label>
 	<p-calendar id="latest-date" formControlName="dateOfLatestTransaction" [showIcon]="true" dateFormat="yy/mm/dd"></p-calendar>
-  
-	<label for="categories-dropdown">Categories: </label>
-	<p-multiSelect 
-		id="categories-dropdown"
-		formControlName="categoriesDropdown"
-		[options]="allCategories" 
-		[(ngModel)]="selectedCategories" 
-		optionLabel="categoryName" 
-		display="chip"
-		selectedItemsLabel="{0} items selected">
-	</p-multiSelect>
-
-	<div *ngIf="filterForm.errors != null && filterForm.dirty">
-        {{ filterForm.errors['datesError']['message']}}
-	</div>
-
   </form>
 
-
-<p>Choose your categories</p> 
-
-
-<p></p>
-<p-button label="Get Transactions" (onClick)="buttonClicked($event)"></p-button>
+  <p></p>
+  <label for="categories-dropdown">Categories: </label>
+  <p-multiSelect 
+	  id="categories-dropdown"
+	  [options]="allCategories" 
+	  [(ngModel)]="selectedCategories" 
+	  optionLabel="categoryName" 
+	  display="chip"
+	  selectedItemsLabel="{0} items selected">
+  </p-multiSelect>
+  
+  <p></p>
+  <p-button label="Get Transactions" [disabled]="!formIsValid" (onClick)="onSubmit($event)"></p-button>
+  
+  <div *ngIf=" !formIsValid && filterForm.errors != null">
+	  {{ filterForm.errors['datesError']['message']}}
+  </div>
 
 <app-transactions [filter]="configuredFilter"></app-transactions>

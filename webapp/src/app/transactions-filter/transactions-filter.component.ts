@@ -10,7 +10,8 @@ import { TransactionFilters } from '../transactionfilters';
   styleUrls: ['./transactions-filter.component.css']
 })
 export class TransactionsFilterComponent implements OnInit {
-  filterForm!: FormGroup
+  filterForm!: FormGroup;
+  formIsValid: boolean = false;
   configuredFilter!: TransactionFilters;  
 
   allCategories: Category[] = [];
@@ -28,8 +29,10 @@ export class TransactionsFilterComponent implements OnInit {
   }
 
   createForm() {
+    let oneMonthAgo = new Date();
+    oneMonthAgo.setDate(oneMonthAgo.getDate() -30);
     this.filterForm = new FormGroup({
-      dateOfOldestTransaction: new FormControl(new Date()),
+      dateOfOldestTransaction: new FormControl(oneMonthAgo),
       dateOfLatestTransaction: new FormControl(new Date()),
       categoriesDropdown: new FormControl(''),
     }, {validators: this.dateValidator('dateOfOldestTransaction', 'dateOfLatestTransaction')});
@@ -41,10 +44,12 @@ export class TransactionsFilterComponent implements OnInit {
       let oldestDate = fgroup.controls[oldest].value;
       let latestDate = fgroup.controls[latest].value;
       if (oldestDate > latestDate) {
+        this.formIsValid = false;
         return {
-          datesError: {message: "Oldest date is more recent than latest date!"}
+          datesError: {message: "Oldest date is more recent than latest date. Sorry kid : )"}
         };
       }
+      this.formIsValid = true;
       return null;
     }
   }
@@ -57,7 +62,7 @@ export class TransactionsFilterComponent implements OnInit {
     .subscribe(categoriesReturned => this.allCategories = categoriesReturned);
   }
 
-  buttonClicked(event:any){
+  onSubmit(event:any){
     this.buildFilter();
   }
 

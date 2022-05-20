@@ -15,6 +15,8 @@ import { ButtonModule} from 'primeng/button';
 import {CalendarModule} from 'primeng/calendar';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MultiSelectModule} from 'primeng/multiselect';
+import {TableModule} from 'primeng/table';
+import {CardModule} from 'primeng/card';
 
 @NgModule({
   declarations: [
@@ -34,6 +36,8 @@ import {MultiSelectModule} from 'primeng/multiselect';
     CalendarModule,
     BrowserAnimationsModule,
     MultiSelectModule,
+    TableModule,
+    CardModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
