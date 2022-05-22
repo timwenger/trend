@@ -23,19 +23,20 @@ export class TransactionsComponent implements OnInit, OnChanges {
 
 
   ngOnChanges(changes: SimpleChanges) {
-    this.getTransactions(changes['filter'].currentValue);
+    this.updateTransactionsAndSummary(changes['filter'].currentValue);
   }
 
-  getTransactions(filter: TransactionFilters): void {
+  updateTransactionsAndSummary(filter: TransactionFilters): void {
     // don't get transactions without a valid filter. (gets ALL transactions)
     if(filter == null)
       return;
     this.apiService.getTransactions(filter)
     .subscribe({
-      next: transactionsReturned => this.transactions = transactionsReturned, 
-      // props the wrong use of complete. I want to know when the next: method is done. But complete runs when there are no more coming... I think.
-      // in this case, http only emits 1, so i guess it works.
-      complete: () => this.getTotalAmount()
+      next: transactionsReturned => {
+        this.transactions = transactionsReturned;
+        // now that the transactions are assigned, can calculate the total.
+        this.getTotalAmount();
+      }
     });
   }
 
