@@ -34,7 +34,6 @@ export class TransactionsFilterComponent implements OnInit {
     this.filterForm = new FormGroup({
       dateOfOldestTransaction: new FormControl(oneMonthAgo),
       dateOfLatestTransaction: new FormControl(new Date()),
-      categoriesDropdown: new FormControl(''),
     }, {validators: this.dateValidator('dateOfOldestTransaction', 'dateOfLatestTransaction')});
   }
   
