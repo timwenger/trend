@@ -1,4 +1,4 @@
-import { HttpHeaders, HttpClient } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of, tap, catchError } from 'rxjs';
 import { MessageService } from './message.service';
@@ -13,36 +13,20 @@ import { TransactionFilters } from './transactionfilters';
 
 export class ApiService {
   private baseUrl = 'https://localhost:7247/api'; 
-  private transactionsApiUrl = '/Transactions';
-  private categoriesApiUrl = '/Categories';
-  httpOptions = {
-    headers: new HttpHeaders({ 
-      'Content-Type': 'application/json',
-    }),
-  };
-
-  filter  = {
-    dateFilter: true,
-    dateOldest: "2022/02/09",
-    dateLatest: "2022/04/03",
-    categoryFilter: true,
-    selectedCategoryIds: [1,2,3,4,5]
-  }
+  private transactionsApiUrl = '/transactions';
+  private categoriesApiUrl = '/categories';
   
   constructor(
     private http: HttpClient,
     private messageService: MessageService,
     ) { }
 
-   
-  
 
   getTransactions(filter: TransactionFilters): Observable<Transaction[]> {
     let url = this.baseUrl + this.transactionsApiUrl;
-    this.filter = filter;
-    return this.http.get<Transaction[]>(url, {params:this.filter})
+    return this.http.get<Transaction[]>(url, {params: filter as any}) // don't know exactly why I needed to cast the filter obj
     .pipe(
-      tap(_ => this.logMsg('fetched transactions')),
+      tap(_ => this.logMsg('fetched transactions using this filter:' + JSON.stringify(filter))),
       catchError(this.handleError<Transaction[]>('getTransactions', []))
     );
   }
@@ -50,7 +34,7 @@ export class ApiService {
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(this.baseUrl + this.categoriesApiUrl)
     .pipe(
-      tap(_ => this.logMsg('fetched transactions')),
+      tap(_ => this.logMsg('fetched categories')),
       catchError(this.handleError<Category[]>('getCategories', []))
     );
   }
