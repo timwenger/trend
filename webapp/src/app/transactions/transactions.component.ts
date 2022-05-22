@@ -18,7 +18,6 @@ export class TransactionsComponent implements OnInit, OnChanges {
   constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
-    // this.getTransactions();
   }
 
 
@@ -42,8 +41,7 @@ export class TransactionsComponent implements OnInit, OnChanges {
 
   getTotalAmount(){
     this.totalAmount = 0;
-    for(var i =0; i < this.transactions.length; i++){
-      this.totalAmount += this.transactions[i].amount;
-    }
+    for(let transaction of this.transactions)
+      this.totalAmount += transaction.amount;
   }
 }

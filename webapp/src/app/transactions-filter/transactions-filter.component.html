@@ -20,7 +20,7 @@
   </p-multiSelect>
   
   <p></p>
-  <p-button label="Get Transactions" [disabled]="!formIsValid" (onClick)="onSubmit($event)"></p-button>
+  <p-button label="Submit" [disabled]="!formIsValid" (onClick)="onSubmit($event)"></p-button>
   
   <div *ngIf=" !formIsValid && filterForm.errors != null">
 	  {{ filterForm.errors['datesError']['message']}}

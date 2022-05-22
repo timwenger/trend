@@ -67,10 +67,9 @@ export class TransactionsFilterComponent implements OnInit {
 
   buildFilter(){
     let ids :number[]=[];
-    for(var i =0; i< this.selectedCategories.length; i++)
-    {
-      ids.push(this.selectedCategories[i].id);      
-    }
+    for(let selectedCategory of this.selectedCategories)  
+      ids.push(selectedCategory.id);      
+  
     // if no categories are selected, the turn off the filter
     let categoryFilterIsUsed = ids.length > 0;
 
