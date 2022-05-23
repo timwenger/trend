@@ -12,6 +12,7 @@ import { TransactionsComponent } from './transactions/transactions.component';
 import { TransactionsFilterComponent } from './transactions-filter/transactions-filter.component';
 import { AddTransactionComponent } from './add-transaction/add-transaction.component';
 import { EditTransactionComponent } from './edit-transaction/edit-transaction.component';
+import { TopBarComponent } from './top-bar/top-bar.component';
 
 import { ButtonModule} from 'primeng/button';
 import {CalendarModule} from 'primeng/calendar';
@@ -19,6 +20,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MultiSelectModule} from 'primeng/multiselect';
 import {TableModule} from 'primeng/table';
 import {CardModule} from 'primeng/card';
+import {MenubarModule} from 'primeng/menubar';
 
 @NgModule({
   declarations: [
@@ -28,6 +30,7 @@ import {CardModule} from 'primeng/card';
     TransactionsFilterComponent,
     AddTransactionComponent,
     EditTransactionComponent,
+    TopBarComponent,
   ],
   imports: [
     BrowserModule,
@@ -42,6 +45,7 @@ import {CardModule} from 'primeng/card';
     MultiSelectModule,
     TableModule,
     CardModule,
+    MenubarModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
