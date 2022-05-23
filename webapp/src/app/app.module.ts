@@ -10,6 +10,8 @@ import { MessagesComponent } from './messages/messages.component';
 import { HttpClientModule } from '@angular/common/http';
 import { TransactionsComponent } from './transactions/transactions.component';
 import { TransactionsFilterComponent } from './transactions-filter/transactions-filter.component';
+import { AddTransactionComponent } from './add-transaction/add-transaction.component';
+import { EditTransactionComponent } from './edit-transaction/edit-transaction.component';
 
 import { ButtonModule} from 'primeng/button';
 import {CalendarModule} from 'primeng/calendar';
@@ -24,6 +26,8 @@ import {CardModule} from 'primeng/card';
     MessagesComponent,
     TransactionsComponent,
     TransactionsFilterComponent,
+    AddTransactionComponent,
+    EditTransactionComponent,
   ],
   imports: [
     BrowserModule,

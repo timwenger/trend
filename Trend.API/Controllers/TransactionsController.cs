@@ -28,16 +28,7 @@ namespace Trend.API.Controllers
         {
             // loading data from related tables
             // https://docs.microsoft.com/en-us/ef/core/querying/related-data/
-
-            //var transactionFilters = new TransactionFilters
-            //{
-            //    DateFilter = true,
-            //    DateOldest = new DateTime(2022, 1, 1),
-            //    DateLatest = new DateTime(2022, 1, 31)
-            //};
-
             Transaction[] filteredTransactions = await transactionFilters.GetTransactionQuery(_dbContext).Include(trans => trans.Category).ToArrayAsync();
-            //Transaction[] transactions = await _dbContext.Transactions.ToArrayAsync();
             return Ok(filteredTransactions);
         }
 
@@ -51,6 +42,7 @@ namespace Trend.API.Controllers
             return NotFound();
         }
 
+        [EnableCors("AngularDebugging")]
         [HttpPost]
         public async Task<ActionResult> AddTransaction(Transaction transaction)
         {
