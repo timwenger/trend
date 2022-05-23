@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, NgForm, FormGroupDirective } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category } from '../category';
-import { NewTransaction, Transaction } from '../transaction';
+import { NewTransaction } from '../transaction';
 import { UtilityService } from '../utility.service';
 
 @Component({
@@ -14,7 +14,6 @@ export class AddTransactionComponent implements OnInit {
   addTransactionForm!: FormGroup;
 
   allCategories: Category[] = [];
-  objReturned: any;
   
   constructor(
     private apiService: ApiService,
@@ -33,36 +32,35 @@ export class AddTransactionComponent implements OnInit {
 
   createForm() {
     this.addTransactionForm = new FormGroup({
-      dateOfTransaction: new FormControl(new Date(), Validators.required, ),
+      dateOfTransaction: new FormControl({value: new Date(), disabled: false}, Validators.required, ),
       categoryDropdown: new FormControl('', Validators.required),
       amountInput: new FormControl('', Validators.required),
       descriptionInput: new FormControl(''),
     });
   }
 
-  onSubmit(event:any){
-    this.addTransactionToDb();
+  onSubmit(f : FormGroupDirective){
+    this.addTransactionToDb(f.form);
+    f.resetForm();
+    f.form.controls['dateOfTransaction'].setValue(new Date); // doesnt reset without this. Maybe there are better ways?
+    f.form.controls['categoryDropdown'].markAsPristine(); // doesnt reset without this. Maybe there are better ways?
   }
 
-  addTransactionToDb(){
+  addTransactionToDb(f: FormGroup){
     let dateTimeNow = this.utilityService.getLocalIsoDateTime(new Date());
-    let transDate = this.utilityService.getLocalIsoDateTime(this.addTransactionForm.controls['dateOfTransaction'].value);
-    let selectedCategory = this.addTransactionForm.controls['categoryDropdown'].value;
+    let transDate = this.utilityService.getLocalIsoDateTime(f.controls['dateOfTransaction'].value);
+    let selectedCategory = f.controls['categoryDropdown'].value;
 
     let newTransaction: NewTransaction = {
       dateTimeWhenRecorded: dateTimeNow,
       dateOfTransaction: transDate,
       categoryId: selectedCategory['id'],
-      amount: this.addTransactionForm.controls['amountInput'].value,
-      transactionDescription: this.addTransactionForm.controls['descriptionInput'].value,
+      amount: f.controls['amountInput'].value,
+      transactionDescription: f.controls['descriptionInput'].value,
     }
 
 
     this.apiService.addTransaction(newTransaction)
-    .subscribe({
-      next: objectReturned => {
-        this.objReturned = objectReturned;
-      }
-    });
+    .subscribe(/*not using the returned transaction*/);
   }
 }
