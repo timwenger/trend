@@ -1,37 +1,40 @@
 <h2>Add a Transaction</h2>
-<form [formGroup]="addTransactionForm">
+<!-- only display the form once the categories have been fetched -->
+<div *ngIf="allCategories.length > 0 ">
+	<form [formGroup]="addTransactionForm">
+		<div class="grid p-fluid">
+			<div class="col-12 md:col-4">
+				<div class="p-inputgroup">
+					<span class="p-inputgroup-addon">Date</span>      
+					<p-calendar formControlName="dateOfTransaction" [showIcon]="true" dateFormat="yy/mm/dd"></p-calendar>      
+				</div>
+					
+			</div>
+
+			<div class="col-12 md:col-4">
+					<p-dropdown formControlName="categoryDropdown" [options]="allCategories" placeholder="Category" optionLabel="categoryName"></p-dropdown>      
+			</div>
+
+			<div class="col-12 md:col-4">
+				<div class="p-inputgroup">
+					<span class="p-inputgroup-addon">$</span>
+					<input  formControlName="amountInput" type="number" pInputText placeholder="Amount">         
+				</div>
+			</div>
+
+			<div class="col-12">
+				<div class="p-inputgroup">
+					<span class="p-inputgroup-addon">Description</span>      
+					<input formControlName="descriptionInput" type="text" pInputText>   
+				</div>
+			</div>
+		</div>
+	</form>
+
 	<div class="grid p-fluid">
 		<div class="col-12 md:col-4">
-			<div class="p-inputgroup">
-				<span class="p-inputgroup-addon">Date</span>      
-				<p-calendar formControlName="dateOfTransaction" [showIcon]="true" dateFormat="yy/mm/dd"></p-calendar>      
-			</div>
-				
+			<p-button label="Submit" [disabled]="!addTransactionForm.valid" (onClick)="onSubmit($event)"></p-button>     
 		</div>
-
-		<div class="col-12 md:col-4">
-				<p-dropdown formControlName="categoryDropdown" [options]="allCategories" placeholder="Category" optionLabel="categoryName"></p-dropdown>      
-		</div>
-
-		<div class="col-12 md:col-4">
-			<div class="p-inputgroup">
-				<span class="p-inputgroup-addon">$</span>
-				<input  formControlName="amountInput" type="number" pInputText placeholder="Amount">         
-			</div>
-		</div>
-
-		<div class="col-12">
-			<div class="p-inputgroup">
-				<span class="p-inputgroup-addon">Description</span>      
-				<input formControlName="descriptionInput" type="text" pInputText>   
-			</div>
-		</div>
-	</div>
-</form>
-
-<div class="grid p-fluid">
-	<div class="col-12 md:col-4">
-		<p-button label="Submit" [disabled]="!addTransactionForm.valid" (onClick)="onSubmit($event)"></p-button>     
 	</div>
 </div>
 

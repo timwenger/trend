@@ -24,8 +24,11 @@ export class AddTransactionComponent implements OnInit {
 
   ngOnInit(): void {
     this.apiService.getCategories()
-    .subscribe(categoriesReturned => this.allCategories = categoriesReturned);
-    this.createForm();
+    .subscribe(categoriesReturned => {
+      this.allCategories = categoriesReturned;
+      // only create the form after the categories have been fetched.
+      this.createForm();
+    });
   }
 
   createForm() {
