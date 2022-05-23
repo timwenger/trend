@@ -58,8 +58,7 @@ namespace Trend.API.Models
                 modelBuilder.ToTable("Categories");
 
                 modelBuilder
-                .HasKey(c => c.Id)
-                .HasName("PK_Categories");
+                .HasKey(c => c.Id);
 
             // being explicit on how the models are related 
             // commented out because it's not perfect. When getting transactions, it limits the results to 1 transaction per category
@@ -76,9 +75,7 @@ namespace Trend.API.Models
             public void Configure(EntityTypeBuilder<Transaction> modelBuilder)
             {
                 modelBuilder.ToTable("Transactions"); // default is the DbSet's property name, but just being explicit here
-
-                // if I wanted custom variable name mapping
-                //modelBuilder.Property(t => t.TransactionId).HasColumnName("PK_Transactions");
+                modelBuilder.HasKey(t => t.Id);
             }
         }
     }

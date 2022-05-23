@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of, tap, catchError } from 'rxjs';
 import { MessageService } from './message.service';
-import { Transaction } from './transaction';
+import { NewTransaction, Transaction } from './transaction';
 import { Category } from './category';
 import { TransactionFilters } from './transactionfilters';
 
@@ -27,10 +27,19 @@ export class ApiService {
     return this.http.get<Transaction[]>(url, {params: filter as any}) // don't know exactly why I needed to cast the filter obj
     .pipe(
       tap(_ => this.logMsg('fetched transactions using this filter:' + JSON.stringify(filter))),
-      catchError(this.handleError<Transaction[]>('getTransactions', []))
+      catchError(this.handleError<Transaction[]>('getTransactions', filter as any))
     );
   }
 
+  addTransaction(newTransaction: NewTransaction): Observable<any> {
+    let url = this.baseUrl + this.transactionsApiUrl;
+    return this.http.post<NewTransaction>(url, newTransaction )
+    .pipe(
+      tap(_ => this.logMsg('added this transaction:' + JSON.stringify(newTransaction))),
+      catchError(this.handleError<any>('addTransaction', newTransaction ))
+    );
+  }
+  
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(this.baseUrl + this.categoriesApiUrl)
     .pipe(

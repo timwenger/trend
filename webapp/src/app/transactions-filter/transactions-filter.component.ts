@@ -3,6 +3,7 @@ import { AbstractControl, FormControl, FormGroup} from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category } from '../category';
 import { TransactionFilters } from '../transactionfilters';
+import { UtilityService } from '../utility.service';
 
 @Component({
   selector: 'app-transactions-filter',
@@ -20,10 +21,12 @@ export class TransactionsFilterComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
+    private utilityService: UtilityService,
     ) { }
   
   ngOnInit(): void {
-    this.getCategories();
+    this.apiService.getCategories()
+    .subscribe(categoriesReturned => this.allCategories = categoriesReturned);
     this.createForm();
     
   }
@@ -56,10 +59,6 @@ export class TransactionsFilterComponent implements OnInit {
 
 
 
-  getCategories(){
-    this.apiService.getCategories()
-    .subscribe(categoriesReturned => this.allCategories = categoriesReturned);
-  }
 
   onSubmit(event:any){
     this.buildFilter();
@@ -75,15 +74,10 @@ export class TransactionsFilterComponent implements OnInit {
 
     this.configuredFilter = {
       dateFilter: true,
-      dateOldest: this.getShortDate(this.filterForm.controls['dateOfOldestTransaction'].value),
-      dateLatest: this.getShortDate(this.filterForm.controls['dateOfLatestTransaction'].value),
+      dateOldest: this.utilityService.getShortDate(this.filterForm.controls['dateOfOldestTransaction'].value),
+      dateLatest: this.utilityService.getShortDate(this.filterForm.controls['dateOfLatestTransaction'].value),
       categoryFilter: categoryFilterIsUsed,
       selectedCategoryIds: ids,
     }
-  }
-
-  getShortDate(dateStr:string){
-    let d = new Date(Date.parse(dateStr));
-  return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
   }
 }

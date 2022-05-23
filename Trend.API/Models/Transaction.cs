@@ -4,7 +4,6 @@ namespace Trend.API.Models
 {
     public class Transaction
     {
-        [Required]
         public int Id { get; set; }
         [Required]
         public DateTime DateTimeWhenRecorded { get; set; }
@@ -12,7 +11,6 @@ namespace Trend.API.Models
         public DateTime DateOfTransaction { get; set; }
         [Required]
         public decimal Amount { get; set; }
-        [Required]
         public string TransactionDescription { get; set; } = string.Empty;
         [Required]
         public int CategoryId { get; set; }

@@ -18,6 +18,7 @@ import { ButtonModule} from 'primeng/button';
 import {CalendarModule} from 'primeng/calendar';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MultiSelectModule} from 'primeng/multiselect';
+import {DropdownModule} from 'primeng/dropdown';
 import {TableModule} from 'primeng/table';
 import {CardModule} from 'primeng/card';
 import {MenubarModule} from 'primeng/menubar';
@@ -43,6 +44,7 @@ import {MenubarModule} from 'primeng/menubar';
     CalendarModule,
     BrowserAnimationsModule,
     MultiSelectModule,
+    DropdownModule,
     TableModule,
     CardModule,
     MenubarModule,
