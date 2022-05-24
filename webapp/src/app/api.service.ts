@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of, tap, catchError } from 'rxjs';
 import { MessageService } from './message.service';
@@ -40,6 +40,15 @@ export class ApiService {
     );
   }
   
+  deleteTransaction(toBeDeleted: Transaction): Observable<Transaction> {
+    let url = this.baseUrl + this.transactionsApiUrl + '/' + toBeDeleted.id;
+    return this.http.delete<Transaction>(url)
+    .pipe(
+      tap(_ => this.logMsg('deleted this transaction:' + JSON.stringify(toBeDeleted))),
+      catchError(this.handleError<any>('deleteTransaction', toBeDeleted ))
+    );
+  }
+
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(this.baseUrl + this.categoriesApiUrl)
     .pipe(

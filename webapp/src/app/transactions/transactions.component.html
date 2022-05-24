@@ -20,6 +20,17 @@
           <td>{{transaction.category.categoryName}}</td>
           <td>{{transaction.amount | currency}}</td>
           <td>{{transaction.transactionDescription}}</td>
+          <td style="text-align:center">
+            <p-confirmPopup></p-confirmPopup>
+            <button 
+              pButton 
+              pRipple 
+              type="button" 
+              icon="pi pi-trash" 
+              (click)="confirmDelete($event, transaction)" 
+              class="p-button-rounded p-button-text">
+            </button>
+        </td>
       </tr>
   </ng-template>
 </p-table>

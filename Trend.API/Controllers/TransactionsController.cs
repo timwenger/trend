@@ -8,6 +8,7 @@ namespace Trend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [EnableCors("AngularDebugging")]
     public class TransactionsController : ControllerBase
     {
 
@@ -22,7 +23,6 @@ namespace Trend.API.Controllers
             _dbContext.Database.EnsureCreated();
         }
 
-        [EnableCors("AngularDebugging")]
         [HttpGet]
         public async Task<ActionResult> GetAllTransactions([FromQuery] TransactionFilters transactionFilters)
         {
@@ -42,7 +42,6 @@ namespace Trend.API.Controllers
             return NotFound();
         }
 
-        [EnableCors("AngularDebugging")]
         [HttpPost]
         public async Task<ActionResult> AddTransaction(Transaction transaction)
         {
@@ -56,6 +55,19 @@ namespace Trend.API.Controllers
                 "AddTransaction",
                 new { id = transaction.Id },
                 transaction);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Transaction>> DeleteTransaction(int id)
+        {
+            Transaction? transaction = await _dbContext.Transactions.FindAsync(id);
+            if (transaction == null)
+                return NotFound();
+
+            _dbContext.Transactions.Remove(transaction);
+
+            await _dbContext.SaveChangesAsync();
+            return transaction;
         }
     }    
 }

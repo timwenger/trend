@@ -22,6 +22,10 @@ import {DropdownModule} from 'primeng/dropdown';
 import {TableModule} from 'primeng/table';
 import {CardModule} from 'primeng/card';
 import {MenubarModule} from 'primeng/menubar';
+import { RippleModule } from 'primeng/ripple';
+import {ConfirmPopupModule} from 'primeng/confirmpopup';
+import { ConfirmationService } from 'primeng/api';
+
 
 @NgModule({
   declarations: [
@@ -48,8 +52,10 @@ import {MenubarModule} from 'primeng/menubar';
     TableModule,
     CardModule,
     MenubarModule,
+    RippleModule,
+    ConfirmPopupModule,
   ],
-  providers: [],
+  providers: [ConfirmationService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
