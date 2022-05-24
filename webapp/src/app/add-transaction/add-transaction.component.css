@@ -1,3 +1,7 @@
 .p-fluid input {
 	width: 100%; /* make inputs use the full flex width, like other elements*/
   }
+
+  :host ::ng-deep .p-button {
+    width: 100%; /* make inputs use the full flex width, like other elements*/  
+}

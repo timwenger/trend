@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup} from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, FormGroupDirective} from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category } from '../category';
 import { Transaction } from '../transaction';
@@ -13,11 +13,9 @@ import { UtilityService } from '../utility.service';
 })
 export class TransactionsFilterComponent implements OnInit {
   filterForm!: FormGroup;
-  formIsValid: boolean = false;
   configuredFilter!: TransactionFilters;  
 
   allCategories: Category[] = [];
-  selectedCategories: Category[] = [];
   transactionsFromFilter: Transaction[] = [];
 
   constructor(
@@ -38,6 +36,7 @@ export class TransactionsFilterComponent implements OnInit {
     this.filterForm = new FormGroup({
       dateOfOldestTransaction: new FormControl(oneMonthAgo),
       dateOfLatestTransaction: new FormControl(new Date()),
+      multiSelectDropdown: new FormControl(),
     }, {validators: this.dateValidator('dateOfOldestTransaction', 'dateOfLatestTransaction')});
   }
   
@@ -47,24 +46,22 @@ export class TransactionsFilterComponent implements OnInit {
       let oldestDate = fgroup.controls[oldest].value;
       let latestDate = fgroup.controls[latest].value;
       if (oldestDate > latestDate) {
-        this.formIsValid = false;
         return {
           datesError: {message: "Oldest date is more recent than latest date. Sorry kid : )"}
         };
       }
-      this.formIsValid = true;
       return null;
     }
   }
 
-  onSubmit(event:any){
-    let filter = this.buildFilter();
+  onSubmit(f: FormGroupDirective){
+    let filter = this.buildFilter(f.form);
     this.getTransactions(filter);
   }
 
-  buildFilter(): TransactionFilters{
+  buildFilter(form: FormGroup): TransactionFilters{
     let ids :number[]=[];
-    for(let selectedCategory of this.selectedCategories)  
+    for(let selectedCategory of form.controls['multiSelectDropdown'].value)  
       ids.push(selectedCategory.id);      
   
     // if no categories are selected, the turn off the filter
