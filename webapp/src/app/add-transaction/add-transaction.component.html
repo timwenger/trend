@@ -34,6 +34,10 @@
 	</div>
 </form>
 
+<div *ngIf="transactionsAddedSoFar.length > 0 ">
+	<h3>Added So Far:</h3>
+	<app-transactions [transactions]="transactionsAddedSoFar"></app-transactions>
+</div>
 
 
 

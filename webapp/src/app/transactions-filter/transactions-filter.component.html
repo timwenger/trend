@@ -26,4 +26,4 @@
 	  {{ filterForm.errors['datesError']['message']}}
   </div>
 
-<app-transactions [filter]="configuredFilter"></app-transactions>
+<app-transactions [transactions]="transactionsFromFilter"></app-transactions>

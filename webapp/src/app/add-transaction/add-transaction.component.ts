@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators, NgForm, FormGroupDirective } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category } from '../category';
-import { NewTransaction } from '../transaction';
+import { NewTransaction, Transaction } from '../transaction';
 import { UtilityService } from '../utility.service';
 
 @Component({
@@ -12,7 +12,7 @@ import { UtilityService } from '../utility.service';
 })
 export class AddTransactionComponent implements OnInit {
   addTransactionForm!: FormGroup;
-
+  transactionsAddedSoFar: Transaction[] = [];
   allCategories: Category[] = [];
   
   constructor(
@@ -46,7 +46,7 @@ export class AddTransactionComponent implements OnInit {
     f.form.controls['categoryDropdown'].markAsPristine(); // doesnt reset without this. Maybe there are better ways?
   }
 
-  addTransactionToDb(f: FormGroup){
+  addTransactionToDb(f: FormGroup) {
     let dateTimeNow = this.utilityService.getLocalIsoDateTime(new Date());
     let transDate = this.utilityService.getLocalIsoDateTime(f.controls['dateOfTransaction'].value);
     let selectedCategory = f.controls['categoryDropdown'].value;
@@ -61,6 +61,14 @@ export class AddTransactionComponent implements OnInit {
 
 
     this.apiService.addTransaction(newTransaction)
-    .subscribe(/*not using the returned transaction*/);
+    .subscribe({
+      // use the returned transaction to updated the "added so far" transactions table
+      next: transactionReturned => {
+        // set the category to be the selected category, which otherwise gets returned as null
+        transactionReturned['category'] = selectedCategory;
+        // copy the array so that the transactions component sees the change
+        this.transactionsAddedSoFar = [...this.transactionsAddedSoFar, transactionReturned];
+      }
+    });
   }
 }

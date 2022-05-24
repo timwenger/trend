@@ -11,8 +11,7 @@ import { TransactionFilters } from '../transactionfilters';
 })
 export class TransactionsComponent implements OnInit, OnChanges {
 
-  @Input() filter! : TransactionFilters;
-  transactions: Transaction[] = [];
+  @Input() transactions: Transaction[] = [];
   totalAmount: number = 0;
 
   constructor(private apiService: ApiService) { }
@@ -22,21 +21,11 @@ export class TransactionsComponent implements OnInit, OnChanges {
 
 
   ngOnChanges(changes: SimpleChanges) {
-    this.updateTransactionsAndSummary(changes['filter'].currentValue);
+    this.updateSummary(changes['transactions'].currentValue);
   }
 
-  updateTransactionsAndSummary(filter: TransactionFilters): void {
-    // don't get transactions without a valid filter. (gets ALL transactions)
-    if(filter == null)
-      return;
-    this.apiService.getTransactions(filter)
-    .subscribe({
-      next: transactionsReturned => {
-        this.transactions = transactionsReturned;
-        // now that the transactions are assigned, can calculate the total.
-        this.getTotalAmount();
-      }
-    });
+  updateSummary(transactions: Transaction[]): void {
+      this.getTotalAmount();
   }
 
   getTotalAmount(){

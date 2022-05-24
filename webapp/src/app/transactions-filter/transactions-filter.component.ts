@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup} from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category } from '../category';
+import { Transaction } from '../transaction';
 import { TransactionFilters } from '../transactionfilters';
 import { UtilityService } from '../utility.service';
 
@@ -17,7 +18,7 @@ export class TransactionsFilterComponent implements OnInit {
 
   allCategories: Category[] = [];
   selectedCategories: Category[] = [];
-
+  transactionsFromFilter: Transaction[] = [];
 
   constructor(
     private apiService: ApiService,
@@ -56,15 +57,12 @@ export class TransactionsFilterComponent implements OnInit {
     }
   }
 
-
-
-
-
   onSubmit(event:any){
-    this.buildFilter();
+    let filter = this.buildFilter();
+    this.getTransactions(filter);
   }
 
-  buildFilter(){
+  buildFilter(): TransactionFilters{
     let ids :number[]=[];
     for(let selectedCategory of this.selectedCategories)  
       ids.push(selectedCategory.id);      
@@ -72,12 +70,22 @@ export class TransactionsFilterComponent implements OnInit {
     // if no categories are selected, the turn off the filter
     let categoryFilterIsUsed = ids.length > 0;
 
-    this.configuredFilter = {
+    return {
       dateFilter: true,
       dateOldest: this.utilityService.getShortDate(this.filterForm.controls['dateOfOldestTransaction'].value),
       dateLatest: this.utilityService.getShortDate(this.filterForm.controls['dateOfLatestTransaction'].value),
       categoryFilter: categoryFilterIsUsed,
       selectedCategoryIds: ids,
     }
+  }
+
+  getTransactions(filter: TransactionFilters): void {
+    // don't get transactions without a valid filter. (gets ALL transactions)
+    if(filter == null)
+      return;
+    this.apiService.getTransactions(filter)
+    .subscribe({
+      next: transactionsReturned => this.transactionsFromFilter = transactionsReturned
+    });
   }
 }
