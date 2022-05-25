@@ -6,7 +6,13 @@
 </p-card>
 <p></p>
 
-<p-table [value]="transactions" responsiveLayout="scroll" sortField="dateOfTransaction" styleClass="p-datatable-striped">
+<p-table 
+  [value]="transactions" 
+  dataKey="id"
+  responsiveLayout="scroll" 
+  sortField="dateOfTransaction"
+  editMode="row"
+  styleClass="p-datatable-striped">
   <ng-template pTemplate="header">
       <tr>
         <th pSortableColumn="dateOfTransaction">Date <p-sortIcon field="dateOfTransaction"></p-sortIcon></th><th pSortableColumn="category.categoryName">Category <p-sortIcon field="category.categoryName"></p-sortIcon></th>
@@ -14,22 +20,98 @@
         <th>Description</th>
       </tr>
   </ng-template>
-  <ng-template pTemplate="body" let-transaction>
-      <tr>
-          <td>{{transaction.dateOfTransaction | date}}</td>
-          <td>{{transaction.category.categoryName}}</td>
-          <td>{{transaction.amount | currency}}</td>
-          <td>{{transaction.transactionDescription}}</td>
-          <td style="text-align:center">
-            <p-confirmPopup></p-confirmPopup>
-            <button 
-              pButton 
-              pRipple 
-              type="button" 
-              icon="pi pi-trash" 
-              (click)="confirmDelete($event, transaction)" 
-              class="p-button-rounded p-button-text">
-            </button>
+  <ng-template pTemplate="body" let-transaction let-editing="editing" let-rowIndex="rowIndex">
+      <tr [pEditableRow]="transaction">
+        <td>
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
+              <p-calendar [(ngModel)]="transaction.dateOfTransaction" appendTo="body" dateFormat="MM d, yy"></p-calendar>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{transaction.dateOfTransaction | date}}
+          </ng-template>
+          </p-cellEditor>
+        </td>
+      
+        <td>
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
+              <p-dropdown [(ngModel)]="transaction.category" appendTo="body" [options]="categories" optionLabel="categoryName"></p-dropdown>
+            </ng-template>
+            <ng-template pTemplate="output">
+              {{transaction.category.categoryName}}
+            </ng-template>
+            </p-cellEditor>
+        </td>
+        <td>
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <div class="p-inputgroup">
+                <span class="p-inputgroup-addon">$</span>
+                <input  [(ngModel)]="transaction.amount" type="number" pInputText>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="output">
+              {{transaction.amount | currency}}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+        <td>
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+                <input  [(ngModel)]="transaction.transactionDescription" type="text" pInputText>
+            </ng-template>
+            <ng-template pTemplate="output">
+              {{transaction.transactionDescription}}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+        <td style="text-align:center">
+          <button 
+            *ngIf="!editing" 
+            pButton 
+            pRipple 
+            type="button" 
+            pInitEditableRow 
+            icon="pi pi-pencil" 
+            (click)="onRowEditInit(transaction)" 
+            class="p-button-rounded p-button-text">
+          </button>
+          <button 
+            *ngIf="editing" 
+            pButton 
+            pRipple 
+            type="button" 
+            pSaveEditableRow 
+            icon="pi pi-check" 
+            (click)="onRowEditSave(transaction)" 
+            class="p-button-rounded p-button-text p-button-success mr-2">
+          </button>
+        </td>
+        <td style="text-align:center">
+          <p-confirmPopup></p-confirmPopup>
+          <button
+            *ngIf="!editing" 
+            pButton 
+            pRipple 
+            type="button" 
+            icon="pi pi-trash" 
+            (click)="confirmDelete($event, transaction)" 
+            class="p-button-rounded p-button-text">
+          </button>
+          
+          <button 
+            *ngIf="editing" 
+            pButton 
+            pRipple 
+            type="button" 
+            pCancelEditableRow 
+            icon="pi pi-times" 
+            (click)="onRowEditCancel(transaction, rowIndex)" 
+            class="p-button-rounded p-button-text p-button-danger">
+          </button>
         </td>
       </tr>
   </ng-template>

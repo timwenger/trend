@@ -40,6 +40,15 @@ export class ApiService {
     );
   }
   
+  updateTransaction(toBeUpdated: Transaction): Observable<Transaction> {
+    let url = this.baseUrl + this.transactionsApiUrl + '/' + toBeUpdated.id;
+    return this.http.put<Transaction>(url, toBeUpdated)
+    .pipe(
+      tap(_ => this.logMsg('updated this transaction:' + JSON.stringify(toBeUpdated))),
+      catchError(this.handleError<any>('updateTransaction', toBeUpdated ))
+    );
+  }
+
   deleteTransaction(toBeDeleted: Transaction): Observable<Transaction> {
     let url = this.baseUrl + this.transactionsApiUrl + '/' + toBeDeleted.id;
     return this.http.delete<Transaction>(url)

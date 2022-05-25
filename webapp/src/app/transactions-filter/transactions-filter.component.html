@@ -5,14 +5,14 @@
 		<div class="col-12 md:col-4">
 			<div class="p-inputgroup">
 				<span class="p-inputgroup-addon">Oldest Date</span>      
-				<p-calendar formControlName="dateOfOldestTransaction" [showIcon]="true" dateFormat="yy/mm/dd"></p-calendar>
+				<p-calendar formControlName="dateOfOldestTransaction" [showIcon]="true"  dateFormat="MM d, yy"></p-calendar>
 			</div>
 		</div>
 
 		<div class="col-12 md:col-4">
 			<div class="p-inputgroup">
 				<span class="p-inputgroup-addon">Latest Date</span>      
-				<p-calendar formControlName="dateOfLatestTransaction" [showIcon]="true" dateFormat="yy/mm/dd"></p-calendar>
+				<p-calendar formControlName="dateOfLatestTransaction" [showIcon]="true"  dateFormat="MM d, yy"></p-calendar>
 			</div>
 		</div>
 
@@ -40,4 +40,4 @@
 
 
 
-<app-transactions [transactions]="transactionsFromFilter"></app-transactions>
+<app-transactions [transactions]="transactionsFromFilter" [categories]="allCategories"></app-transactions>

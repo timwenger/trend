@@ -5,7 +5,7 @@
 		<div class="col-12 md:col-4">
 			<div class="p-inputgroup">
 				<span class="p-inputgroup-addon">Date</span>      
-				<p-calendar formControlName="dateOfTransaction" [showIcon]="true" dateFormat="yy/mm/dd"></p-calendar>      
+				<p-calendar formControlName="dateOfTransaction" [showIcon]="true"  dateFormat="MM d, yy"></p-calendar>      
 			</div>
 				
 		</div>
@@ -36,7 +36,7 @@
 
 <div *ngIf="transactionsAddedSoFar.length > 0 ">
 	<h3>Added So Far:</h3>
-	<app-transactions [transactions]="transactionsAddedSoFar"></app-transactions>
+	<app-transactions [transactions]="transactionsAddedSoFar" [categories]="allCategories"></app-transactions>
 </div>
 
 

@@ -57,6 +57,27 @@ namespace Trend.API.Controllers
                 transaction);
         }
 
+        [HttpPut("{id}")]
+        public async Task<ActionResult> PutTransaction(int id, Transaction transaction)
+        {
+            if (id != transaction.Id)
+                return BadRequest();
+
+            _dbContext.Entry(transaction).State = EntityState.Modified;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_dbContext.Transactions.Any(t => t.Id == id))
+                    return NotFound();
+                throw;
+            }
+            return NoContent();
+        }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult<Transaction>> DeleteTransaction(int id)
         {
