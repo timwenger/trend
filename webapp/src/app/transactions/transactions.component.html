@@ -1,10 +1,8 @@
-<p></p>
 <p-card header="Summary" [style]="{'width': '25rem', 'margin-bottom': '2em'}">
   <ng-template pTemplate="header">
   </ng-template>
   <p>Total = {{totalAmount | currency}}</p>
 </p-card>
-<p></p>
 
 <p-table 
   [value]="transactions" 
@@ -18,6 +16,8 @@
         <th pSortableColumn="dateOfTransaction">Date <p-sortIcon field="dateOfTransaction"></p-sortIcon></th><th pSortableColumn="category.categoryName">Category <p-sortIcon field="category.categoryName"></p-sortIcon></th>
         <th pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon></th>
         <th>Description</th>
+        <th></th>
+        <th></th>
       </tr>
   </ng-template>
   <ng-template pTemplate="body" let-transaction let-editing="editing" let-rowIndex="rowIndex">

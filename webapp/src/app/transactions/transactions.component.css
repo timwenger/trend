@@ -2,3 +2,8 @@
 	padding-top: 0 !important;
 	padding-bottom: 0 !important;
 }
+
+
+td {
+	padding: 0.2em 0.2em !important;
+}
