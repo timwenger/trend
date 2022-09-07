@@ -14,8 +14,8 @@ namespace Trend.API.Models
         public string TransactionDescription { get; set; } = string.Empty;
         [Required]
         public int CategoryId { get; set; }
-
-        //[JsonIgnore]
+        public string UserId { get; set; }
         public virtual Category? Category { get; set; }
+        public virtual User? User { get; set; }
     }
 }

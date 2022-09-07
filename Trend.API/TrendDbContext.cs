@@ -27,7 +27,7 @@ namespace Trend.API.Models
         // So your transactions controller has this object injected, available for use.
 
         // Category.cs and Transaction.cs are 'entity classes'. You get instances of 
-        // your entities by querying the db witht LINQ queries
+        // your entities by querying the db with LINQ queries
 
         // This is a key part of Entity Framework. Entity Framework Core is a modern object-database mapper for .NET.
         //Here, LINQ queries against this Tranactions DbSet will be translated into queries on the DB. Hover over DbSet to see!
@@ -35,6 +35,7 @@ namespace Trend.API.Models
         //class objects. It's all done automatically with Entitiy Framework.
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<User> Users { get; set; }
 
         public TrendDbContext(DbContextOptions<TrendDbContext> options) : base(options)
         {
@@ -45,29 +46,12 @@ namespace Trend.API.Models
             modelBuilder.HasDefaultSchema("Transactions");
             // how the entity classes model the db tables. Ex: which
             // entries are required, how the entities are related
+            new TransactionEntityConfig().Configure(modelBuilder.Entity<Transaction>()); 
             new CategoryEntityConfig().Configure(modelBuilder.Entity<Category>());
-            new TransactionEntityConfig().Configure(modelBuilder.Entity<Transaction>());
-
+            new UserEntityConfig().Configure(modelBuilder.Entity<User>());
             
-        }
 
-        public class CategoryEntityConfig : IEntityTypeConfiguration<Category>
-        {
-            public void Configure(EntityTypeBuilder<Category> modelBuilder)
-            {
-                modelBuilder.ToTable("Categories");
 
-                modelBuilder
-                .HasKey(c => c.Id);
-
-            // being explicit on how the models are related 
-            // commented out because it's not perfect. When getting transactions, it limits the results to 1 transaction per category
-            //https://docs.microsoft.com/en-us/ef/core/modeling/relationships?tabs=fluent-api%2Cfluent-api-simple-key%2Csimple-key
-                //modelBuilder
-                //.HasMany(c => c.Transactions)
-                //.WithOne(t => t.Category)
-                //.HasForeignKey(t => t.Id);
-            }
         }
 
         public class TransactionEntityConfig : IEntityTypeConfiguration<Transaction>
@@ -76,6 +60,38 @@ namespace Trend.API.Models
             {
                 modelBuilder.ToTable("Transactions"); // default is the DbSet's property name, but just being explicit here
                 modelBuilder.HasKey(t => t.Id);
+                modelBuilder.Property(t => t.Amount).HasPrecision(14,2); // 999,000,000,000.00 up to 999 billion, 2 decimal places   
+            }
+        }
+
+        public class CategoryEntityConfig : IEntityTypeConfiguration<Category>
+        {
+            public void Configure(EntityTypeBuilder<Category> modelBuilder)
+            {
+                modelBuilder.ToTable("Categories");
+
+                modelBuilder.HasKey(c => c.Id);
+
+                // being explicit on how the models are related 
+                //https://docs.microsoft.com/en-us/ef/core/modeling/relationships?tabs=fluent-api%2Cfluent-api-simple-key%2Csimple-key
+                modelBuilder
+                .HasMany(c => c.Transactions)
+                .WithOne(t => t.Category)
+                .HasForeignKey(t => t.CategoryId);
+            }
+        }
+
+        public class UserEntityConfig : IEntityTypeConfiguration<User>
+        {
+            public void Configure(EntityTypeBuilder<User> modelBuilder)
+            {
+                modelBuilder.ToTable("Users");
+                modelBuilder.HasKey(u => u.Id);
+
+                modelBuilder
+                .HasMany(u => u.Transactions)
+                .WithOne(t => t.User)
+                .HasForeignKey(t => t.UserId);
             }
         }
     }

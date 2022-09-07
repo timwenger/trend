@@ -1,12 +1,15 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using Trend.API.Filters;
 using Trend.API.Models;
 
 namespace Trend.API.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     [EnableCors("AngularDebugging")]
     public class TransactionsController : ControllerBase
@@ -26,9 +29,16 @@ namespace Trend.API.Controllers
         [HttpGet]
         public async Task<ActionResult> GetAllTransactions([FromQuery] TransactionFilters transactionFilters)
         {
+            string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (uid == null)
+                return BadRequest();
+
             // loading data from related tables
             // https://docs.microsoft.com/en-us/ef/core/querying/related-data/
-            Transaction[] filteredTransactions = await transactionFilters.GetTransactionQuery(_dbContext).Include(trans => trans.Category).ToArrayAsync();
+            Transaction[] filteredTransactions = await transactionFilters.GetTransactionQuery(_dbContext, uid)
+                .Include(trans => trans.Category)
+                .Include(trans => trans.User)
+                .ToArrayAsync();
             return Ok(filteredTransactions);
         }
 
@@ -45,9 +55,12 @@ namespace Trend.API.Controllers
         [HttpPost]
         public async Task<ActionResult> AddTransaction(Transaction transaction)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
+            string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
 
+            if (!ModelState.IsValid || uid == null)
+                return BadRequest();
+            
+            transaction.UserId = uid;
             _dbContext.Transactions.Add(transaction);
             await _dbContext.SaveChangesAsync();
 

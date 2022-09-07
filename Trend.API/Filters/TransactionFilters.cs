@@ -8,13 +8,14 @@ namespace Trend.API.Filters
         public bool DateFilter { get; set; }
         public DateTime DateOldest { get; set; }
         public DateTime DateLatest { get; set; }
-
         public bool CategoryFilter { get; set; }
         public List<int>? SelectedCategoryIds { get; set; }
 
-        public IQueryable<Transaction> GetTransactionQuery(TrendDbContext dbContext)
+        public IQueryable<Transaction> GetTransactionQuery(TrendDbContext dbContext, string userId)
         {
             IQueryable<Transaction> query = dbContext.Set<Transaction>();
+
+            query = query.Where(t => t.UserId == userId);
 
             if (DateFilter)
                 query = query

@@ -1,5 +1,9 @@
 using Trend.API.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +35,34 @@ builder.Services.AddCors(options =>
         });
 });
 
+// credentials folder path set in appsettings.json
+string appCredentialsFolderPath = builder.Configuration.GetSection("GoogleAppCredentialsPath").Value;
+Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", appCredentialsFolderPath);
+FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.GetApplicationDefault(),
+});
+// firebase auth
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+.AddJwtBearer(opt =>
+{
+    opt.Authority = builder.Configuration["Jwt:Firebase:ValidIssuer"];
+    opt.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Firebase:ValidIssuer"],
+        ValidAudience = builder.Configuration["Jwt:Firebase:ValidAudience"]
+    };
+});
+
+
+
+
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -42,6 +73,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseCors();
