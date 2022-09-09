@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, FormGroupDirective} from '@angular/forms';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, FormGroupDirective} from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category } from '../category';
 import { Transaction } from '../transaction';
@@ -12,7 +12,7 @@ import { UtilityService } from '../utility.service';
   styleUrls: ['./transactions-filter.component.css']
 })
 export class TransactionsFilterComponent implements OnInit {
-  filterForm!: FormGroup;
+  filterForm!: UntypedFormGroup;
   configuredFilter!: TransactionFilters;  
 
   allCategories: Category[] = [];
@@ -33,16 +33,16 @@ export class TransactionsFilterComponent implements OnInit {
   createForm() {
     let oneMonthAgo = new Date();
     oneMonthAgo.setDate(oneMonthAgo.getDate() -30);
-    this.filterForm = new FormGroup({
-      dateOfOldestTransaction: new FormControl(oneMonthAgo),
-      dateOfLatestTransaction: new FormControl(new Date()),
-      multiSelectDropdown: new FormControl(),
+    this.filterForm = new UntypedFormGroup({
+      dateOfOldestTransaction: new UntypedFormControl(oneMonthAgo),
+      dateOfLatestTransaction: new UntypedFormControl(new Date()),
+      multiSelectDropdown: new UntypedFormControl(),
     }, {validators: this.dateValidator('dateOfOldestTransaction', 'dateOfLatestTransaction')});
   }
   
   dateValidator(oldest: string, latest: string) {
     return (group: AbstractControl): object | null => {
-      let fgroup = group as FormGroup
+      let fgroup = group as UntypedFormGroup
       let oldestDate = fgroup.controls[oldest].value;
       let latestDate = fgroup.controls[latest].value;
       if (oldestDate > latestDate) {
@@ -59,7 +59,7 @@ export class TransactionsFilterComponent implements OnInit {
     this.getTransactions(filter);
   }
 
-  buildFilter(form: FormGroup): TransactionFilters{
+  buildFilter(form: UntypedFormGroup): TransactionFilters{
     let ids :number[]=[];
     let categories:Category[] = form.controls['multiSelectDropdown'].value;
     if( categories != null){

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators, NgForm, FormGroupDirective } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators, NgForm, FormGroupDirective } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category } from '../category';
 import { NewTransaction, Transaction } from '../transaction';
@@ -11,7 +11,7 @@ import { UtilityService } from '../utility.service';
   styleUrls: ['./add-transaction.component.css']
 })
 export class AddTransactionComponent implements OnInit {
-  addTransactionForm!: FormGroup;
+  addTransactionForm!: UntypedFormGroup;
   transactionsAddedSoFar: Transaction[] = [];
   allCategories: Category[] = [];
   
@@ -31,11 +31,11 @@ export class AddTransactionComponent implements OnInit {
   }
 
   createForm() {
-    this.addTransactionForm = new FormGroup({
-      dateOfTransaction: new FormControl({value: new Date(), disabled: false}, Validators.required, ),
-      categoryDropdown: new FormControl('', Validators.required),
-      amountInput: new FormControl('', Validators.required),
-      descriptionInput: new FormControl(''),
+    this.addTransactionForm = new UntypedFormGroup({
+      dateOfTransaction: new UntypedFormControl({value: new Date(), disabled: false}, Validators.required, ),
+      categoryDropdown: new UntypedFormControl('', Validators.required),
+      amountInput: new UntypedFormControl('', Validators.required),
+      descriptionInput: new UntypedFormControl(''),
     });
   }
 
@@ -46,7 +46,7 @@ export class AddTransactionComponent implements OnInit {
     f.form.controls['categoryDropdown'].markAsPristine(); // doesnt reset without this. Maybe there are better ways?
   }
 
-  addTransactionToDb(f: FormGroup) {
+  addTransactionToDb(f: UntypedFormGroup) {
     let dateTimeNow = this.utilityService.getLocalIsoDateTime(new Date());
     let transDate = this.utilityService.getLocalIsoDateTime(f.controls['dateOfTransaction'].value);
     let selectedCategory = f.controls['categoryDropdown'].value;
