@@ -26,6 +26,8 @@ import { RippleModule } from 'primeng/ripple';
 import {ConfirmPopupModule} from 'primeng/confirmpopup';
 import { ConfirmationService } from 'primeng/api';
 
+import { AuthModule } from '@auth0/auth0-angular';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -54,6 +56,7 @@ import { ConfirmationService } from 'primeng/api';
     MenubarModule,
     RippleModule,
     ConfirmPopupModule,
+    AuthModule.forRoot(environment.auth),
   ],
   providers: [ConfirmationService],
   bootstrap: [AppComponent]
