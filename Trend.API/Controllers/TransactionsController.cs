@@ -9,7 +9,7 @@ using Trend.API.Models;
 namespace Trend.API.Controllers
 {
     [ApiController]
-    [Authorize]
+    //[Authorize("write:transactions")]
     [Route("api/[controller]")]
     [EnableCors("AngularDebugging")]
     public class TransactionsController : ControllerBase
@@ -37,7 +37,6 @@ namespace Trend.API.Controllers
             // https://docs.microsoft.com/en-us/ef/core/querying/related-data/
             Transaction[] filteredTransactions = await transactionFilters.GetTransactionQuery(_dbContext, uid)
                 .Include(trans => trans.Category)
-                .Include(trans => trans.User)
                 .ToArrayAsync();
             return Ok(filteredTransactions);
         }

@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Trend.API.Models;
 
 namespace Trend.API.Controllers
 {
     [ApiController]
-    [Authorize]
+    //[Authorize("write:categories")]
     [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
     {
@@ -25,11 +26,17 @@ namespace Trend.API.Controllers
 
         [EnableCors("AngularDebugging")]
         [HttpGet]
-        public async Task<ActionResult> GetAllCategories()
+        public async Task<ActionResult> GetAllCategories(/*[FromQuery] Filters.User user*/)
         {
+            string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (uid == null)
+                return BadRequest();
+
             // loading data from related tables
             // https://docs.microsoft.com/en-us/ef/core/querying/related-data/
-            Category[] categories = await _dbContext.Categories.Include(category => category.Transactions).ToArrayAsync();
+            Category[] categories = await _dbContext.Categories
+                .Where(c => c.UserId == uid)
+                .Include(category => category.Transactions).ToArrayAsync();
             return Ok(await _dbContext.Categories.ToArrayAsync());
         }
 

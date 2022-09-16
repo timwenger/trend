@@ -1,9 +1,8 @@
 using Trend.API.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using FirebaseAdmin;
-using Google.Apis.Auth.OAuth2;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,26 +34,20 @@ builder.Services.AddCors(options =>
         });
 });
 
-// credentials folder path set in appsettings.json
-string appCredentialsFolderPath = builder.Configuration.GetSection("GoogleAppCredentialsPath").Value;
-Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", appCredentialsFolderPath);
-FirebaseApp.Create(new AppOptions()
+// Auth0 Authentication
+// https://auth0.com/docs/quickstart/backend/aspnet-core-webapi-2/01-authorization
+string domain = $"https://{builder.Configuration["Auth0:Domain"]}/";
+builder.Services.AddAuthentication(options =>
 {
-    Credential = GoogleCredential.GetApplicationDefault(),
-});
-// firebase auth
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-.AddJwtBearer(opt =>
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
 {
-    opt.Authority = builder.Configuration["Jwt:Firebase:ValidIssuer"];
-    opt.TokenValidationParameters = new TokenValidationParameters
+    options.Authority = domain;
+    options.Audience = builder.Configuration["Auth0:ApiIdentifier"];
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Jwt:Firebase:ValidIssuer"],
-        ValidAudience = builder.Configuration["Jwt:Firebase:ValidAudience"]
+        NameClaimType = ClaimTypes.NameIdentifier
     };
 });
 
@@ -75,7 +68,7 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 app.UseAuthentication();
-app.UseAuthorization();
+//app.UseAuthorization();
 
 app.UseCors();
 
