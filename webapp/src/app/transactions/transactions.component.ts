@@ -1,7 +1,7 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges} from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Transaction } from '../transaction';
-import {ConfirmationService, SelectItem} from 'primeng/api';
+import { ConfirmationService, SelectItem } from 'primeng/api';
 import { Category } from '../category';
 
 
@@ -29,60 +29,60 @@ export class TransactionsComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (this.transactions && changes['transactions']) {
       this.updateSummary(changes['transactions'].currentValue);
+    }
   }
-}
 
   updateSummary(transactions: Transaction[]): void {
-      this.getTotalAmount();
+    this.getTotalAmount();
   }
 
-  getTotalAmount(){
+  getTotalAmount() {
     this.totalAmount = 0;
-    for(let transaction of this.transactions)
+    for (let transaction of this.transactions)
       this.totalAmount += transaction.amount;
   }
 
   confirmDelete(event: Event, transaction: Transaction) {
     this.confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Delete?',
-        icon: 'pi pi-trash',
-        accept: () => {
-            this.deleteTransaction(transaction);
-            this.updateSummary(this.transactions);
-        },
-        reject: () => {
-            //do nothing
-        }
+      target: event.target as EventTarget,
+      message: 'Delete?',
+      icon: 'pi pi-trash',
+      accept: () => {
+        this.deleteTransaction(transaction);
+        this.updateSummary(this.transactions);
+      },
+      reject: () => {
+        //do nothing
+      }
     });
   }
 
-  deleteTransaction(transaction: Transaction){
+  deleteTransaction(transaction: Transaction) {
     // confirmation is checked first in confirmDelete(). Then:
     // update the internal transactions list, assuming the dB is successful.
     // this way we don't have to wait for the transaction to complete.
-    this.transactions= this.transactions.filter((curTransaction) =>  curTransaction.id !== transaction.id);
+    this.transactions = this.transactions.filter((curTransaction) => curTransaction.id !== transaction.id);
 
     // request a delete from database. 
     this.apiService.deleteTransaction(transaction)
-    .subscribe(/* I'm not using the returned deleted transaction */);
+      .subscribe(/* I'm not using the returned deleted transaction */);
   }
 
 
 
   onRowEditInit(transaction: Transaction) {
     // make a deep copy, not just a new ref to the same obj
-    this.transactionEditBackups[transaction.id] = {...transaction};
-}
+    this.transactionEditBackups[transaction.id] = { ...transaction };
+  }
 
-onRowEditSave(transaction: Transaction) {
+  onRowEditSave(transaction: Transaction) {
     delete this.transactionEditBackups[transaction.id];
     // update the category id based on the category, as this is how the category is saved in the db
     transaction.categoryId = transaction.category.id;
     // edit trans in db
     this.apiService.updateTransaction(transaction)
-    .subscribe(/* I'm not using the returned deleted transaction */);
-}
+      .subscribe(/* I'm not using the returned deleted transaction */);
+  }
 
   onRowEditCancel(transaction: Transaction, rowIndex: number) {
     // revert the row to the saved copy before edits began

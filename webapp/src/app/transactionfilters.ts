@@ -4,4 +4,4 @@ export interface TransactionFilters {
 	dateLatest: string;
 	categoryFilter: boolean;
 	selectedCategoryIds: number[];
-  }
+}

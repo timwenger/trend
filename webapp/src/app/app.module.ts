@@ -14,19 +14,19 @@ import { AddTransactionComponent } from './add-transaction/add-transaction.compo
 import { EditTransactionComponent } from './edit-transaction/edit-transaction.component';
 import { TopBarComponent } from './top-bar/top-bar.component';
 
-import { ButtonModule} from 'primeng/button';
-import {CalendarModule} from 'primeng/calendar';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {DropdownModule} from 'primeng/dropdown';
-import {TableModule} from 'primeng/table';
-import {CardModule} from 'primeng/card';
-import {MenubarModule} from 'primeng/menubar';
+import { ButtonModule } from 'primeng/button';
+import { CalendarModule } from 'primeng/calendar';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { DropdownModule } from 'primeng/dropdown';
+import { TableModule } from 'primeng/table';
+import { CardModule } from 'primeng/card';
+import { MenubarModule } from 'primeng/menubar';
 import { RippleModule } from 'primeng/ripple';
-import {ConfirmPopupModule} from 'primeng/confirmpopup';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmationService } from 'primeng/api';
 
-import { AuthModule, AuthHttpInterceptor  } from '@auth0/auth0-angular';
+import { AuthModule, AuthHttpInterceptor } from '@auth0/auth0-angular';
 import { environment } from '../environments/environment';
 
 @NgModule({
@@ -58,9 +58,9 @@ import { environment } from '../environments/environment';
     ConfirmPopupModule,
     AuthModule.forRoot(environment.auth),
   ],
-  
+
   providers: [
-    ConfirmationService, 
+    ConfirmationService,
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]

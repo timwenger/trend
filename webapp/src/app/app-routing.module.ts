@@ -8,7 +8,7 @@ import { AuthGuard } from '@auth0/auth0-angular'
 const routes: Routes = [
   { path: 'transactions', component: TransactionsFilterComponent, canActivate: [AuthGuard] },
   { path: 'add-transaction', component: AddTransactionComponent, canActivate: [AuthGuard] },
-  { path: 'edit/:id', component: EditTransactionComponent, canActivate: [AuthGuard] }, 
+  { path: 'edit/:id', component: EditTransactionComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

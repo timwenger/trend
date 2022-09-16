@@ -1,37 +1,35 @@
 <h2>Find Transactions</h2>
 <!-- ngIf used to only display the form once the categories have been fetched -->
-<form *ngIf="allCategories.length > 0 " #formDirective="ngForm" (ngSubmit)="onSubmit(formDirective)" [formGroup]="filterForm">
+<form *ngIf="allCategories.length > 0 " #formDirective="ngForm" (ngSubmit)="onSubmit(formDirective)"
+	[formGroup]="filterForm">
 	<div class="grid p-fluid">
 		<div class="col-12 md:col-4">
 			<div class="p-inputgroup">
-				<span class="p-inputgroup-addon">Oldest Date</span>      
-				<p-calendar formControlName="dateOfOldestTransaction" [showIcon]="true"  dateFormat="MM d, yy"></p-calendar>
+				<span class="p-inputgroup-addon">Oldest Date</span>
+				<p-calendar formControlName="dateOfOldestTransaction" [showIcon]="true" dateFormat="MM d, yy">
+				</p-calendar>
 			</div>
 		</div>
 
 		<div class="col-12 md:col-4">
 			<div class="p-inputgroup">
-				<span class="p-inputgroup-addon">Latest Date</span>      
-				<p-calendar formControlName="dateOfLatestTransaction" [showIcon]="true"  dateFormat="MM d, yy"></p-calendar>
+				<span class="p-inputgroup-addon">Latest Date</span>
+				<p-calendar formControlName="dateOfLatestTransaction" [showIcon]="true" dateFormat="MM d, yy">
+				</p-calendar>
 			</div>
 		</div>
 
 		<div class="col-12 md:col-4">
-			<p-multiSelect 
-				formControlName="multiSelectDropdown"
-				[options]="allCategories" 
-				optionLabel="categoryName" 
-				display="chip"
-				placeholder="(All Categories)"
-				selectedItemsLabel="{0} items selected">
-			</p-multiSelect>     
+			<p-multiSelect formControlName="multiSelectDropdown" [options]="allCategories" optionLabel="categoryName"
+				display="chip" placeholder="(All Categories)" selectedItemsLabel="{0} items selected">
+			</p-multiSelect>
 		</div>
-		<div class="col-12 md:col-4">  
+		<div class="col-12 md:col-4">
 			<p-button label="Submit" [disabled]="!filterForm.valid" (onClick)="onSubmit(formDirective)"></p-button>
 		</div>
 		<div *ngIf=" !filterForm.valid && filterForm.errors != null" class="col-12 md:col-8">
 			<div class="p-inputgroup">
-				<span class="p-inputgroup-addon">Error</span>      
+				<span class="p-inputgroup-addon">Error</span>
 				<input placeholder="{{ filterForm.errors['datesError']['message']}}" [disabled]="true">
 			</div>
 		</div>

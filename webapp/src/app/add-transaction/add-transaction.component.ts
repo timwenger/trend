@@ -14,32 +14,32 @@ export class AddTransactionComponent implements OnInit {
   addTransactionForm!: UntypedFormGroup;
   transactionsAddedSoFar: Transaction[] = [];
   allCategories: Category[] = [];
-  
+
   constructor(
     private apiService: ApiService,
     private utilityService: UtilityService,
-    ) { }
+  ) { }
 
 
   ngOnInit(): void {
     this.apiService.getCategories()
-    .subscribe(categoriesReturned => {
-      this.allCategories = categoriesReturned;
-      // only create the form after the categories have been fetched.
-      this.createForm();
-    });
+      .subscribe(categoriesReturned => {
+        this.allCategories = categoriesReturned;
+        // only create the form after the categories have been fetched.
+        this.createForm();
+      });
   }
 
   createForm() {
     this.addTransactionForm = new UntypedFormGroup({
-      dateOfTransaction: new UntypedFormControl({value: new Date(), disabled: false}, Validators.required, ),
+      dateOfTransaction: new UntypedFormControl({ value: new Date(), disabled: false }, Validators.required,),
       categoryDropdown: new UntypedFormControl('', Validators.required),
       amountInput: new UntypedFormControl('', Validators.required),
       descriptionInput: new UntypedFormControl(''),
     });
   }
 
-  onSubmit(f : FormGroupDirective){
+  onSubmit(f: FormGroupDirective) {
     this.addTransactionToDb(f.form);
     f.resetForm();
     f.form.controls['dateOfTransaction'].setValue(new Date); // doesnt reset without this. Maybe there are better ways?
@@ -61,14 +61,14 @@ export class AddTransactionComponent implements OnInit {
 
 
     this.apiService.addTransaction(newTransaction)
-    .subscribe({
-      // use the returned transaction to updated the "added so far" transactions table
-      next: transactionReturned => {
-        // set the category to be the selected category, which otherwise gets returned as null
-        transactionReturned['category'] = selectedCategory;
-        // copy the array so that the transactions component sees the change
-        this.transactionsAddedSoFar = [...this.transactionsAddedSoFar, transactionReturned];
-      }
-    });
+      .subscribe({
+        // use the returned transaction to updated the "added so far" transactions table
+        next: transactionReturned => {
+          // set the category to be the selected category, which otherwise gets returned as null
+          transactionReturned['category'] = selectedCategory;
+          // copy the array so that the transactions component sees the change
+          this.transactionsAddedSoFar = [...this.transactionsAddedSoFar, transactionReturned];
+        }
+      });
   }
 }
