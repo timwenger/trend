@@ -7,7 +7,7 @@ import { ReactiveFormsModule, } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MessagesComponent } from './messages/messages.component';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { TransactionsComponent } from './transactions/transactions.component';
 import { TransactionsFilterComponent } from './transactions-filter/transactions-filter.component';
 import { AddTransactionComponent } from './add-transaction/add-transaction.component';
@@ -26,7 +26,7 @@ import { RippleModule } from 'primeng/ripple';
 import {ConfirmPopupModule} from 'primeng/confirmpopup';
 import { ConfirmationService } from 'primeng/api';
 
-import { AuthModule } from '@auth0/auth0-angular';
+import { AuthModule, AuthHttpInterceptor  } from '@auth0/auth0-angular';
 import { environment } from '../environments/environment';
 
 @NgModule({
@@ -58,7 +58,11 @@ import { environment } from '../environments/environment';
     ConfirmPopupModule,
     AuthModule.forRoot(environment.auth),
   ],
-  providers: [ConfirmationService],
+  
+  providers: [
+    ConfirmationService, 
+    { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
