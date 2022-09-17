@@ -14,7 +14,11 @@ namespace Trend.API.Models
         public string TransactionDescription { get; set; } = string.Empty;
         [Required]
         public int CategoryId { get; set; }
-        public string UserId { get; set; }
+        /// <summary>
+        /// set UserId to string.Empty, because incoming new transactions don't
+        /// have a user id attached yet, and it must contain a non-null value when leaving constructor.
+        /// </summary>
+        public string UserId { get; set; } = string.Empty;
         public virtual Category? Category { get; set; }
         public virtual User? User { get; set; }
     }
