@@ -5,16 +5,16 @@ import { MessageService } from './message.service';
 import { NewTransaction, Transaction } from './transaction';
 import { Category } from './category';
 import { TransactionFilters } from './transactionfilters';
-
+import { baseUrl } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class ApiService {
-  private baseUrl = 'https://localhost:7247/api';
-  private transactionsApiUrl = '/transactions';
-  private categoriesApiUrl = '/categories';
+  private baseUrl = baseUrl + 'api/';
+  private transactionsApiUrl = 'transactions';
+  private categoriesApiUrl = 'categories';
 
   constructor(
     private http: HttpClient,

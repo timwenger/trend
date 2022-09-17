@@ -11,7 +11,6 @@ namespace Trend.API.Controllers
     [ApiController]
     [Authorize(Policy = "CanWriteToTransactions")]
     [Route("api/[controller]")]
-    [EnableCors("AngularDebugging")]
     public class TransactionsController : ControllerBase
     {
 

@@ -24,17 +24,6 @@ builder.Services.AddDbContext<TrendDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
-//https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0#attr
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AngularDebugging",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:4200")
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-        });
-});
 
 // Auth0 Authentication
 // https://auth0.com/docs/quickstart/backend/aspnet-core-webapi-2/01-authorization
@@ -92,7 +81,6 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 #region These calls must go between UseRouting and UseEndPoints
-app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 #endregion

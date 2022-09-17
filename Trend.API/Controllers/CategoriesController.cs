@@ -24,7 +24,6 @@ namespace Trend.API.Controllers
             _dbContext.Database.EnsureCreated();
         }
 
-        [EnableCors("AngularDebugging")]
         [HttpGet]
         public async Task<ActionResult> GetAllCategories()
         {

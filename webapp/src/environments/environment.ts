@@ -2,6 +2,9 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+
+export const baseUrl = 'http://localhost:4200/';
+
 export const environment = {
   production: false,
   auth: {
@@ -9,7 +12,7 @@ export const environment = {
     // https://auth0.github.io/auth0-angular/interfaces/auth_config.authconfig.html
     domain: 'dev-6tnv9qif.us.auth0.com',
     clientId: 'LnjwdselSHXQr9xIW8P4EuKXGA1kr1Ue',
-    redirectUri: 'http://localhost:4200/transactions',
+    redirectUri: baseUrl + 'transactions',
     audience: 'trend007', // Request this audience at user authentication time
     
     // this app needs to be able to write categories and transactions to the api (and indirectly to the database).
@@ -24,7 +27,7 @@ export const environment = {
       allowedList: [
         {
           // Match any request that starts with '/api/' (note the asterisk)
-          uri: 'https://localhost:7247/api/*',
+          uri: baseUrl + 'api/*',
           tokenOptions: {
             // The attached token should target this audience
             //audience: 'trend007',
