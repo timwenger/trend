@@ -41,12 +41,23 @@ namespace Trend.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult> GetCategory(int id)
         {
-            Category category = await _dbContext.Categories.FindAsync(id);
-            if (category != null)
-                return Ok(category);
-            return NotFound();
+            string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (uid == null)
+                return BadRequest();
+
+            Category? category = await _dbContext.Categories.FindAsync(id);
+            if (category == null)
+                return NotFound();
+
+            if (uid != category.UserId)
+                return BadRequest();
+
+            return Ok(category);
         }
 
+        /*
+         * Not yet supported for a user to add, edit, remove categories
+         * 
         [HttpPost]
         public async Task<ActionResult> AddCategory(Category category)
         {
@@ -61,5 +72,7 @@ namespace Trend.API.Controllers
                 new { id = category.Id },
                 category);
         }
+
+        */
     }
 }

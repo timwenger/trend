@@ -41,12 +41,20 @@ namespace Trend.API.Controllers
 
         [HttpGet("{id}")]
         public async Task<ActionResult> GetTransaction(int id)
-        { 
-            Transaction transaction = await _dbContext.Transactions.FindAsync(id);
-            //transaction.Category
-            if (transaction != null)
-                return Ok(transaction);
+        {
+            string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (uid == null)
+                return BadRequest();
+
+            Transaction? transaction = await _dbContext.Transactions.FindAsync(id);
+
+            if (transaction == null)
             return NotFound();
+
+            if (uid != transaction.UserId)
+                return BadRequest();
+
+            return Ok(transaction);
         }
 
         [HttpPost]
@@ -70,7 +78,8 @@ namespace Trend.API.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> PutTransaction(int id, Transaction transaction)
         {
-            if (id != transaction.Id)
+            string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (uid == null || uid != transaction.UserId || id != transaction.Id)
                 return BadRequest();
 
             _dbContext.Entry(transaction).State = EntityState.Modified;
@@ -91,9 +100,16 @@ namespace Trend.API.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Transaction>> DeleteTransaction(int id)
         {
+            string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (uid == null)
+                return BadRequest();
+
             Transaction? transaction = await _dbContext.Transactions.FindAsync(id);
             if (transaction == null)
                 return NotFound();
+
+            if (uid != transaction.UserId)
+                return BadRequest();
 
             _dbContext.Transactions.Remove(transaction);
 
