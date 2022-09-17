@@ -8,7 +8,7 @@ using Trend.API.Models;
 namespace Trend.API.Controllers
 {
     [ApiController]
-    //[Authorize("write:categories")]
+    [Authorize(Policy = "CanWriteToCategories")]
     [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
     {
@@ -26,7 +26,7 @@ namespace Trend.API.Controllers
 
         [EnableCors("AngularDebugging")]
         [HttpGet]
-        public async Task<ActionResult> GetAllCategories(/*[FromQuery] Filters.User user*/)
+        public async Task<ActionResult> GetAllCategories()
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (uid == null)

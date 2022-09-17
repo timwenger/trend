@@ -9,7 +9,7 @@ using Trend.API.Models;
 namespace Trend.API.Controllers
 {
     [ApiController]
-    //[Authorize("write:transactions")]
+    [Authorize(Policy = "CanWriteToTransactions")]
     [Route("api/[controller]")]
     [EnableCors("AngularDebugging")]
     public class TransactionsController : ControllerBase
