@@ -42,8 +42,13 @@ export class AddTransactionComponent implements OnInit {
   onSubmit(f: FormGroupDirective) {
     this.addTransactionToDb(f.form);
     f.resetForm();
+    /*
+    don't reset the date and category. It's more frustrating than useful, because often, you
+    want to add several transactions from the same day, or of the same type (groceries)
+    
     f.form.controls['dateOfTransaction'].setValue(new Date); // doesnt reset without this. Maybe there are better ways?
     f.form.controls['categoryDropdown'].markAsPristine(); // doesnt reset without this. Maybe there are better ways?
+    */
   }
 
   addTransactionToDb(f: UntypedFormGroup) {
