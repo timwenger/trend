@@ -28,7 +28,7 @@ namespace Trend.API.Controllers
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (uid == null)
-                return BadRequest();
+                return Unauthorized();
 
             // loading data from related tables
             // https://docs.microsoft.com/en-us/ef/core/querying/related-data/
@@ -43,14 +43,14 @@ namespace Trend.API.Controllers
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (uid == null)
-                return BadRequest();
+                return Unauthorized();
 
             Category? category = await _dbContext.Categories.FindAsync(id);
             if (category == null)
                 return NotFound();
 
             if (uid != category.UserId)
-                return BadRequest();
+                return Unauthorized();
 
             return Ok(category);
         }

@@ -29,7 +29,7 @@ namespace Trend.API.Controllers
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (uid == null)
-                return BadRequest();
+                return Unauthorized();
 
             // loading data from related tables
             // https://docs.microsoft.com/en-us/ef/core/querying/related-data/
@@ -44,7 +44,7 @@ namespace Trend.API.Controllers
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (uid == null)
-                return BadRequest();
+                return Unauthorized();
 
             Transaction? transaction = await _dbContext.Transactions.FindAsync(id);
 
@@ -52,7 +52,7 @@ namespace Trend.API.Controllers
             return NotFound();
 
             if (uid != transaction.UserId)
-                return BadRequest();
+                return Unauthorized();
 
             return Ok(transaction);
         }
@@ -61,10 +61,13 @@ namespace Trend.API.Controllers
         public async Task<ActionResult> AddTransaction(Transaction transaction)
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (uid == null)
+                return Unauthorized();
 
-            if (!ModelState.IsValid || uid == null)
+            if (!ModelState.IsValid)
                 return BadRequest();
-            
+
+
             transaction.UserId = uid;
             _dbContext.Transactions.Add(transaction);
             await _dbContext.SaveChangesAsync();
@@ -79,7 +82,10 @@ namespace Trend.API.Controllers
         public async Task<ActionResult> PutTransaction(int id, Transaction transaction)
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
-            if (uid == null || uid != transaction.UserId || id != transaction.Id)
+            if (uid == null || uid != transaction.UserId)
+                return Unauthorized();
+         
+            if (id != transaction.Id)
                 return BadRequest();
 
             _dbContext.Entry(transaction).State = EntityState.Modified;
@@ -102,14 +108,14 @@ namespace Trend.API.Controllers
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (uid == null)
-                return BadRequest();
+                return Unauthorized();
 
             Transaction? transaction = await _dbContext.Transactions.FindAsync(id);
             if (transaction == null)
                 return NotFound();
 
             if (uid != transaction.UserId)
-                return BadRequest();
+                return Unauthorized();
 
             _dbContext.Transactions.Remove(transaction);
 
