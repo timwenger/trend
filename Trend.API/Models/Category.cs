@@ -5,11 +5,10 @@ namespace Trend.API.Models
 {
     public class Category
     {
-        [Required]
         public int Id { get; set; }
         [Required]
         public string CategoryName { get; set; } = string.Empty;
-        [Required]
+
         public string UserId { get; set; } = string.Empty;
 
         // avoid an infinitely recursive json object loop
