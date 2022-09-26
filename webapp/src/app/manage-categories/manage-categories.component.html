@@ -1,0 +1,72 @@
+
+<h2>Add a new category</h2>
+<form #formDirective="ngForm" (ngSubmit)="onSubmit(formDirective)" [formGroup]="addCategoryForm">
+	<div class="grid p-fluid">
+		<div class="col-12 md:col-6">
+			<div class="p-inputgroup">
+				<span class="p-inputgroup-addon">Name</span>
+				<input formControlName="categoryName" type="text" pInputText>
+			</div>
+
+		</div>
+
+		<div class="col-12 md:col-6">
+			<p-button label="Add Category" [disabled]="!addCategoryForm.valid" (onClick)="onSubmit(formDirective)"></p-button>
+		</div>
+
+	</div>
+</form>
+
+
+<div *ngIf="existingCategories.length > 0 ">
+	<h3>Existing Categories:</h3>
+
+	<p-table [value]="existingCategories" dataKey="id" responsiveLayout="scroll" sortField="categoryName" editMode="row"
+		styleClass="p-datatable-striped">
+		<ng-template pTemplate="header">
+			<tr>
+				<th pSortableColumn="categoryName">Category <p-sortIcon field="categoryName"></p-sortIcon>
+				</th>
+				<th></th>
+				<th></th>
+			</tr>
+		</ng-template>
+		<ng-template pTemplate="body" let-category let-editing="editing" let-rowIndex="rowIndex">
+			<tr [pEditableRow]="category">
+				<td>
+					<p-cellEditor>
+						<ng-template pTemplate="input">
+							<input [(ngModel)]="category.categoryName" type="text" pInputText>
+						</ng-template>
+						<ng-template pTemplate="output">
+							{{category.categoryName}}
+						</ng-template>
+					</p-cellEditor>
+				</td>
+				<td style="text-align:center">
+					<button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
+						(click)="onRowEditInit(category)" class="p-button-rounded p-button-text">
+					</button>
+					<button *ngIf="editing" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+						(click)="onRowEditSave(category)" class="p-button-rounded p-button-text p-button-success mr-2">
+					</button>
+				</td>
+				<td style="text-align:center">
+					<p-confirmPopup></p-confirmPopup>
+					<button *ngIf="!editing" pButton pRipple type="button" icon="pi pi-trash"
+						(click)="confirmDelete($event, category)" class="p-button-rounded p-button-text">
+					</button>
+
+					<button *ngIf="editing" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+						(click)="onRowEditCancel(category, rowIndex)"
+						class="p-button-rounded p-button-text p-button-danger">
+					</button>
+				</td>
+			</tr>
+		</ng-template>
+	</p-table>
+
+</div>
+
+<p-dialog header="Sorry, can't delete that :(" [(visible)]="deleteCategoryPopupError.visible">
+	There are {{deleteCategoryPopupError.numDependentTransactions}} transactions that depend on this category.</p-dialog>

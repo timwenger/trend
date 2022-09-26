@@ -1,0 +1,13 @@
+/* copied this cell size css from the Transactions component*/  
+:host ::ng-deep .p-cell-editing {
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+}
+td {
+	padding: 0.2em 0.2em !important;
+}
+
+/* coppied this input button css from the add transaction component */
+  .p-fluid input {
+	width: 100%; /* make inputs use the full flex width, like other elements*/
+  }

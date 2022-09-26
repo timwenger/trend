@@ -38,6 +38,11 @@ export class TopBarComponent implements OnInit {
         label: 'Add a Transaction',
         icon: 'pi pi-fw pi-pencil',
         routerLink: "/add-transaction",
+      },
+      {
+        label: 'Manage Categories',
+        icon: 'pi pi-fw pi-pencil',
+        routerLink: "/manage-categories",
       }
     ];
   }

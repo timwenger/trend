@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of, tap, catchError } from 'rxjs';
+import { Observable, of, tap, catchError, map } from 'rxjs';
 import { MessageService } from './message.service';
 import { NewTransaction, Transaction } from './transaction';
-import { Category } from './category';
+import { Category, NewCategory } from './category';
 import { TransactionFilters } from './transactionfilters';
 import { baseUrl } from 'src/environments/environment';
 
@@ -63,8 +63,42 @@ export class ApiService {
 
     return this.http.get<Category[]>(this.baseUrl + this.categoriesApiUrl)
       .pipe(
+        // categories will come in order of their ID. 
+        // sort them by their name instead
+        map(categories => categories.sort(this.categoryCompareFn)),
         tap(_ => this.logMsg('fetched categories')),
         catchError(this.handleError<Category[]>('getCategories', []))
+      );
+  }
+
+  categoryCompareFn = (c1: Category, c2: Category) => {
+    return c1.categoryName.localeCompare(c2.categoryName);
+  };
+
+  addCategory(newCategory: NewCategory): Observable<any> {
+    let url = this.baseUrl + this.categoriesApiUrl;
+    return this.http.post<NewTransaction>(url, newCategory)
+      .pipe(
+        tap(_ => this.logMsg('added this category:' + JSON.stringify(newCategory))),
+        catchError(this.handleError<any>('addCategory', newCategory))
+      );
+  }
+
+  updateCategory(toBeUpdated: Category): Observable<Category> {
+    let url = this.baseUrl + this.categoriesApiUrl + '/' + toBeUpdated.id;
+    return this.http.put<Category>(url, toBeUpdated)
+      .pipe(
+        tap(_ => this.logMsg('updated this category:' + JSON.stringify(toBeUpdated))),
+        catchError(this.handleError<any>('updateCategory', toBeUpdated))
+      );
+  }
+
+  deleteCategory(toBeDeleted: Category): Observable<Category> {
+    let url = this.baseUrl + this.categoriesApiUrl + '/' + toBeDeleted.id;
+    return this.http.delete<Category>(url)
+      .pipe(
+        tap(_ => this.logMsg('deleted this Category:' + JSON.stringify(toBeDeleted))),
+        catchError(this.handleError<any>('deleteCategory', toBeDeleted))
       );
   }
 

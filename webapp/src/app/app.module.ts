@@ -25,9 +25,11 @@ import { MenubarModule } from 'primeng/menubar';
 import { RippleModule } from 'primeng/ripple';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmationService } from 'primeng/api';
+import { DialogModule } from 'primeng/dialog';
 
 import { AuthModule, AuthHttpInterceptor } from '@auth0/auth0-angular';
 import { environment } from '../environments/environment';
+import { ManageCategoriesComponent } from './manage-categories/manage-categories.component';
 
 @NgModule({
   declarations: [
@@ -38,6 +40,7 @@ import { environment } from '../environments/environment';
     AddTransactionComponent,
     EditTransactionComponent,
     TopBarComponent,
+    ManageCategoriesComponent,
   ],
   imports: [
     BrowserModule,
@@ -56,6 +59,7 @@ import { environment } from '../environments/environment';
     MenubarModule,
     RippleModule,
     ConfirmPopupModule,
+    DialogModule,
     AuthModule.forRoot(environment.auth),
   ],
 
