@@ -35,7 +35,6 @@ namespace Trend.API.Models
         //class objects. It's all done automatically with Entitiy Framework.
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
-        public virtual DbSet<User> Users { get; set; }
 
         public TrendDbContext(DbContextOptions<TrendDbContext> options) : base(options)
         {
@@ -48,10 +47,6 @@ namespace Trend.API.Models
             // entries are required, how the entities are related
             new TransactionEntityConfig().Configure(modelBuilder.Entity<Transaction>()); 
             new CategoryEntityConfig().Configure(modelBuilder.Entity<Category>());
-            new UserEntityConfig().Configure(modelBuilder.Entity<User>());
-            
-
-
         }
 
         public class TransactionEntityConfig : IEntityTypeConfiguration<Transaction>
@@ -78,20 +73,6 @@ namespace Trend.API.Models
                 .HasMany(c => c.Transactions)
                 .WithOne(t => t.Category)
                 .HasForeignKey(t => t.CategoryId);
-            }
-        }
-
-        public class UserEntityConfig : IEntityTypeConfiguration<User>
-        {
-            public void Configure(EntityTypeBuilder<User> modelBuilder)
-            {
-                modelBuilder.ToTable("Users");
-                modelBuilder.HasKey(u => u.Id);
-
-                modelBuilder
-                .HasMany(u => u.Transactions)
-                .WithOne(t => t.User)
-                .HasForeignKey(t => t.UserId);
             }
         }
     }

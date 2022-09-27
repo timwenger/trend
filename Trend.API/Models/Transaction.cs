@@ -20,6 +20,5 @@ namespace Trend.API.Models
         /// </summary>
         public string UserId { get; set; } = string.Empty;
         public virtual Category? Category { get; set; }
-        public virtual User? User { get; set; }
     }
 }
