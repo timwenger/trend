@@ -35,7 +35,7 @@ namespace Trend.API.Controllers
             // https://docs.microsoft.com/en-us/ef/core/querying/related-data/
             Category[] categories = await _dbContext.Categories
                 .Where(c => c.UserId == uid)
-                .Include(category => category.Transactions).ToArrayAsync();
+                .ToArrayAsync();
             return Ok(categories);
         }
 
