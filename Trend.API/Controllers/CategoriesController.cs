@@ -36,7 +36,7 @@ namespace Trend.API.Controllers
             Category[] categories = await _dbContext.Categories
                 .Where(c => c.UserId == uid)
                 .Include(category => category.Transactions).ToArrayAsync();
-            return Ok(await _dbContext.Categories.ToArrayAsync());
+            return Ok(categories);
         }
 
         [HttpGet("{id}")]
