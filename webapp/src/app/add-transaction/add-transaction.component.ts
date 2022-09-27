@@ -14,6 +14,7 @@ export class AddTransactionComponent implements OnInit {
   addTransactionForm!: UntypedFormGroup;
   transactionsAddedSoFar: Transaction[] = [];
   allCategories: Category[] = [];
+  noCategories: boolean = false;
 
   constructor(
     private apiService: ApiService,
@@ -27,6 +28,8 @@ export class AddTransactionComponent implements OnInit {
         this.allCategories = categoriesReturned;
         // only create the form after the categories have been fetched.
         this.createForm();
+        if(categoriesReturned.length ==0)
+          this.noCategories = true;
       });
   }
 

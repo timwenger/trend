@@ -1,0 +1,6 @@
+<p-card *ngIf="visible" [style]="{'width': '30rem', 'margin-bottom': '4rem'}">
+	<p>Hi there! It looks like you don't have any expense categories yet. Before you can work with any transactions, head on over to the categories tab to add your first category!</p>
+    <ng-template pTemplate="footer">
+        <p-button label="Add a category : )" routerLink= "/manage-categories" icon="pi pi-angle-double-right"></p-button>
+    </ng-template>
+  </p-card>

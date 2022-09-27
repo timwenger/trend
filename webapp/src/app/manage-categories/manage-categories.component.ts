@@ -18,11 +18,6 @@ export class ManageCategoriesComponent implements OnInit {
   existingCategories: Category[] = [];
   categoryEditBackups: { [id: number]: Category; } = {};
 
-  deleteCategoryPopupError = {
-    visible: false,
-    numDependentTransactions: 0
-  }
-
   constructor(
     private apiService: ApiService,
     private confirmationService: ConfirmationService,
@@ -119,8 +114,7 @@ export class ManageCategoriesComponent implements OnInit {
         if (transactions.length > 0) {
           // show a popup error, that you can't delete this category
           // because there are dependent transactions
-          this.deleteCategoryPopupError.numDependentTransactions = transactions.length;
-          this.deleteCategoryPopupError.visible = true;
+          this.showDeleteCategoryErrorPopup(transactions.length);
         }
         else {
           // request a delete from database. 
@@ -129,6 +123,19 @@ export class ManageCategoriesComponent implements OnInit {
         }
       });
 
+  }
+
+  deleteCategoryErrorPopup = {
+    visible: false,
+    errorString: '',
+  }
+
+  showDeleteCategoryErrorPopup(numTrans: number) {
+    if(numTrans == 1)
+      this.deleteCategoryErrorPopup.errorString = 'There is 1 transaction that depends on this category.'
+      else
+      this.deleteCategoryErrorPopup.errorString = 'There are '+numTrans+' transactions that depend on this category.'
+    this.deleteCategoryErrorPopup.visible = true;
   }
 
   onSuccessfulDelete(category: Category) {

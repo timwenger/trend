@@ -36,6 +36,8 @@
 	</div>
 </form>
 
+<app-no-categories [visible]="noCategories"></app-no-categories>
+
 <div *ngIf="transactionsAddedSoFar.length > 0 ">
 	<h3>Added So Far:</h3>
 	<app-transactions [transactions]="transactionsAddedSoFar" [categories]="allCategories"></app-transactions>

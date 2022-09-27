@@ -17,6 +17,7 @@ export class TransactionsFilterComponent implements OnInit {
 
   allCategories: Category[] = [];
   transactionsFromFilter: Transaction[] = [];
+  noCategories: boolean = false;
 
   constructor(
     private apiService: ApiService,
@@ -25,7 +26,11 @@ export class TransactionsFilterComponent implements OnInit {
 
   ngOnInit(): void {
     this.apiService.getCategories()
-      .subscribe(categoriesReturned => this.allCategories = categoriesReturned);
+      .subscribe(categoriesReturned => {
+        this.allCategories = categoriesReturned
+        if(categoriesReturned.length == 0)
+          this.noCategories = true;
+      });
     this.createForm();
 
   }

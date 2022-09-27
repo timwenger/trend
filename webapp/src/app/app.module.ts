@@ -30,6 +30,7 @@ import { DialogModule } from 'primeng/dialog';
 import { AuthModule, AuthHttpInterceptor } from '@auth0/auth0-angular';
 import { environment } from '../environments/environment';
 import { ManageCategoriesComponent } from './manage-categories/manage-categories.component';
+import { NoCategoriesComponent } from './no-categories/no-categories.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import { ManageCategoriesComponent } from './manage-categories/manage-categories
     EditTransactionComponent,
     TopBarComponent,
     ManageCategoriesComponent,
+    NoCategoriesComponent,
   ],
   imports: [
     BrowserModule,
