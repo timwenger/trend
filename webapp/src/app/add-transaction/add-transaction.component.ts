@@ -49,6 +49,20 @@ export class AddTransactionComponent implements OnInit {
     f.form.controls['categoryDropdown'].markAsPristine(); // doesnt reset without this. Maybe there are better ways?
   }
 
+  onClickPrevDate(f: FormGroupDirective){
+    let calendar = f.form.controls['dateOfTransaction'];
+    let date = (calendar.value as Date);
+    date.setDate(date.getDate()-1);
+    calendar.setValue(date);
+  }
+
+  onClickNextDate(f: FormGroupDirective){
+    let calendar = f.form.controls['dateOfTransaction'];
+    let date = (calendar.value as Date);
+    date.setDate(date.getDate()+1);
+    calendar.setValue(date);
+  }
+  
   addTransactionToDb(f: UntypedFormGroup) {
     let dateTimeNow = this.utilityService.getLocalIsoDateTime(new Date());
     let transDate = this.utilityService.getLocalIsoDateTime(f.controls['dateOfTransaction'].value);

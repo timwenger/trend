@@ -1,7 +1,12 @@
 .p-fluid input {
-	width: 100%; /* make inputs use the full flex width, like other elements*/
-  }
+  width: 100%;
+  /* make inputs use the full flex width, like other elements*/
+}
 
 form {
   margin-bottom: 3rem;
+}
+
+span.date-picker-arrows {
+  padding: 0rem;
 }
