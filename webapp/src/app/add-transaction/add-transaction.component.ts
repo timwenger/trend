@@ -44,21 +44,26 @@ export class AddTransactionComponent implements OnInit {
 
   onSubmit(f: FormGroupDirective) {
     this.addTransactionToDb(f.form);
+    let calendar = f.form.controls['dateOfTransaction'];
+    let selectedDate = calendar.value as Date;
+    let category = f.form.controls['categoryDropdown'];
+    let selectedCategory = category.value;
     f.resetForm();
-    f.form.controls['dateOfTransaction'].setValue(new Date); // doesnt reset without this. Maybe there are better ways?
-    f.form.controls['categoryDropdown'].markAsPristine(); // doesnt reset without this. Maybe there are better ways?
+    // keep selected date and category for next entry
+    calendar.setValue(selectedDate);
+    category.setValue(selectedCategory);
   }
 
   onClickPrevDate(f: FormGroupDirective){
     let calendar = f.form.controls['dateOfTransaction'];
-    let date = (calendar.value as Date);
+    let date = calendar.value as Date;
     date.setDate(date.getDate()-1);
     calendar.setValue(date);
   }
 
   onClickNextDate(f: FormGroupDirective){
     let calendar = f.form.controls['dateOfTransaction'];
-    let date = (calendar.value as Date);
+    let date = calendar.value as Date;
     date.setDate(date.getDate()+1);
     calendar.setValue(date);
   }
