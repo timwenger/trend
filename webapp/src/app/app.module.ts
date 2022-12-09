@@ -11,7 +11,6 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { TransactionsComponent } from './transactions/transactions.component';
 import { TransactionsFilterComponent } from './transactions-filter/transactions-filter.component';
 import { AddTransactionComponent } from './add-transaction/add-transaction.component';
-import { EditTransactionComponent } from './edit-transaction/edit-transaction.component';
 import { TopBarComponent } from './top-bar/top-bar.component';
 
 import { ButtonModule } from 'primeng/button';
@@ -40,7 +39,6 @@ import { NoCategoriesComponent } from './no-categories/no-categories.component';
     TransactionsComponent,
     TransactionsFilterComponent,
     AddTransactionComponent,
-    EditTransactionComponent,
     TopBarComponent,
     ManageCategoriesComponent,
     NoCategoriesComponent,
