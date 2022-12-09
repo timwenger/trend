@@ -25,13 +25,13 @@
 <div *ngIf="existingCategories.length > 0 ">
 	<h3>Existing Categories:</h3>
 
-	<p-table [value]="existingCategories" dataKey="id" responsiveLayout="scroll" sortField="categoryName" editMode="row"
+	<p-table [value]="existingCategories" dataKey="id" responsiveLayout="scroll" sortField="expenseOrIncome" [sortOrder]="-1" editMode="row"
 		styleClass="p-datatable-striped">
 		<ng-template pTemplate="header">
 			<tr>
 				<th pSortableColumn="categoryName">Category <p-sortIcon field="categoryName"></p-sortIcon>
 				</th>
-				<th pSortableColumn="type">Type <p-sortIcon field="type"></p-sortIcon>
+				<th pSortableColumn="expenseOrIncome">Type <p-sortIcon field="expenseOrIncome"></p-sortIcon>
 				</th>
 				<th></th>
 				<th></th>
