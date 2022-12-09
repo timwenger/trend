@@ -39,6 +39,7 @@ export class TransactionsComponent implements OnInit, OnChanges {
 
   getTotalAmounts() {
     this.totalExpensesAmount = 0;
+    this.totalIncomeAmount = 0;
     for (let transaction of this.transactions) {
       if (transaction.category.expenseOrIncome == "Expense")
         this.totalExpensesAmount += transaction.amount;
