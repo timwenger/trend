@@ -4,8 +4,8 @@
   <p>Total = {{totalAmount | currency}}</p>
 </p-card>
 
-<p-table [value]="transactions" dataKey="id" responsiveLayout="scroll" sortField="dateOfTransaction" editMode="row"
-  styleClass="p-datatable-striped">
+<p-table [value]="transactions" dataKey="id" responsiveLayout="scroll" sortField="dateOfTransaction" [sortOrder]="-1"
+  editMode="row" styleClass="p-datatable-striped">
   <ng-template pTemplate="header">
     <tr>
       <th pSortableColumn="dateOfTransaction">Date <p-sortIcon field="dateOfTransaction"></p-sortIcon>
@@ -25,7 +25,8 @@
         <p-cellEditor>
           <ng-template pTemplate="input">
             <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
-            <p-calendar [(ngModel)]="transaction.dateOfTransaction" appendTo="body" dateFormat="MM d, yy"></p-calendar>
+            <p-calendar [(ngModel)]="transaction.dateOfTransaction" appendTo="body" [selectOtherMonths]="true"
+              dateFormat="MM d, yy"></p-calendar>
           </ng-template>
           <ng-template pTemplate="output">
             {{transaction.dateOfTransaction | date}}
