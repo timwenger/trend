@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of, tap, catchError, map } from 'rxjs';
 import { MessageService } from './message.service';
 import { NewTransaction, Transaction } from './transaction';
-import { Category, NewCategory } from './category';
+import { Category, NewCategory, DbCategory, NewDbCategory } from './category';
 import { TransactionFilters } from './transactionfilters';
 import { baseUrl } from 'src/environments/environment';
 
@@ -36,7 +36,8 @@ export class ApiService {
     let url = this.baseUrl + this.transactionsApiUrl;
     return this.http.post<NewTransaction>(url, newTransaction)
       .pipe(
-        tap(_ => this.logMsg('added this transaction:' + JSON.stringify(newTransaction))),
+        // handling response
+        tap(addedTransaction => this.logMsg('added this transaction:' + JSON.stringify(addedTransaction))),
         catchError(this.handleError<any>('addTransaction', newTransaction))
       );
   }
@@ -45,6 +46,7 @@ export class ApiService {
     let url = this.baseUrl + this.transactionsApiUrl + '/' + toBeUpdated.id;
     return this.http.put<Transaction>(url, toBeUpdated)
       .pipe(
+        //handling response (no object is passed back)
         tap(_ => this.logMsg('updated this transaction:' + JSON.stringify(toBeUpdated))),
         catchError(this.handleError<any>('updateTransaction', toBeUpdated))
       );
@@ -54,15 +56,18 @@ export class ApiService {
     let url = this.baseUrl + this.transactionsApiUrl + '/' + toBeDeleted.id;
     return this.http.delete<Transaction>(url)
       .pipe(
+        // handling response
         tap(_ => this.logMsg('deleted this transaction:' + JSON.stringify(toBeDeleted))),
         catchError(this.handleError<any>('deleteTransaction', toBeDeleted))
       );
   }
 
   getCategories(): Observable<Category[]> {
-
-    return this.http.get<Category[]>(this.baseUrl + this.categoriesApiUrl)
+    // https://stackoverflow.com/questions/49916203/changing-return-type-of-an-observable-with-map
+    return this.http.get<DbCategory[]>(this.baseUrl + this.categoriesApiUrl)
       .pipe(
+        map<DbCategory[],Category[]>(dbCategories => 
+          dbCategories.map(dbCategory => this.convertDbCategoryToCategory(dbCategory))),
         // categories will come in order of their ID. 
         // sort them by their name instead
         map(categories => categories.sort(this.categoryCompareFn)),
@@ -77,32 +82,55 @@ export class ApiService {
 
   addCategory(newCategory: NewCategory): Observable<any> {
     let url = this.baseUrl + this.categoriesApiUrl;
-    return this.http.post<NewTransaction>(url, newCategory)
+    return this.http.post<NewDbCategory>(url, this.convertCategoryToDbCategory(newCategory))
       .pipe(
-        tap(_ => this.logMsg('added this category:' + JSON.stringify(newCategory))),
+        //handling response
+        map(dbCategory => this.convertDbCategoryToCategory(dbCategory)),
         catchError(this.handleError<any>('addCategory', newCategory))
       );
   }
 
   updateCategory(toBeUpdated: Category): Observable<Category> {
     let url = this.baseUrl + this.categoriesApiUrl + '/' + toBeUpdated.id;
-    return this.http.put<Category>(url, toBeUpdated)
+    return this.http.put<DbCategory>(url, this.convertCategoryToDbCategory(toBeUpdated))
       .pipe(
+        //handling response (no object is passed back)
         tap(_ => this.logMsg('updated this category:' + JSON.stringify(toBeUpdated))),
         catchError(this.handleError<any>('updateCategory', toBeUpdated))
       );
   }
 
+  // input and output args are not typed so that the object
+  // does not need to be copied (just add a new property) and
+  // can be used for NewCategories (without an id) as well
+  convertDbCategoryToCategory(category: any):any{
+    if(category.isIncome == true)
+      category.expenseOrIncome = 'Income';
+    else
+      category.expenseOrIncome = 'Expense';
+    return category;
+  }
+
+  convertCategoryToDbCategory(category: any):any{
+    if(category.expenseOrIncome == 'Income')
+      category.isIncome = true;
+    else
+      category.isIncome = false;
+    return category;
+  }
+
   deleteCategory(toBeDeleted: Category): Observable<Category> {
     let url = this.baseUrl + this.categoriesApiUrl + '/' + toBeDeleted.id;
+    // I'm not converting the category to a dbCategory here, 
+    // because I'm just deleting it. Only the ID needs to be right
     return this.http.delete<Category>(url)
       .pipe(
-        tap(_ => this.logMsg('deleted this Category:' + JSON.stringify(toBeDeleted))),
+        //handling response
+        tap(deleted => this.logMsg('deleted this Category:' + JSON.stringify(deleted))),
         catchError(this.handleError<any>('deleteCategory', toBeDeleted))
       );
   }
 
-  /** Log a HeroService message with the MessageService */
   private logMsg(message: string) {
     this.messageService.add(`API Service: ${message}`);
   }

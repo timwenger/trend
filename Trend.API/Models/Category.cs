@@ -11,6 +11,8 @@ namespace Trend.API.Models
 
         public string UserId { get; set; } = string.Empty;
 
+        public bool IsIncome { get; set; }
+
         // avoid an infinitely recursive json object loop
         // https://docs.microsoft.com/en-us/ef/core/querying/related-data/serialization
         [JsonIgnore]

@@ -1,15 +1,19 @@
 <h2>Add a new category</h2>
 <form #formDirective="ngForm" (ngSubmit)="onSubmit(formDirective)" [formGroup]="addCategoryForm">
 	<div class="grid p-fluid">
-		<div class="col-12 md:col-6">
+		<div class="col-12 md:col-4">
 			<div class="p-inputgroup">
 				<span class="p-inputgroup-addon">Name</span>
 				<input formControlName="categoryName" type="text" pInputText>
 			</div>
 
 		</div>
+		<div class="col-12 md:col-4">
+			<p-radioButton value="Expense" label="Expense" formControlName="expenseOrIncome"></p-radioButton>
+			<p-radioButton value="Income" label="Income" formControlName="expenseOrIncome"></p-radioButton>
 
-		<div class="col-12 md:col-6">
+		</div>
+		<div class="col-12 md:col-4">
 			<p-button label="Add Category" [disabled]="!addCategoryForm.valid" (onClick)="onSubmit(formDirective)">
 			</p-button>
 		</div>
@@ -27,6 +31,8 @@
 			<tr>
 				<th pSortableColumn="categoryName">Category <p-sortIcon field="categoryName"></p-sortIcon>
 				</th>
+				<th pSortableColumn="type">Type <p-sortIcon field="type"></p-sortIcon>
+				</th>
 				<th></th>
 				<th></th>
 			</tr>
@@ -40,6 +46,19 @@
 						</ng-template>
 						<ng-template pTemplate="output">
 							{{category.categoryName}}
+						</ng-template>
+					</p-cellEditor>
+				</td>
+				<td>
+					<p-cellEditor>
+						<ng-template pTemplate="input">
+							<p-radioButton name="expenseOrIncome" label="Expense" value='Expense'
+								[(ngModel)]="category.expenseOrIncome"></p-radioButton>
+							<p-radioButton name="expenseOrIncome" label="Income" value='Income'
+								[(ngModel)]="category.expenseOrIncome"></p-radioButton>
+						</ng-template>
+						<ng-template pTemplate="output">
+							{{category.expenseOrIncome}}
 						</ng-template>
 					</p-cellEditor>
 				</td>

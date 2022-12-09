@@ -3,10 +3,7 @@ import { UntypedFormControl, UntypedFormGroup, FormGroupDirective, Validators } 
 import { ApiService } from '../api.service';
 import { Category, NewCategory } from '../category';
 import { ConfirmationService } from 'primeng/api';
-import { DialogModule } from 'primeng/dialog';
 import { TransactionFilters } from '../transactionfilters';
-import { Transaction } from '../transaction';
-
 
 @Component({
   selector: 'app-manage-categories',
@@ -36,6 +33,7 @@ export class ManageCategoriesComponent implements OnInit {
   createForm() {
     this.addCategoryForm = new UntypedFormGroup({
       categoryName: new UntypedFormControl('', Validators.required),
+      expenseOrIncome: new UntypedFormControl('Expense'),
     });
   }
 
@@ -46,14 +44,13 @@ export class ManageCategoriesComponent implements OnInit {
   }
 
   addCategoryToDb(f: UntypedFormGroup) {
-
     let newCategory: NewCategory = {
       categoryName: f.controls['categoryName'].value,
+      expenseOrIncome: f.controls['expenseOrIncome'].value,
     }
-
     this.apiService.addCategory(newCategory)
       .subscribe((categoryReturned) => {
-        // use the returned transaction to updated the existing categories table
+        // use the returned transaction to update the existing categories table
         // copy the array so that the transactions component sees the change
         this.existingCategories = [...this.existingCategories, categoryReturned];
       });
