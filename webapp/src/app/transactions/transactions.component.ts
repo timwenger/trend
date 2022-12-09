@@ -14,7 +14,8 @@ export class TransactionsComponent implements OnInit, OnChanges {
 
   @Input() transactions!: Transaction[];
   @Input() categories: Category[] = [];
-  totalAmount: number = 0;
+  totalExpensesAmount: number = 0;
+  totalIncomeAmount: number = 0;
 
   transactionEditBackups: { [id: number]: Transaction; } = {};
 
@@ -33,13 +34,18 @@ export class TransactionsComponent implements OnInit, OnChanges {
   }
 
   updateSummary(transactions: Transaction[]): void {
-    this.getTotalAmount();
+    this.getTotalAmounts();
   }
 
-  getTotalAmount() {
-    this.totalAmount = 0;
-    for (let transaction of this.transactions)
-      this.totalAmount += transaction.amount;
+  getTotalAmounts() {
+    this.totalExpensesAmount = 0;
+    for (let transaction of this.transactions) {
+      if (transaction.category.expenseOrIncome == "Expense")
+        this.totalExpensesAmount += transaction.amount;
+      else
+        this.totalIncomeAmount += transaction.amount;
+    }
+
   }
 
   confirmDelete(event: Event, transaction: Transaction) {

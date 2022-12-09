@@ -1,7 +1,8 @@
 <p-card header="Summary" [style]="{'width': '25rem', 'margin-bottom': '2em'}">
   <ng-template pTemplate="header">
   </ng-template>
-  <p>Total = {{totalAmount | currency}}</p>
+  <p>Total Expenses = {{totalExpensesAmount | currency}}</p>
+  <p>Total Income = {{totalIncomeAmount | currency}}</p>
 </p-card>
 
 <p-table [value]="transactions" dataKey="id" responsiveLayout="scroll" sortField="dateOfTransaction" [sortOrder]="-1"

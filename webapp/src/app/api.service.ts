@@ -27,6 +27,12 @@ export class ApiService {
 
     return this.http.get<Transaction[]>(url, { params: filter as any })
       .pipe(
+        map(transactions => 
+          // transactions come with their full category object, so we convert that from a dbCategory first
+          transactions.map(transaction => {
+            this.convertDbCategoryToCategory(transaction.category)
+            return transaction;
+          })),
         tap(_ => this.logMsg('fetched transactions using this filter:' + JSON.stringify(filter))),
         catchError(this.handleError<Transaction[]>('getTransactions', filter as any))
       );
