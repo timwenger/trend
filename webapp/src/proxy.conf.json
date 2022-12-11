@@ -1,0 +1,6 @@
+{
+    "/api": {
+    "target": "https://trendapi20221210154024.azurewebsites.net",
+    "secure": true
+  }
+}
