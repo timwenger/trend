@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule, Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms'; // <-- NgModel lives here
 import { ReactiveFormsModule, } from '@angular/forms';
 
@@ -67,6 +67,7 @@ import { NoCategoriesComponent } from './no-categories/no-categories.component';
 
   providers: [
     ConfirmationService,
+    Title,
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]
