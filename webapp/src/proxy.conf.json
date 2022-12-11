@@ -1,6 +1,6 @@
 {
     "/api": {
-    "target": "https://localhost:7247",
-    "secure": false,
+    "target": "https://trendapi20221210154024.azurewebsites.net",
+    "secure": false
   }
 }
