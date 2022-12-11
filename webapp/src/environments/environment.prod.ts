@@ -1,4 +1,5 @@
 // this page is a copy/paste of environment.ts, except that the baseUrl is changed
+export const apiBaseUrl = 'https://trendapi20221210154024.azurewebsites.net/'
 export const baseUrl = 'https://trendapp.azurewebsites.net/';
 
 export const environment = {

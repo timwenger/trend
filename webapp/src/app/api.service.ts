@@ -5,14 +5,14 @@ import { MessageService } from './message.service';
 import { NewTransaction, Transaction } from './transaction';
 import { Category, NewCategory, DbCategory, NewDbCategory } from './category';
 import { TransactionFilters } from './transactionfilters';
-import { baseUrl } from 'src/environments/environment';
+import { apiBaseUrl } from 'src/environments/environment.prod';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class ApiService {
-  private baseUrl = baseUrl + 'api/';
+  private apiBaseUrl = apiBaseUrl + 'api/';
   private transactionsApiUrl = 'transactions';
   private categoriesApiUrl = 'categories';
 
@@ -23,7 +23,7 @@ export class ApiService {
 
 
   getTransactions(filter: TransactionFilters): Observable<Transaction[]> {
-    let url = this.baseUrl + this.transactionsApiUrl;
+    let url = this.apiBaseUrl + this.transactionsApiUrl;
 
     return this.http.get<Transaction[]>(url, { params: filter as any })
       .pipe(
@@ -39,7 +39,7 @@ export class ApiService {
   }
 
   addTransaction(newTransaction: NewTransaction): Observable<any> {
-    let url = this.baseUrl + this.transactionsApiUrl;
+    let url = this.apiBaseUrl + this.transactionsApiUrl;
     return this.http.post<NewTransaction>(url, newTransaction)
       .pipe(
         // handling response
@@ -49,7 +49,7 @@ export class ApiService {
   }
 
   updateTransaction(toBeUpdated: Transaction): Observable<Transaction> {
-    let url = this.baseUrl + this.transactionsApiUrl + '/' + toBeUpdated.id;
+    let url = this.apiBaseUrl + this.transactionsApiUrl + '/' + toBeUpdated.id;
     return this.http.put<Transaction>(url, toBeUpdated)
       .pipe(
         //handling response (no object is passed back)
@@ -59,7 +59,7 @@ export class ApiService {
   }
 
   deleteTransaction(toBeDeleted: Transaction): Observable<Transaction> {
-    let url = this.baseUrl + this.transactionsApiUrl + '/' + toBeDeleted.id;
+    let url = this.apiBaseUrl + this.transactionsApiUrl + '/' + toBeDeleted.id;
     return this.http.delete<Transaction>(url)
       .pipe(
         // handling response
@@ -70,7 +70,7 @@ export class ApiService {
 
   getCategories(): Observable<Category[]> {
     // https://stackoverflow.com/questions/49916203/changing-return-type-of-an-observable-with-map
-    return this.http.get<DbCategory[]>(this.baseUrl + this.categoriesApiUrl)
+    return this.http.get<DbCategory[]>(this.apiBaseUrl + this.categoriesApiUrl)
       .pipe(
         map<DbCategory[],Category[]>(dbCategories => 
           dbCategories.map(dbCategory => this.convertDbCategoryToCategory(dbCategory))),
@@ -87,7 +87,7 @@ export class ApiService {
   };
 
   addCategory(newCategory: NewCategory): Observable<any> {
-    let url = this.baseUrl + this.categoriesApiUrl;
+    let url = this.apiBaseUrl + this.categoriesApiUrl;
     return this.http.post<NewDbCategory>(url, this.convertCategoryToDbCategory(newCategory))
       .pipe(
         //handling response
@@ -97,7 +97,7 @@ export class ApiService {
   }
 
   updateCategory(toBeUpdated: Category): Observable<Category> {
-    let url = this.baseUrl + this.categoriesApiUrl + '/' + toBeUpdated.id;
+    let url = this.apiBaseUrl + this.categoriesApiUrl + '/' + toBeUpdated.id;
     return this.http.put<DbCategory>(url, this.convertCategoryToDbCategory(toBeUpdated))
       .pipe(
         //handling response (no object is passed back)
@@ -126,7 +126,7 @@ export class ApiService {
   }
 
   deleteCategory(toBeDeleted: Category): Observable<Category> {
-    let url = this.baseUrl + this.categoriesApiUrl + '/' + toBeDeleted.id;
+    let url = this.apiBaseUrl + this.categoriesApiUrl + '/' + toBeDeleted.id;
     // I'm not converting the category to a dbCategory here, 
     // because I'm just deleting it. Only the ID needs to be right
     return this.http.delete<Category>(url)
