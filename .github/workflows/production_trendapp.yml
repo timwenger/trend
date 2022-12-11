@@ -51,6 +51,5 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'trendapp'
-          slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D553BEEB5A8D4BA8A324BEC7987F580F }}
-          package: .
+          package: webapp/dist/webapp
