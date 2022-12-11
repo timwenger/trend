@@ -19,7 +19,7 @@ export const environment = {
     // have an intersection of the user permissions and the api permissions.
     // https://community.auth0.com/t/scopes-vs-permissions-confusion/30906/10
     // https://auth0.com/blog/permissions-privileges-and-scopes/
-    scope: 'write:categories write:transactions update:current_user_identities', // Request this scope at user authentication time
+    scope: 'write:categories write:transactions', // Request this scope at user authentication time
     httpInterceptor: {
       allowedList: [
         {
