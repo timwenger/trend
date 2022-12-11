@@ -1,5 +1,5 @@
 // this page is a copy/paste of environment.ts, except that the baseUrl is changed
-export const baseUrl = 'https://trendapp.azurewebsites.net';
+export const baseUrl = 'https://trendapp.azurewebsites.net/';
 
 export const environment = {
   production: true,
