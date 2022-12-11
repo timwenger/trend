@@ -24,7 +24,7 @@ export const environment = {
       allowedList: [
         {
           // Match any request that starts with '/api/' (note the asterisk)
-          uri: baseUrl + 'api/*',
+          uri: apiBaseUrl + 'api/*',
           tokenOptions: {
             // The attached token should target this audience
             //audience: 'trend007',
