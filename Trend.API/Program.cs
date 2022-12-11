@@ -21,6 +21,17 @@ builder.Services.AddDbContext<TrendDbContext>(options =>
     options.UseSqlServer(connectionString);
 });
 
+//https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0#attr
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("production",
+        policy =>
+        {
+            policy.WithOrigins("https://trendapp.azurewebsites.net")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+        });
+});
 
 // Auth0 Authentication
 // https://auth0.com/docs/quickstart/backend/aspnet-core-webapi-2/01-authorization
@@ -71,6 +82,7 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseRouting();
 #region These calls must go between UseRouting and UseEndPoints
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 #endregion

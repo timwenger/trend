@@ -4,10 +4,12 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using Trend.API.Models;
 using Trend.API.Filters;
+using Microsoft.AspNetCore.Cors;
 
 namespace Trend.API.Controllers
 {
     [ApiController]
+    [EnableCors("production")]
     [Authorize(Policy = "CanWriteToCategories")]
     [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
