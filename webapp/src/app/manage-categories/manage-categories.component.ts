@@ -13,7 +13,7 @@ import { TransactionFilters } from '../transactionfilters';
 export class ManageCategoriesComponent implements OnInit {
   addCategoryForm!: UntypedFormGroup;
   existingCategories: Category[] = [];
-  categoryEditBackups: { [id: number]: Category; } = {};
+  categoryEditBackups: { [id: string]: Category; } = {};
 
   constructor(
     private apiService: ApiService,
@@ -33,7 +33,7 @@ export class ManageCategoriesComponent implements OnInit {
   createForm() {
     this.addCategoryForm = new UntypedFormGroup({
       categoryName: new UntypedFormControl('', Validators.required),
-      expenseOrIncome: new UntypedFormControl('Expense'),
+      isIncome: new UntypedFormControl('Expense'),
     });
   }
 
@@ -44,9 +44,11 @@ export class ManageCategoriesComponent implements OnInit {
   }
 
   addCategoryToDb(f: UntypedFormGroup) {
+    let isIncome = f.controls['isIncome'].value == 'Income';
+    let name = (String)(f.controls['categoryName'].value).trim();
     let newCategory: NewCategory = {
-      categoryName: f.controls['categoryName'].value,
-      expenseOrIncome: f.controls['expenseOrIncome'].value,
+      categoryName: name,
+      isIncome: isIncome,
     }
     this.apiService.addCategory(newCategory)
       .subscribe((categoryReturned) => {
@@ -56,7 +58,9 @@ export class ManageCategoriesComponent implements OnInit {
       });
   }
 
-
+  getIsIncomeText(isIncome: boolean):String {
+    return isIncome? 'Income' : 'Expense';
+  }
 
 
 

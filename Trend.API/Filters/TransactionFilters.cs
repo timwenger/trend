@@ -1,32 +1,35 @@
-﻿using Trend.API.Models;
+﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
+using Trend.API.Models;
 
 namespace Trend.API.Filters
 {
     public class TransactionFilters
     {
-        // https://stackoverflow.com/questions/5541234/creating-dynamic-queries-with-entity-framework
         public bool DateFilter { get; set; }
         public DateTime DateOldest { get; set; }
         public DateTime DateLatest { get; set; }
         public bool CategoryFilter { get; set; }
-        public List<int>? SelectedCategoryIds { get; set; }
+        public List<string>? SelectedCategoryIds { get; set; }
 
-        public IQueryable<Transaction> GetTransactionQuery(TrendDbContext dbContext, string userId)
+
+        public FeedIterator<Transaction> GetFeedIterator(Container TransactionsContainer, string userId)
         {
-            IQueryable<Transaction> query = dbContext.Set<Transaction>();
+            var queryable = TransactionsContainer.GetItemLinqQueryable<Transaction>();
 
-            query = query.Where(t => t.UserId == userId);
+            var query = queryable.Where(t => t.UserId == userId);
 
             if (DateFilter)
                 query = query
-                .Where(t => DateTime.Compare(t.DateOfTransaction, DateOldest) >= 0)
-                .Where(t => DateTime.Compare(t.DateOfTransaction, DateLatest) <= 0);
+                .Where(t => t.DateOfTransaction > DateOldest && t.DateOfTransaction < DateLatest);
 
             if (CategoryFilter && SelectedCategoryIds != null)
                 query = query
-                .Where(t => SelectedCategoryIds.Contains( t.CategoryId) );
+                .Where(t => t.Categories.Any(c => SelectedCategoryIds.Contains(c.Id)));
 
-            return query;
+            FeedIterator<Transaction> iterator = query.ToFeedIterator();
+
+            return iterator;
         }
     }
 }

@@ -17,7 +17,7 @@ export class TransactionsComponent implements OnInit, OnChanges {
   totalExpensesAmount: number = 0;
   totalIncomeAmount: number = 0;
 
-  transactionEditBackups: { [id: number]: Transaction; } = {};
+  transactionEditBackups: { [id: string]: Transaction; } = {};
 
   constructor(
     private apiService: ApiService,
@@ -41,7 +41,7 @@ export class TransactionsComponent implements OnInit, OnChanges {
     this.totalExpensesAmount = 0;
     this.totalIncomeAmount = 0;
     for (let transaction of this.transactions) {
-      if (transaction.category.expenseOrIncome == "Expense")
+      if (transaction.categories[0].isIncome == false)
         this.totalExpensesAmount += transaction.amount;
       else
         this.totalIncomeAmount += transaction.amount;
@@ -85,7 +85,7 @@ export class TransactionsComponent implements OnInit, OnChanges {
   onRowEditSave(transaction: Transaction) {
     delete this.transactionEditBackups[transaction.id];
     // update the category id based on the category, as this is how the category is saved in the db
-    transaction.categoryId = transaction.category.id;
+    transaction.categories[0].id = transaction.categories[0].id;
     // edit trans in db
     this.apiService.updateTransaction(transaction)
       .subscribe(/* I'm not using the returned deleted transaction */);

@@ -1,25 +1,15 @@
-using Trend.API.Models;
-using Microsoft.EntityFrameworkCore;
 using Trend.API;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
+using Trend.API.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<TrendDbContext>(options =>
-{
-    // set the TrendDbContext string in appsettings.json
-    // I think that it's traditionally set in that file so that the db can
-    // be changed between dev and production environments
-    string connectionString = builder.Configuration.GetConnectionString("TrendDbContext");
-    options.UseSqlServer(connectionString);
-});
+builder.Services.AddSingleton<TrendDbContext>();
 
 //https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0#attr
 builder.Services.AddCors(options =>

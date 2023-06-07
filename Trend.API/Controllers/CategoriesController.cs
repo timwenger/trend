@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using Microsoft.EntityFrameworkCore;
 using Trend.API.Models;
 using Trend.API.Filters;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 
 namespace Trend.API.Controllers
 {
@@ -14,16 +15,14 @@ namespace Trend.API.Controllers
     [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
     {
+        private readonly Container CategoriesContainer;
+        private readonly Container TransactionsContainer;
 
-        public readonly TrendDbContext _dbContext;
 
-        /// <summary>
-        /// Here we inject a database context.
-        /// </summary>
         public CategoriesController(TrendDbContext dbContext)
         {
-            _dbContext = dbContext;
-            _dbContext.Database.EnsureCreated();
+            CategoriesContainer = dbContext.GetContainer("Categories");
+            TransactionsContainer = dbContext.GetContainer("Transactions");
         }
 
         [HttpGet]
@@ -33,22 +32,35 @@ namespace Trend.API.Controllers
             if (uid == null)
                 return Unauthorized();
 
-            // loading data from related tables
-            // https://docs.microsoft.com/en-us/ef/core/querying/related-data/
-            Category[] categories = await _dbContext.Categories
-                .Where(c => c.UserId == uid)
-                .ToArrayAsync();
+            var queryableCategories = CategoriesContainer.GetItemLinqQueryable<Category>();
+            using FeedIterator<Category> categoriesFeed = queryableCategories
+                .Where(category => category.UserId ==  uid)
+                .ToFeedIterator();
+
+            List<Category> categories = new();
+
+            while (categoriesFeed.HasMoreResults)
+            {
+                var response = await categoriesFeed.ReadNextAsync();
+                foreach (Category item in response)
+                    categories.Add(item);
+            }
+
             return Ok(categories);
         }
-
+        
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetCategory(int id)
+        public async Task<ActionResult> GetCategory(string id)
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (uid == null)
                 return Unauthorized();
 
-            Category? category = await _dbContext.Categories.FindAsync(id);
+            Category category = await CategoriesContainer.ReadItemAsync<Category>(
+                id: id,
+                partitionKey: new PartitionKey(id)
+            );
+
             if (category == null)
                 return NotFound();
 
@@ -69,70 +81,146 @@ namespace Trend.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
+            category.Id = Guid.NewGuid().ToString();
             category.UserId = uid;
-            _dbContext.Categories.Add(category);
-            await _dbContext.SaveChangesAsync();
 
+            Category? createdItem = null;
+            try
+            {
+                createdItem = await CategoriesContainer.CreateItemAsync(
+                    item: category,
+                    partitionKey: new PartitionKey(category.Id)
+                );
+            }
+            catch (CosmosException e)
+            {
+                if (e.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    return Forbid(e.Message);
+                else
+                    return NotFound(e.Message);  // includes too many requests
+            }
             return CreatedAtAction(
                 "AddCategory",
-                new { id = category.Id },
-                category);
+                new { id = createdItem.Id },
+                createdItem);
         }
-
+        
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> PutCategory(int id, Category category)
+        public async Task<ActionResult> PutCategory(string id, Category category)
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (uid == null || uid != category.UserId)
                 return Unauthorized();
 
-            if (id != category.Id)
+            if (id != category.Id.ToString())
                 return BadRequest();
 
-            _dbContext.Entry(category).State = EntityState.Modified;
-
+            Category? replacedItem = null;
             try
             {
-                await _dbContext.SaveChangesAsync();
+                replacedItem = await CategoriesContainer.ReplaceItemAsync(
+                    item: category,
+                    id: id,
+                    partitionKey: new PartitionKey(id)
+                );
             }
-            catch (DbUpdateConcurrencyException)
+            catch (CosmosException e)
             {
-                if (!_dbContext.Categories.Any(c => c.Id == id))
-                    return NotFound();
-                throw;
+                if(e.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    return Forbid(e.Message);
+                else 
+                    return NotFound(e.Message);  // includes too many requests
             }
+
+
+            // Update all the transaction documents that use this category
+            // This is a lot of processing, but I think that's okay, since you don't normally change a category
+            TransactionFilters filters = new ();
+            filters.CategoryFilter = true;
+            filters.SelectedCategoryIds = new List<string> { category.Id };
+
+            FeedIterator<Transaction> transactionsFeed = filters.GetFeedIterator(TransactionsContainer, uid);
+
+            List<Transaction> transThatNeedUpdating = new();
+
+            while (transactionsFeed.HasMoreResults)
+            {
+                var response = await transactionsFeed.ReadNextAsync();
+                foreach (Transaction item in response)
+                    transThatNeedUpdating.Add(item);
+            }
+
+            foreach(Transaction toReplace in transThatNeedUpdating)
+            {
+                try
+                {
+                    await TransactionsContainer.ReplaceItemAsync(
+                        item: toReplace,
+                        id: toReplace.Id,
+                        partitionKey: new PartitionKey(toReplace.Id)
+                    );
+                }
+                catch (CosmosException e)
+                {
+                    if (e.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                        return Forbid(e.Message);
+                    else
+                        return NotFound(e.Message);  // includes too many requests
+                }
+            }
+
             return NoContent();
         }
 
+        
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Category>> DeleteCategory(int id)
+        public async Task<ActionResult<Category>> DeleteCategory(string id)
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (uid == null)
                 return Unauthorized();
 
-            Category? category = await _dbContext.Categories.FindAsync(id);
+            Category category = await CategoriesContainer.ReadItemAsync<Category>(
+                id: id,
+                partitionKey: new PartitionKey(id)
+            );
+
             if (category == null)
                 return NotFound();
 
             if (uid != category.UserId)
                 return Unauthorized();
 
+
             // Before deleting a category, check if there are any transactions using this category
             TransactionFilters filter = new TransactionFilters
-            { CategoryFilter = true, SelectedCategoryIds = new List<int> { id } };
+            { CategoryFilter = true, SelectedCategoryIds = new List<string> { id } };
 
-            Transaction[] transactions = await filter.GetTransactionQuery(_dbContext, uid)
-                .ToArrayAsync();
+            FeedIterator<Transaction> transactionsFeed = filter.GetFeedIterator(TransactionsContainer, uid);
+            List<Transaction> existingTransactions = new();
 
-            if (transactions.Length > 0)
+            while (transactionsFeed.HasMoreResults)
+            {
+                var response = await transactionsFeed.ReadNextAsync();
+                foreach (Transaction item in response)
+                    existingTransactions.Add(item);
+            }
+
+            if (existingTransactions.Count > 0)
                 return BadRequest();
 
-            _dbContext.Categories.Remove(category);
+            try
+            {
+                await CategoriesContainer.DeleteItemAsync<Category>(id, new PartitionKey(id));
+            }
+            catch (CosmosException e)
+            {
+                return NotFound(e.Message);  // too many requests
+            }
 
-            await _dbContext.SaveChangesAsync();
             return category;
         }
+        
     }
 }

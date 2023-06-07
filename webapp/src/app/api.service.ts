@@ -3,9 +3,9 @@ import { Injectable } from '@angular/core';
 import { Observable, of, tap, catchError, map } from 'rxjs';
 import { MessageService } from './message.service';
 import { NewTransaction, Transaction } from './transaction';
-import { Category, NewCategory, DbCategory, NewDbCategory } from './category';
+import { Category, NewCategory } from './category';
 import { TransactionFilters } from './transactionfilters';
-import { apiBaseUrl } from 'src/environments/environment.prod';
+import { apiBaseUrl } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -27,12 +27,6 @@ export class ApiService {
 
     return this.http.get<Transaction[]>(url, { params: filter as any })
       .pipe(
-        map(transactions => 
-          // transactions come with their full category object, so we convert that from a dbCategory first
-          transactions.map(transaction => {
-            this.convertDbCategoryToCategory(transaction.category)
-            return transaction;
-          })),
         tap(_ => this.logMsg('fetched transactions using this filter:' + JSON.stringify(filter))),
         catchError(this.handleError<Transaction[]>('getTransactions', filter as any))
       );
@@ -69,13 +63,9 @@ export class ApiService {
   }
 
   getCategories(): Observable<Category[]> {
-    // https://stackoverflow.com/questions/49916203/changing-return-type-of-an-observable-with-map
-    return this.http.get<DbCategory[]>(this.apiBaseUrl + this.categoriesApiUrl)
+    return this.http.get<Category[]>(this.apiBaseUrl + this.categoriesApiUrl)
       .pipe(
-        map<DbCategory[],Category[]>(dbCategories => 
-          dbCategories.map(dbCategory => this.convertDbCategoryToCategory(dbCategory))),
-        // categories will come in order of their ID. 
-        // sort them by their name instead
+        // sort categories by their name
         map(categories => categories.sort(this.categoryCompareFn)),
         tap(_ => this.logMsg('fetched categories')),
         catchError(this.handleError<Category[]>('getCategories', []))
@@ -88,17 +78,16 @@ export class ApiService {
 
   addCategory(newCategory: NewCategory): Observable<any> {
     let url = this.apiBaseUrl + this.categoriesApiUrl;
-    return this.http.post<NewDbCategory>(url, this.convertCategoryToDbCategory(newCategory))
+    return this.http.post<NewCategory>(url, newCategory)
       .pipe(
         //handling response
-        map(dbCategory => this.convertDbCategoryToCategory(dbCategory)),
         catchError(this.handleError<any>('addCategory', newCategory))
       );
   }
 
   updateCategory(toBeUpdated: Category): Observable<Category> {
     let url = this.apiBaseUrl + this.categoriesApiUrl + '/' + toBeUpdated.id;
-    return this.http.put<DbCategory>(url, this.convertCategoryToDbCategory(toBeUpdated))
+    return this.http.put<Category>(url, toBeUpdated)
       .pipe(
         //handling response (no object is passed back)
         tap(_ => this.logMsg('updated this category:' + JSON.stringify(toBeUpdated))),
@@ -106,29 +95,8 @@ export class ApiService {
       );
   }
 
-  // input and output args are not typed so that the object
-  // does not need to be copied (just add a new property) and
-  // can be used for NewCategories (without an id) as well
-  convertDbCategoryToCategory(category: any):any{
-    if(category.isIncome == true)
-      category.expenseOrIncome = 'Income';
-    else
-      category.expenseOrIncome = 'Expense';
-    return category;
-  }
-
-  convertCategoryToDbCategory(category: any):any{
-    if(category.expenseOrIncome == 'Income')
-      category.isIncome = true;
-    else
-      category.isIncome = false;
-    return category;
-  }
-
   deleteCategory(toBeDeleted: Category): Observable<Category> {
     let url = this.apiBaseUrl + this.categoriesApiUrl + '/' + toBeDeleted.id;
-    // I'm not converting the category to a dbCategory here, 
-    // because I'm just deleting it. Only the ID needs to be right
     return this.http.delete<Category>(url)
       .pipe(
         //handling response

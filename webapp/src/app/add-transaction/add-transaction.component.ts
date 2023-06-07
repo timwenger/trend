@@ -76,7 +76,9 @@ export class AddTransactionComponent implements OnInit {
     let newTransaction: NewTransaction = {
       dateTimeWhenRecorded: dateTimeNow,
       dateOfTransaction: transDate,
-      categoryId: selectedCategory['id'],
+      categories: [
+        selectedCategory
+      ],
       amount: f.controls['amountInput'].value,
       transactionDescription: f.controls['descriptionInput'].value,
     }

@@ -1,8 +1,7 @@
 import { Category } from './category';
 
 export interface Transaction extends NewTransaction {
-	id: number;
-	category: Category;
+	id: string;
 }
 
 export interface NewTransaction {
@@ -10,5 +9,5 @@ export interface NewTransaction {
 	dateOfTransaction: string;
 	amount: number;
 	transactionDescription: string;
-	categoryId: number;
+	categories: Category[];
 }

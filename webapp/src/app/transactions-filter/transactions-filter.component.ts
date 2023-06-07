@@ -65,7 +65,7 @@ export class TransactionsFilterComponent implements OnInit {
   }
 
   buildFilter(form: UntypedFormGroup): TransactionFilters {
-    let ids: number[] = [];
+    let ids: string[] = [];
     let categories: Category[] = form.controls['multiSelectDropdown'].value;
     if (categories != null) {
       for (let selectedCategory of categories)

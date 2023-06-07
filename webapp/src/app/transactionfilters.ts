@@ -3,5 +3,5 @@ export interface TransactionFilters {
 	dateOldest: string;
 	dateLatest: string;
 	categoryFilter: boolean;
-	selectedCategoryIds: number[];
+	selectedCategoryIds: string[];
 }

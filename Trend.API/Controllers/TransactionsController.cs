@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Azure.Cosmos;
 using System.Security.Claims;
 using Trend.API.Filters;
 using Trend.API.Models;
@@ -15,15 +15,14 @@ namespace Trend.API.Controllers
     public class TransactionsController : ControllerBase
     {
 
-        public readonly TrendDbContext _dbContext;
+        private readonly Container TransactionsContainer;
 
         /// <summary>
         /// Here we inject a database context.
         /// </summary>
         public TransactionsController(TrendDbContext dbContext)
         {
-            _dbContext = dbContext;
-            _dbContext.Database.EnsureCreated();
+            TransactionsContainer = dbContext.GetContainer("Transactions");
         }
 
         [HttpGet]
@@ -33,25 +32,34 @@ namespace Trend.API.Controllers
             if (uid == null)
                 return Unauthorized();
 
-            // loading data from related tables
-            // https://docs.microsoft.com/en-us/ef/core/querying/related-data/
-            Transaction[] filteredTransactions = await transactionFilters.GetTransactionQuery(_dbContext, uid)
-                .Include(trans => trans.Category)
-                .ToArrayAsync();
+            using FeedIterator<Transaction> transactionsFeed = transactionFilters.GetFeedIterator(TransactionsContainer, uid);
+
+            List<Transaction> filteredTransactions = new();
+
+            while (transactionsFeed.HasMoreResults)
+            {
+                var response = await transactionsFeed.ReadNextAsync();
+                foreach (Transaction item in response)
+                    filteredTransactions.Add(item);
+            }
+
             return Ok(filteredTransactions);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult> GetTransaction(int id)
+        public async Task<ActionResult> GetTransaction(string id)
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (uid == null)
                 return Unauthorized();
 
-            Transaction? transaction = await _dbContext.Transactions.FindAsync(id);
+            Transaction transaction = await TransactionsContainer.ReadItemAsync<Transaction>(
+                id: id,
+                partitionKey: new PartitionKey(id)
+            );
 
             if (transaction == null)
-            return NotFound();
+                return NotFound();
 
             if (uid != transaction.UserId)
                 return Unauthorized();
@@ -70,9 +78,24 @@ namespace Trend.API.Controllers
                 return BadRequest();
 
 
+            transaction.Id = Guid.NewGuid().ToString();
             transaction.UserId = uid;
-            _dbContext.Transactions.Add(transaction);
-            await _dbContext.SaveChangesAsync();
+
+            Transaction? createdItem = null;
+            try
+            {
+                createdItem = await TransactionsContainer.CreateItemAsync(
+                    item: transaction,
+                    partitionKey: new PartitionKey(transaction.Id)
+                );
+            }
+            catch (CosmosException e)
+            {
+                if (e.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    return Forbid(e.Message);
+                else
+                    return NotFound(e.Message);  // includes too many requests
+            }
 
             return CreatedAtAction(
                 "AddTransaction",
@@ -81,47 +104,61 @@ namespace Trend.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> PutTransaction(int id, Transaction transaction)
+        public async Task<ActionResult> PutTransaction(string id, Transaction transaction)
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (uid == null || uid != transaction.UserId)
                 return Unauthorized();
-         
+
             if (id != transaction.Id)
                 return BadRequest();
 
-            _dbContext.Entry(transaction).State = EntityState.Modified;
-
             try
             {
-                await _dbContext.SaveChangesAsync();
+                Transaction replacedItem = await TransactionsContainer.ReplaceItemAsync(
+                    item: transaction,
+                    id: id,
+                    partitionKey: new PartitionKey(id)
+                );
             }
-            catch (DbUpdateConcurrencyException)
+            catch (CosmosException e)
             {
-                if (!_dbContext.Transactions.Any(t => t.Id == id))
-                    return NotFound();
-                throw;
+                if (e.StatusCode == System.Net.HttpStatusCode.Forbidden)
+                    return Forbid(e.Message);
+                else
+                    return NotFound(e.Message);  // includes too many requests
             }
+
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Transaction>> DeleteTransaction(int id)
+        public async Task<ActionResult<Transaction>> DeleteTransaction(string id)
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (uid == null)
                 return Unauthorized();
 
-            Transaction? transaction = await _dbContext.Transactions.FindAsync(id);
+            Transaction transaction = await TransactionsContainer.ReadItemAsync<Transaction>(
+                id: id,
+                partitionKey: new PartitionKey(id)
+            );
+
             if (transaction == null)
                 return NotFound();
 
             if (uid != transaction.UserId)
                 return Unauthorized();
 
-            _dbContext.Transactions.Remove(transaction);
+            try
+            {
+                await TransactionsContainer.DeleteItemAsync<Transaction>(id, new PartitionKey(id));
+            }
+            catch (CosmosException e)
+            {
+                return NotFound(e.Message);  // too many requests
+            }
 
-            await _dbContext.SaveChangesAsync();
             return transaction;
         }
     }    

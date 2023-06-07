@@ -39,11 +39,11 @@
         <p-cellEditor>
           <ng-template pTemplate="input">
             <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
-            <p-dropdown [(ngModel)]="transaction.category" appendTo="body" [options]="categories"
+            <p-dropdown [(ngModel)]="transaction.categories[0]" appendTo="body" [options]="categories"
               optionLabel="categoryName"></p-dropdown>
           </ng-template>
           <ng-template pTemplate="output">
-            {{transaction.category.categoryName}}
+            {{transaction.categories[0].categoryName}}
           </ng-template>
         </p-cellEditor>
       </td>

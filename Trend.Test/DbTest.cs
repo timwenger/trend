@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 using Trend.API.Controllers;
@@ -19,7 +18,7 @@ namespace Trend.Test
 
         private static readonly object _lock = new();
         private static bool _databaseInitialized;
-
+/*
         public TestDatabaseFixture()
         {
             lock (_lock)
@@ -57,12 +56,12 @@ namespace Trend.Test
         [Fact]
         public async Task GetSeededData()
         {
-            using var context = Fixture.CreateContext();
-            var transactionFilters = new TransactionFilters();
-            Transaction[] filteredTransactions = await transactionFilters.GetTransactionQuery(context).Include(trans => trans.Category).ToArrayAsync();
+            //using var context = Fixture.CreateContext();
+            //var transactionFilters = new TransactionFilters();
+            //Transaction[] filteredTransactions = await transactionFilters.GetTransactionQuery(context).Include(trans => trans.Category).ToArrayAsync();
 
-            Assert.Equal("Camping gear", filteredTransactions[0].TransactionDescription);
+            //Assert.Equal("Camping gear", filteredTransactions[0].TransactionDescription);
         }
-
+*/
     }
 }
