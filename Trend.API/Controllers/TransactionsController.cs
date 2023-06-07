@@ -9,7 +9,7 @@ using Trend.API.Models;
 namespace Trend.API.Controllers
 {
     [ApiController]
-    [EnableCors("production")]
+    [EnableCors("ProductionOrDevEnvironment")]
     [Authorize(Policy = "CanWriteToTransactions")]
     [Route("api/[controller]")]
     public class TransactionsController : ControllerBase

@@ -9,15 +9,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.AddSingleton<TrendDbContext>();
+string endpoint = builder.Configuration["DbContext:COSMOS_ENDPOINT"] ?? string.Empty;
+string accountKey = builder.Configuration["DbContext:COSMOS_KEY"] ?? string.Empty;
+TrendDbContext dbContext = new TrendDbContext(endpoint, accountKey);
+builder.Services.AddSingleton<TrendDbContext>(dbContext);
 
 //https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0#attr
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("production",
+    string allowedOrigins = builder.Configuration["Cors:AllowedOrigins"]?? string.Empty;
+
+    options.AddPolicy("ProductionOrDevEnvironment",
         policy =>
         {
-            policy.WithOrigins("https://trendapp.azurewebsites.net")
+            policy.WithOrigins(allowedOrigins)
             .AllowAnyMethod()
             .AllowAnyHeader();
         });

@@ -10,7 +10,7 @@ using Microsoft.Azure.Cosmos.Linq;
 namespace Trend.API.Controllers
 {
     [ApiController]
-    [EnableCors("production")]
+    [EnableCors("ProductionOrDevEnvironment")]
     [Authorize(Policy = "CanWriteToCategories")]
     [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
