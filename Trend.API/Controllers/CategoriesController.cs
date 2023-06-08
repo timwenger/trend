@@ -116,10 +116,10 @@ namespace Trend.API.Controllers
             if (id != category.Id.ToString())
                 return BadRequest();
 
-            Category? replacedItem = null;
+            Category? replacedCategory = null;
             try
             {
-                replacedItem = await CategoriesContainer.ReplaceItemAsync(
+                replacedCategory = await CategoriesContainer.ReplaceItemAsync(
                     item: category,
                     id: id,
                     partitionKey: new PartitionKey(id)
@@ -153,6 +153,12 @@ namespace Trend.API.Controllers
 
             foreach(Transaction toReplace in transThatNeedUpdating)
             {
+                for (int i = 0; i < toReplace.Categories.Count; i++)
+                {
+                    if (toReplace.Categories[i].Id == replacedCategory.Id)
+                        toReplace.Categories[i] = replacedCategory;
+                }
+
                 try
                 {
                     await TransactionsContainer.ReplaceItemAsync(
