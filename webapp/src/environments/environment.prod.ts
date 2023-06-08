@@ -1,4 +1,7 @@
-// this page is a copy/paste of environment.ts, except that the baseUrl is changed
+// this page is a copy/paste of environment.ts, except that the baseUrl and apiBaseUrl are changed.
+// when compiling, it chooses which to use based on the production = true / false property
+
+
 export const apiBaseUrl = 'https://trendapi20221210154024.azurewebsites.net/'
 export const baseUrl = 'https://trendapp.azurewebsites.net/';
 

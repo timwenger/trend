@@ -2,7 +2,7 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-
+export const apiBaseUrl = 'https://localhost:7247/'
 export const baseUrl = 'http://localhost:4200/';
 
 export const environment = {
@@ -27,7 +27,7 @@ export const environment = {
       allowedList: [
         {
           // Match any request that starts with '/api/' (note the asterisk)
-          uri: baseUrl + 'api/*',
+          uri: apiBaseUrl + 'api/*',
           tokenOptions: {
             // The attached token should target this audience
             //audience: 'trend007',
