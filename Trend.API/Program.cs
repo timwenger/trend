@@ -5,6 +5,13 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Trend.API.Models;
 
+/*
+ * Note: Commits made to this production branch will trigger the following github action
+ * production_trendapi20221210154024.yml
+ * which will re-publish this ASP.NET app to Azure
+ */
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
