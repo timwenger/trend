@@ -5,8 +5,8 @@ export interface Transaction extends NewTransaction {
 }
 
 export interface NewTransaction {
-	dateTimeWhenRecorded: string;
-	dateOfTransaction: string;
+	dateTimeWhenRecorded: Date;
+	dateOfTransaction: Date;
 	amount: number;
 	transactionDescription: string;
 	categories: Category[];

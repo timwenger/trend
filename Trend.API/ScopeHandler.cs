@@ -20,7 +20,7 @@ namespace Trend.API
             var scopes = context.User.FindFirst(c => c.Type == scopeClaim && c.Issuer == requirement.Issuer)?.Value.Split(' ');
 
             // Mark the requirement as successful / passed if the user's scope array contains the required scope
-            if (scopes.Any(s => s == requirement.Scope))
+            if (scopes != null && scopes.Any(s => s == requirement.Scope))
                 context.Succeed(requirement);
 
             return Task.CompletedTask;

@@ -88,6 +88,6 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 #endregion
-app.UseEndpoints(endpoints => endpoints.MapControllers());
+app.MapControllers();
 
 app.Run();

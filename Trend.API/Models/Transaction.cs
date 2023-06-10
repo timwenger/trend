@@ -11,6 +11,7 @@ namespace Trend.API.Models
         public decimal Amount { get; set; }
         public string TransactionDescription { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
-        public List<Category>? Categories { get; set; }
+        // new here guarantees the category list will never be null (though it may be empty)
+        public List<Category> Categories { get; set; } = new List<Category>(); 
     }
 }

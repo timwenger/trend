@@ -26,8 +26,8 @@
         <p-cellEditor>
           <ng-template pTemplate="input">
             <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
-            <p-calendar [(ngModel)]="transaction.dateOfTransaction" appendTo="body" [selectOtherMonths]="true"
-              dateFormat="MM d, yy"></p-calendar>
+            <p-calendar [(ngModel)]="transaction.dateOfTransaction" value="transaction.dateOfTransaction" appendTo="body" [selectOtherMonths]="true"
+              dateFormat="M d, yy"></p-calendar>
           </ng-template>
           <ng-template pTemplate="output">
             {{transaction.dateOfTransaction | date}}

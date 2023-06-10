@@ -34,8 +34,9 @@ export class AddTransactionComponent implements OnInit {
   }
 
   createForm() {
+    // new Date().toDateString() just keeps the date, so hours and minutes are removed
     this.addTransactionForm = new UntypedFormGroup({
-      dateOfTransaction: new UntypedFormControl({ value: new Date(), disabled: false }, Validators.required,),
+      dateOfTransaction: new UntypedFormControl({ value: new Date(new Date().toDateString()), disabled: false }, Validators.required,),
       categoryDropdown: new UntypedFormControl('', Validators.required),
       amountInput: new UntypedFormControl('', Validators.required),
       descriptionInput: new UntypedFormControl(''),
@@ -52,6 +53,8 @@ export class AddTransactionComponent implements OnInit {
     // keep selected date and category for next entry
     calendar.setValue(selectedDate);
     category.setValue(selectedCategory);
+    // description field isn't required, so set it to an empty string so it isn't null
+    f.form.controls['descriptionInput'].setValue('');
   }
 
   onClickPrevDate(f: FormGroupDirective){
@@ -69,8 +72,8 @@ export class AddTransactionComponent implements OnInit {
   }
   
   addTransactionToDb(f: UntypedFormGroup) {
-    let dateTimeNow = this.utilityService.getLocalIsoDateTime(new Date());
-    let transDate = this.utilityService.getLocalIsoDateTime(f.controls['dateOfTransaction'].value);
+    let dateTimeNow = new Date();
+    let transDate = f.controls['dateOfTransaction'].value;
     let selectedCategory = f.controls['categoryDropdown'].value;
 
     let newTransaction: NewTransaction = {

@@ -19,9 +19,13 @@ namespace Trend.API.Filters
 
             var query = queryable.Where(t => t.UserId == userId);
 
+            // in case the t.DateOfTransaction was recorded with hours and minutes too, it won't compare
+            // correctly with the DateLatest, which has no hours, minutes, so it compares it to midnight.
+            // instead, we compare less than the next day.
+            DateLatest = DateLatest.AddDays(1);
             if (DateFilter)
                 query = query
-                .Where(t => t.DateOfTransaction > DateOldest && t.DateOfTransaction < DateLatest);
+                .Where(t => t.DateOfTransaction >= DateOldest && t.DateOfTransaction < DateLatest);
 
             if (CategoryFilter && SelectedCategoryIds != null)
                 query = query
