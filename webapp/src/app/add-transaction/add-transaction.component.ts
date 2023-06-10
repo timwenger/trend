@@ -72,8 +72,8 @@ export class AddTransactionComponent implements OnInit {
   }
   
   addTransactionToDb(f: UntypedFormGroup) {
-    let dateTimeNow = this.utilityService.getLocalIsoDateTime(new Date());
-    let transDate = this.utilityService.getLocalIsoDateTime(f.controls['dateOfTransaction'].value);
+    let dateTimeNow = new Date();
+    let transDate = f.controls['dateOfTransaction'].value;
     let selectedCategory = f.controls['categoryDropdown'].value;
 
     let newTransaction: NewTransaction = {

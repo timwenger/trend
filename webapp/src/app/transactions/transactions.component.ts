@@ -80,12 +80,12 @@ export class TransactionsComponent implements OnInit, OnChanges {
   onRowEditInit(transaction: Transaction) {
     // make a deep copy, not just a new ref to the same obj
     this.transactionEditBackups[transaction.id] = { ...transaction };
+    // editing calendar doesn't read the date for some reason unless it's a new date :/
+    transaction.dateOfTransaction = new Date(transaction.dateOfTransaction);
   }
 
   onRowEditSave(transaction: Transaction) {
     delete this.transactionEditBackups[transaction.id];
-    // update the category id based on the category, as this is how the category is saved in the db
-    transaction.categories[0].id = transaction.categories[0].id;
     // edit trans in db
     this.apiService.updateTransaction(transaction)
       .subscribe(/* I'm not using the returned deleted transaction */);
