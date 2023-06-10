@@ -14,11 +14,11 @@ namespace Trend.Test
 
         // with docker installed, I used this command to create a local db:
         // docker run --name TrendTestContainer -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=Test12345" -p 5555:1433 -d mcr.microsoft.com/mssql/server:2019-latest
-        private const string ConnectionString = @"Server=localhost,5555;Database=TestDb;User ID=SA;Password=Test12345;Connection Timeout=30;";
+/*        private const string ConnectionString = @"Server=localhost,5555;Database=TestDb;User ID=SA;Password=Test12345;Connection Timeout=30;";
 
         private static readonly object _lock = new();
         private static bool _databaseInitialized;
-/*
+
         public TestDatabaseFixture()
         {
             lock (_lock)
