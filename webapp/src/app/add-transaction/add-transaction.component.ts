@@ -34,8 +34,9 @@ export class AddTransactionComponent implements OnInit {
   }
 
   createForm() {
+    // new Date().toDateString() just keeps the date, so hours and minutes are removed
     this.addTransactionForm = new UntypedFormGroup({
-      dateOfTransaction: new UntypedFormControl({ value: new Date(), disabled: false }, Validators.required,),
+      dateOfTransaction: new UntypedFormControl({ value: new Date(new Date().toDateString()), disabled: false }, Validators.required,),
       categoryDropdown: new UntypedFormControl('', Validators.required),
       amountInput: new UntypedFormControl('', Validators.required),
       descriptionInput: new UntypedFormControl(''),
