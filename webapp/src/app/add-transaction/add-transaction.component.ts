@@ -52,6 +52,8 @@ export class AddTransactionComponent implements OnInit {
     // keep selected date and category for next entry
     calendar.setValue(selectedDate);
     category.setValue(selectedCategory);
+    // description field isn't required, so set it to an empty string so it isn't null
+    f.form.controls['descriptionInput'].setValue('');
   }
 
   onClickPrevDate(f: FormGroupDirective){
