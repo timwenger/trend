@@ -27,7 +27,6 @@ export class ApiService {
 
     return this.http.get<Transaction[]>(url, { params: filter as any })
       .pipe(
-        tap(_ => this.logMsg('fetched transactions using this filter:' + JSON.stringify(filter))),
         catchError(this.handleError<Transaction[]>('getTransactions', filter as any))
       );
   }
@@ -36,8 +35,6 @@ export class ApiService {
     let url = this.apiBaseUrl + this.transactionsApiUrl;
     return this.http.post<NewTransaction>(url, newTransaction)
       .pipe(
-        // handling response
-        tap(addedTransaction => this.logMsg('added this transaction:' + JSON.stringify(addedTransaction))),
         catchError(this.handleError<any>('addTransaction', newTransaction))
       );
   }
@@ -46,8 +43,6 @@ export class ApiService {
     let url = this.apiBaseUrl + this.transactionsApiUrl + '/' + toBeUpdated.id;
     return this.http.put<Transaction>(url, toBeUpdated)
       .pipe(
-        //handling response (no object is passed back)
-        tap(_ => this.logMsg('updated this transaction:' + JSON.stringify(toBeUpdated))),
         catchError(this.handleError<any>('updateTransaction', toBeUpdated))
       );
   }
@@ -56,8 +51,6 @@ export class ApiService {
     let url = this.apiBaseUrl + this.transactionsApiUrl + '/' + toBeDeleted.id;
     return this.http.delete<Transaction>(url)
       .pipe(
-        // handling response
-        tap(_ => this.logMsg('deleted this transaction:' + JSON.stringify(toBeDeleted))),
         catchError(this.handleError<any>('deleteTransaction', toBeDeleted))
       );
   }
@@ -67,7 +60,6 @@ export class ApiService {
       .pipe(
         // sort categories by their name
         map(categories => categories.sort(this.categoryCompareFn)),
-        tap(_ => this.logMsg('fetched categories')),
         catchError(this.handleError<Category[]>('getCategories', []))
       );
   }
@@ -80,7 +72,6 @@ export class ApiService {
     let url = this.apiBaseUrl + this.categoriesApiUrl;
     return this.http.post<NewCategory>(url, newCategory)
       .pipe(
-        //handling response
         catchError(this.handleError<any>('addCategory', newCategory))
       );
   }
@@ -89,8 +80,6 @@ export class ApiService {
     let url = this.apiBaseUrl + this.categoriesApiUrl + '/' + toBeUpdated.id;
     return this.http.put<Category>(url, toBeUpdated)
       .pipe(
-        //handling response (no object is passed back)
-        tap(_ => this.logMsg('updated this category:' + JSON.stringify(toBeUpdated))),
         catchError(this.handleError<any>('updateCategory', toBeUpdated))
       );
   }
@@ -99,8 +88,6 @@ export class ApiService {
     let url = this.apiBaseUrl + this.categoriesApiUrl + '/' + toBeDeleted.id;
     return this.http.delete<Category>(url)
       .pipe(
-        //handling response
-        tap(deleted => this.logMsg('deleted this Category:' + JSON.stringify(deleted))),
         catchError(this.handleError<any>('deleteCategory', toBeDeleted))
       );
   }
@@ -119,10 +106,8 @@ export class ApiService {
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
 
-      // TODO: send the error to remote logging infrastructure
-      console.error(error); // log to console instead
+      console.error(error);
 
-      // TODO: better job of transforming error for user consumption
       this.logMsg(`${operation} failed: ${error.message}`);
 
       // Let the app keep running by returning an empty result.
