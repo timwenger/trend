@@ -41,10 +41,21 @@ export class TransactionsComponent implements OnInit, OnChanges {
     this.totalExpensesAmount = 0;
     this.totalIncomeAmount = 0;
     for (let transaction of this.transactions) {
-      if (transaction.categories[0].isIncome == false)
-        this.totalExpensesAmount += transaction.amount;
-      else
+      // awkward, but if a transaction has categories that are income
+      // and categories that are expenses, I'll include it in both counts.
+      let hasIncome = false;
+      let hasExpense = false;
+      for (let category of transaction.categories) {
+        if (category.isIncome)
+          hasIncome = true;
+        else
+          hasExpense = true;
+      }
+
+      if (hasIncome)
         this.totalIncomeAmount += transaction.amount;
+      if (hasExpense)
+        this.totalExpensesAmount += transaction.amount;
     }
 
   }
