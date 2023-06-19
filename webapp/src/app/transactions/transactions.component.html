@@ -39,11 +39,13 @@
         <p-cellEditor>
           <ng-template pTemplate="input">
             <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
-            <p-dropdown [(ngModel)]="transaction.categories[0]" appendTo="body" [options]="categories"
-              optionLabel="categoryName"></p-dropdown>
+            <p-multiSelect [(ngModel)]="transaction.categories" appendTo="body" [options]="categories"
+              optionLabel="categoryName" display="chip"></p-multiSelect>
           </ng-template>
           <ng-template pTemplate="output">
-            {{transaction.categories[0].categoryName}}
+            <div *ngFor="let category of transaction.categories">
+              {{category.categoryName}}
+            </div>
           </ng-template>
         </p-cellEditor>
       </td>

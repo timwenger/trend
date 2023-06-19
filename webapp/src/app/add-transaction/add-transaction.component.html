@@ -20,8 +20,8 @@
 		</div>
 
 		<div class="col-12 md:col-4">
-			<p-dropdown formControlName="categoryDropdown" [options]="allCategories" placeholder="Category"
-				optionLabel="categoryName"></p-dropdown>
+			<p-multiSelect formControlName="categoriesDropdown" [options]="allCategories" placeholder="Tagged Categories"
+				optionLabel="categoryName" display="chip"></p-multiSelect>
 		</div>
 
 		<div class="col-12 md:col-4">
