@@ -14,10 +14,10 @@ import { AddTransactionComponent } from './add-transaction/add-transaction.compo
 import { TopBarComponent } from './top-bar/top-bar.component';
 
 import { ButtonModule } from 'primeng/button';
-import { CalendarModule } from 'primeng/calendar';
+import { DatePicker } from 'primeng/datepicker';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { DropdownModule } from 'primeng/dropdown';
+import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { MenubarModule } from 'primeng/menubar';
@@ -25,7 +25,7 @@ import { RippleModule } from 'primeng/ripple';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmationService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
-import {RadioButtonModule} from 'primeng/radiobutton';
+import { RadioButtonModule } from 'primeng/radiobutton';
 
 import { AuthModule, AuthHttpInterceptor } from '@auth0/auth0-angular';
 import { environment } from '../environments/environment';
@@ -51,10 +51,10 @@ import { NoCategoriesComponent } from './no-categories/no-categories.component';
     ReactiveFormsModule,
 
     ButtonModule,
-    CalendarModule,
+    DatePicker,
     BrowserAnimationsModule,
     MultiSelectModule,
-    DropdownModule,
+    Select,
     TableModule,
     CardModule,
     MenubarModule,

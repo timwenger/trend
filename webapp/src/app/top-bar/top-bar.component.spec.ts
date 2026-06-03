@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AuthModule } from '@auth0/auth0-angular';
 
 import { TopBarComponent } from './top-bar.component';
 
@@ -8,7 +9,8 @@ describe('TopBarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TopBarComponent ]
+      declarations: [ TopBarComponent ],
+      imports: [ AuthModule.forRoot({ domain: 'test.auth0.com', clientId: 'test' }) ]
     })
     .compileComponents();
   });

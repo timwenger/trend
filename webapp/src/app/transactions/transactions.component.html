@@ -10,86 +10,96 @@
   <ng-template pTemplate="header">
     <tr>
       <th pSortableColumn="dateOfTransaction">Date <p-sortIcon field="dateOfTransaction"></p-sortIcon>
-      </th>
-      <th pSortableColumn="category.categoryName">Category <p-sortIcon field="category.categoryName"></p-sortIcon>
-      </th>
-      <th pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon>
-      </th>
-      <th>Description</th>
-      <th></th>
-      <th></th>
-    </tr>
-  </ng-template>
-  <ng-template pTemplate="body" let-transaction let-editing="editing" let-rowIndex="rowIndex">
-    <tr [pEditableRow]="transaction">
-      <td>
-        <p-cellEditor>
-          <ng-template pTemplate="input">
-            <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
-            <p-calendar [(ngModel)]="transaction.dateOfTransaction" value="transaction.dateOfTransaction" appendTo="body" [selectOtherMonths]="true"
-              dateFormat="M d, yy"></p-calendar>
-          </ng-template>
-          <ng-template pTemplate="output">
-            {{transaction.dateOfTransaction | date}}
-          </ng-template>
-        </p-cellEditor>
-      </td>
+    </th>
+    <th pSortableColumn="category.categoryName">Category <p-sortIcon field="category.categoryName"></p-sortIcon>
+  </th>
+  <th pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon>
+</th>
+<th>Description</th>
+<th></th>
+<th></th>
+</tr>
+</ng-template>
+<ng-template pTemplate="body" let-transaction let-editing="editing" let-rowIndex="rowIndex">
+  <tr [pEditableRow]="transaction">
+    <td>
+      <p-cellEditor>
+        <ng-template pTemplate="input">
+          <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
+          <p-datepicker [(ngModel)]="transaction.dateOfTransaction" value="transaction.dateOfTransaction" appendTo="body" [selectOtherMonths]="true"
+          dateFormat="M d, yy"></p-datepicker>
+        </ng-template>
+        <ng-template pTemplate="output">
+          {{transaction.dateOfTransaction | date}}
+        </ng-template>
+      </p-cellEditor>
+    </td>
 
-      <td>
-        <p-cellEditor>
-          <ng-template pTemplate="input">
-            <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
-            <p-multiSelect [(ngModel)]="transaction.categories" appendTo="body" [options]="categories"
-              optionLabel="categoryName" display="chip"></p-multiSelect>
-          </ng-template>
-          <ng-template pTemplate="output">
-            <div *ngFor="let category of transaction.categories">
+    <td>
+      <p-cellEditor>
+        <ng-template pTemplate="input">
+          <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
+          <p-multiSelect [(ngModel)]="transaction.categories" appendTo="body" [options]="categories"
+          optionLabel="categoryName" display="chip"></p-multiSelect>
+        </ng-template>
+        <ng-template pTemplate="output">
+          @for (category of transaction.categories; track category) {
+            <div>
               {{category.categoryName}}
             </div>
-          </ng-template>
-        </p-cellEditor>
-      </td>
-      <td>
-        <p-cellEditor>
-          <ng-template pTemplate="input">
-            <div class="p-inputgroup">
-              <span class="p-inputgroup-addon">$</span>
-              <input [(ngModel)]="transaction.amount" type="number" pInputText>
-            </div>
-          </ng-template>
-          <ng-template pTemplate="output">
-            {{transaction.amount | currency}}
-          </ng-template>
-        </p-cellEditor>
-      </td>
-      <td>
-        <p-cellEditor>
-          <ng-template pTemplate="input">
-            <input [(ngModel)]="transaction.transactionDescription" type="text" pInputText>
-          </ng-template>
-          <ng-template pTemplate="output">
-            {{transaction.transactionDescription}}
-          </ng-template>
-        </p-cellEditor>
-      </td>
-      <td style="text-align:center">
-        <button *ngIf="!editing" pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
+          }
+        </ng-template>
+      </p-cellEditor>
+    </td>
+    <td>
+      <p-cellEditor>
+        <ng-template pTemplate="input">
+          <div class="p-inputgroup">
+            <span class="p-inputgroup-addon">$</span>
+            <input [(ngModel)]="transaction.amount" type="number" pInputText>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="output">
+          {{transaction.amount | currency}}
+        </ng-template>
+      </p-cellEditor>
+    </td>
+    <td>
+      <p-cellEditor>
+        <ng-template pTemplate="input">
+          <input [(ngModel)]="transaction.transactionDescription" type="text" pInputText>
+        </ng-template>
+        <ng-template pTemplate="output">
+          {{transaction.transactionDescription}}
+        </ng-template>
+      </p-cellEditor>
+    </td>
+    <td style="text-align:center">
+      @if (!editing) {
+        <button pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
           (click)="onRowEditInit(transaction)" class="p-button-rounded p-button-text">
         </button>
-        <button *ngIf="editing" pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+      }
+      @if (editing) {
+        <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
           (click)="onRowEditSave(transaction)" class="p-button-rounded p-button-text p-button-success mr-2">
         </button>
-      </td>
-      <td style="text-align:center">
-        <p-confirmPopup></p-confirmPopup>
-        <button *ngIf="!editing" pButton pRipple type="button" icon="pi pi-trash"
+      }
+    </td>
+    <td style="text-align:center">
+      <p-confirmpopup></p-confirmpopup>
+      @if (!editing) {
+        <button pButton pRipple type="button" icon="pi pi-trash"
           (click)="confirmDelete($event, transaction)" class="p-button-rounded p-button-text">
         </button>
+      }
 
-        <button *ngIf="editing" pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+      @if (editing) {
+        <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
           (click)="onRowEditCancel(transaction, rowIndex)" class="p-button-rounded p-button-text p-button-danger">
         </button>
-      </td>
-    </tr>
-  </ng-template>
+      }
+    </td>
+  </tr>
+</ng-template>
 </p-table>

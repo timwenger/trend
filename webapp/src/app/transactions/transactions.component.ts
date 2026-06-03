@@ -6,9 +6,10 @@ import { Category } from '../category';
 
 
 @Component({
-  selector: 'app-transactions',
-  templateUrl: './transactions.component.html',
-  styleUrls: ['./transactions.component.css']
+    selector: 'app-transactions',
+    templateUrl: './transactions.component.html',
+    styleUrls: ['./transactions.component.css'],
+    standalone: false
 })
 export class TransactionsComponent implements OnInit, OnChanges {
 

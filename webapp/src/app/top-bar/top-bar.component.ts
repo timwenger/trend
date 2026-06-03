@@ -3,9 +3,10 @@ import { MenuItem } from 'primeng/api';
 import { AuthService } from '@auth0/auth0-angular';
 
 @Component({
-  selector: 'app-top-bar',
-  templateUrl: './top-bar.component.html',
-  styleUrls: ['./top-bar.component.css']
+    selector: 'app-top-bar',
+    templateUrl: './top-bar.component.html',
+    styleUrls: ['./top-bar.component.css'],
+    standalone: false
 })
 export class TopBarComponent implements OnInit {
   isLoggedIn!: boolean;

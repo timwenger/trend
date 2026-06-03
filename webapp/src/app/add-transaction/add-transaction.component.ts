@@ -6,9 +6,10 @@ import { NewTransaction, Transaction } from '../transaction';
 import { UtilityService } from '../utility.service';
 
 @Component({
-  selector: 'app-add-edit',
-  templateUrl: './add-transaction.component.html',
-  styleUrls: ['./add-transaction.component.css']
+    selector: 'app-add-edit',
+    templateUrl: './add-transaction.component.html',
+    styleUrls: ['./add-transaction.component.css'],
+    standalone: false
 })
 export class AddTransactionComponent implements OnInit {
   addTransactionForm!: UntypedFormGroup;
