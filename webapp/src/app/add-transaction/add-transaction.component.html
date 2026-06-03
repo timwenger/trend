@@ -1,52 +1,51 @@
 <h2>Add a Transaction</h2>
 <!-- ngIf used to only display the form once the categories have been fetched -->
-<form *ngIf="allCategories.length > 0 " #formDirective="ngForm" (ngSubmit)="onSubmit(formDirective)"
-	[formGroup]="addTransactionForm">
-	<div class="grid p-fluid">
-		<div class="col-12 md:col-4">
-			<div class="p-inputgroup">
-				<p-calendar formControlName="dateOfTransaction" [numberOfMonths]="1" [showIcon]="false"
-					[selectOtherMonths]="true" dateFormat="M d, yy"></p-calendar>
-				<span class="p-inputgroup-addon date-picker-arrows">
-					<p-button class="date-picker-arrows" icon="pi pi-angle-left" date-picker-arrows
-						(onClick)="onClickPrevDate(formDirective)"></p-button>
-				</span>
-				<span class="p-inputgroup-addon date-picker-arrows">
-					<p-button class="date-picker-arrows" icon="pi pi-angle-right"
-						(onClick)="onClickNextDate(formDirective)"></p-button>
-				</span>
-			</div>
-
-		</div>
-
-		<div class="col-12 md:col-4">
-			<p-multiSelect formControlName="categoriesDropdown" [options]="allCategories" placeholder="Tagged Categories"
-				optionLabel="categoryName" display="chip"></p-multiSelect>
-		</div>
-
-		<div class="col-12 md:col-4">
-			<div class="p-inputgroup">
-				<span class="p-inputgroup-addon">$</span>
-				<input formControlName="amountInput" type="number" pInputText placeholder="Amount">
-			</div>
-		</div>
-
-		<div class="col-12">
-			<div class="p-inputgroup">
-				<span class="p-inputgroup-addon">Description</span>
-				<input formControlName="descriptionInput" type="text" pInputText>
-			</div>
-		</div>
-	</div>
-
-	<div class="col-12 md:col-4">
-		<p-button label="Submit" [disabled]="!addTransactionForm.valid" (onClick)="onSubmit(formDirective)"></p-button>
-	</div>
-</form>
+@if (allCategories.length > 0 ) {
+  <form #formDirective="ngForm" (ngSubmit)="onSubmit(formDirective)"
+    [formGroup]="addTransactionForm">
+    <div class="grid p-fluid">
+      <div class="col-12 md:col-4">
+        <div class="p-inputgroup">
+          <p-datepicker formControlName="dateOfTransaction" [numberOfMonths]="1" [showIcon]="false"
+          [selectOtherMonths]="true" dateFormat="M d, yy"></p-datepicker>
+          <span class="p-inputgroup-addon date-picker-arrows">
+            <p-button class="date-picker-arrows" icon="pi pi-angle-left" date-picker-arrows
+            (onClick)="onClickPrevDate(formDirective)"></p-button>
+          </span>
+          <span class="p-inputgroup-addon date-picker-arrows">
+            <p-button class="date-picker-arrows" icon="pi pi-angle-right"
+            (onClick)="onClickNextDate(formDirective)"></p-button>
+          </span>
+        </div>
+      </div>
+      <div class="col-12 md:col-4">
+        <p-multiSelect formControlName="categoriesDropdown" [options]="allCategories" placeholder="Tagged Categories"
+        optionLabel="categoryName" display="chip"></p-multiSelect>
+      </div>
+      <div class="col-12 md:col-4">
+        <div class="p-inputgroup">
+          <span class="p-inputgroup-addon">$</span>
+          <input formControlName="amountInput" type="number" pInputText placeholder="Amount">
+        </div>
+      </div>
+      <div class="col-12">
+        <div class="p-inputgroup">
+          <span class="p-inputgroup-addon">Description</span>
+          <input formControlName="descriptionInput" type="text" pInputText>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 md:col-4">
+      <p-button label="Submit" [disabled]="!addTransactionForm.valid" (onClick)="onSubmit(formDirective)"></p-button>
+    </div>
+  </form>
+}
 
 <app-no-categories [visible]="noCategories"></app-no-categories>
 
-<div *ngIf="transactionsAddedSoFar.length > 0 ">
-	<h3>Added So Far:</h3>
-	<app-transactions [transactions]="transactionsAddedSoFar" [categories]="allCategories"></app-transactions>
-</div>
+@if (transactionsAddedSoFar.length > 0 ) {
+  <div>
+    <h3>Added So Far:</h3>
+    <app-transactions [transactions]="transactionsAddedSoFar" [categories]="allCategories"></app-transactions>
+  </div>
+}

@@ -6,9 +6,10 @@ import { ConfirmationService } from 'primeng/api';
 import { TransactionFilters } from '../transactionfilters';
 
 @Component({
-  selector: 'app-manage-categories',
-  templateUrl: './manage-categories.component.html',
-  styleUrls: ['./manage-categories.component.css']
+    selector: 'app-manage-categories',
+    templateUrl: './manage-categories.component.html',
+    styleUrls: ['./manage-categories.component.css'],
+    standalone: false
 })
 export class ManageCategoriesComponent implements OnInit {
   addCategoryForm!: UntypedFormGroup;

@@ -7,9 +7,10 @@ import { TransactionFilters } from '../transactionfilters';
 import { UtilityService } from '../utility.service';
 
 @Component({
-  selector: 'app-transactions-filter',
-  templateUrl: './transactions-filter.component.html',
-  styleUrls: ['./transactions-filter.component.css']
+    selector: 'app-transactions-filter',
+    templateUrl: './transactions-filter.component.html',
+    styleUrls: ['./transactions-filter.component.css'],
+    standalone: false
 })
 export class TransactionsFilterComponent implements OnInit {
   filterForm!: UntypedFormGroup;
