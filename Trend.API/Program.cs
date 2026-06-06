@@ -24,7 +24,7 @@ builder.Services.AddSingleton<TrendDbContext>(dbContext);
 //https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0#attr
 builder.Services.AddCors(options =>
 {
-    string allowedOrigins = builder.Configuration["Cors:AllowedOrigins"]?? string.Empty;
+    string allowedOrigins = builder.Configuration["Cors:AllowedOrigins"] ?? string.Empty;
 
     options.AddPolicy("ProductionOrDevEnvironment",
         policy =>
@@ -84,7 +84,8 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseRouting();
 #region These calls must go between UseRouting and UseEndPoints
-app.UseCors();
+// Apply the named CORS policy
+app.UseCors("ProductionOrDevEnvironment");
 app.UseAuthentication();
 app.UseAuthorization();
 #endregion
