@@ -62,7 +62,16 @@ import { NoCategoriesComponent } from './no-categories/no-categories.component';
     ConfirmPopupModule,
     DialogModule,
     RadioButtonModule,
-    AuthModule.forRoot(environment.auth),
+    AuthModule.forRoot({
+      domain: environment.auth.domain,
+      clientId: environment.auth.clientId,
+      authorizationParams: {
+        redirect_uri: environment.auth.redirectUri,
+        audience: environment.auth.audience,
+        scope: environment.auth.scope,
+      },
+      httpInterceptor: environment.auth.httpInterceptor,
+    }),
   ],
 
   providers: [
