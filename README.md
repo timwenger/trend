@@ -7,6 +7,7 @@
 ### The Trend.API backend app
 - install Visual studio with .NET 10
 - Ctrl Shift B to build the solution
+- push your changes to the production branch to kick off the github action to publish
 
 ### The webapp (angular)
 - Install Angular 20, 22, or 24
