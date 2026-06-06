@@ -3,6 +3,9 @@
 
 
 personal/
+Trend.API/appsettings.json
+Trend.API/appsettings.Production.json
+Trend.API/appsettings.Development.json
 
 
 
