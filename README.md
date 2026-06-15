@@ -6,14 +6,23 @@
 
 ### The Trend.API backend app
 - install Visual studio with .NET 10
-- setup your appsettings json files.
-    - duplicate `appsettings.Example.json` and rename it to `appsettings.json`
-    - duplicate `appsettings.Development.Example.json` and rename it to `appsettings.Development.json`
-    - duplicate `appsettings.Production.Example.json` and rename it to `appsettings.Production.json`
-    - make changes for the correct database, auth0 service, and CORS. These files are in the .gitignore files to ensure they are not committed so that your connection strings are not public. 
+#### development deployment
+- setup your appsettings configuration:
+    - duplicate `appsettings.json.example` and rename it to `appsettings.json`
+    - fill in your actual database connection string, Auth0 domain, and API identifier
+    - this file is in .gitignore to ensure secrets are not committed
 
-- Ctrl Shift B to build the solution
-- push your changes to the production branch to kick off the github action to publish
+- Hit one of the Visual Studio green arrows to run or debug the server, which listens on: https://localhost:7247
+
+#### Production deployment
+- The production API is deployed to Azure Web App via GitHub Actions when you push to the `production` branch
+- **There's no point to create `appsettings.Production.json`** — production configuration is managed via Azure App Service settings:
+  - Go to Azure Portal > Your app Service > API > CORS, and add the webapp's url to the Allowed Origins list
+  - Go to Azure Portal > Your app Service > Settings > Environment variables, and add the following (Note the double _ _ between json nested layers)
+    - `DbContext__COSMOS_ENDPOINT`
+    - `DbContext__COSMOS_KEY`
+    - `Auth0__Domain`
+    - `Auth0__ApiIdentifier`
 
 ### The webapp (angular)
 - Install Node 20, 22, or 24

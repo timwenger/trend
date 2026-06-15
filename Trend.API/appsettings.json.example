@@ -1,0 +1,20 @@
+{
+  "DbContext": {
+    "COSMOS_ENDPOINT": "https://your-cosmos-db.documents.azure.com:443/",
+    "COSMOS_KEY": "your-cosmos-db-key-here"
+  },
+  "Auth0": {
+    "Domain": "your-auth0-domain.auth0.com",
+    "ApiIdentifier": "your-api-identifier"
+  },
+  "Cors": {
+    "AllowedOrigins": "http://localhost:4200"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedOrigins": "<For CORS: your url of your web app when developing>"
+}
