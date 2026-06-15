@@ -33,6 +33,7 @@ export class TopBarComponent implements OnInit {
     return [
       {
         label: 'Find Transactions',
+        icon: 'pi pi-fw pi-search',
         routerLink: "/transactions",
       },
       {
