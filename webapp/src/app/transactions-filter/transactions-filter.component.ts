@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup, FormGroupDirective } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category } from '../category';
@@ -10,6 +10,7 @@ import { UtilityService } from '../utility.service';
     selector: 'app-transactions-filter',
     templateUrl: './transactions-filter.component.html',
     styleUrls: ['./transactions-filter.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class TransactionsFilterComponent implements OnInit {

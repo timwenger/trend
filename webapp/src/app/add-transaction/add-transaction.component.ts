@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators, FormGroupDirective, FormControl } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category } from '../category';
@@ -9,6 +9,7 @@ import { UtilityService } from '../utility.service';
     selector: 'app-add-edit',
     templateUrl: './add-transaction.component.html',
     styleUrls: ['./add-transaction.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class AddTransactionComponent implements OnInit {

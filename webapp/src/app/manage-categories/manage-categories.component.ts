@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, FormGroupDirective, Validators } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category, NewCategory } from '../category';
@@ -9,6 +9,7 @@ import { TransactionFilters } from '../transactionfilters';
     selector: 'app-manage-categories',
     templateUrl: './manage-categories.component.html',
     styleUrls: ['./manage-categories.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
 export class ManageCategoriesComponent implements OnInit {
