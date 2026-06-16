@@ -26,11 +26,14 @@ import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ConfirmationService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { RadioButtonModule } from 'primeng/radiobutton';
+import { CheckboxModule } from 'primeng/checkbox';
 
 import { AuthModule, AuthHttpInterceptor } from '@auth0/auth0-angular';
 import { environment } from '../environments/environment';
 import { ManageCategoriesComponent } from './manage-categories/manage-categories.component';
 import { NoCategoriesComponent } from './no-categories/no-categories.component';
+import { TrendsComponent } from './trends/trends.component';
+import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 
 @NgModule({
   declarations: [
@@ -42,6 +45,7 @@ import { NoCategoriesComponent } from './no-categories/no-categories.component';
     TopBarComponent,
     ManageCategoriesComponent,
     NoCategoriesComponent,
+    TrendsComponent,
   ],
   imports: [
     BrowserModule,
@@ -62,6 +66,8 @@ import { NoCategoriesComponent } from './no-categories/no-categories.component';
     ConfirmPopupModule,
     DialogModule,
     RadioButtonModule,
+    CheckboxModule,
+    BaseChartDirective,
     AuthModule.forRoot({
       domain: environment.auth.domain,
       clientId: environment.auth.clientId,
@@ -78,6 +84,7 @@ import { NoCategoriesComponent } from './no-categories/no-categories.component';
     ConfirmationService,
     Title,
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
+    provideCharts(withDefaultRegisterables()),
   ],
   bootstrap: [AppComponent]
 })

@@ -1,0 +1,99 @@
+<div class="trends-page p-4">
+  <h2>Trends</h2>
+
+  <div *ngIf="loading" class="loading-row">
+    <i class="pi pi-spin pi-spinner" style="font-size:2rem"></i>
+    <span>Loading transactions…</span>
+  </div>
+
+  <p-card *ngIf="!loading && errorMessage" styleClass="p-mb-4">
+    <p class="p-error">{{ errorMessage }}</p>
+  </p-card>
+
+  <ng-container *ngIf="!loading && !errorMessage">
+
+    <!-- Series controls -->
+    <p-card header="Series" styleClass="p-mb-4">
+      <div class="series-controls">
+        <div class="totals-row">
+          <span class="total-item total-income">
+            <span class="swatch swatch-income"></span>
+            Income: <strong>{{ totalIncome | currency }}</strong>
+          </span>
+          <span class="total-item total-expenses">
+            <span class="swatch swatch-expenses"></span>
+            Expenses: <strong>{{ totalExpenses | currency }}</strong>
+          </span>
+          <span class="total-item" [class.total-surplus]="totalIncome >= totalExpenses" [class.total-deficit]="totalIncome < totalExpenses">
+            Net: <strong>{{ totalIncome - totalExpenses | currency }}</strong>
+          </span>
+        </div>
+        <div class="categories-row">
+          <p-multiSelect
+            [options]="categoryGroupOptions"
+            [(ngModel)]="selection.customCategoryIds"
+            optionLabel="categoryName"
+            optionValue="id"
+            optionGroupLabel="label"
+            optionGroupChildren="items"
+            [group]="true"
+            placeholder="Add series…"
+            (onChange)="onSelectionChange()"
+            display="chip">
+          </p-multiSelect>
+          <p-button
+            [label]="defaultSaved ? 'Saved!' : 'Set as Default'"
+            [icon]="defaultSaved ? 'pi pi-check' : 'pi pi-bookmark'"
+            [severity]="defaultSaved ? 'success' : 'secondary'"
+            (onClick)="saveAsDefault()">
+          </p-button>
+        </div>
+      </div>
+    </p-card>
+
+    <!-- Short-term chart -->
+    <p-card header="Short-term" styleClass="p-mb-4">
+      <div class="chart-header-row">
+        <div class="date-range-row">
+          <p-datepicker [(ngModel)]="chart1Start" (ngModelChange)="onDateChange()" [showIcon]="false" dateFormat="M d, yy"></p-datepicker>
+          <span class="date-sep">&ndash;</span>
+          <p-datepicker [(ngModel)]="chart1End" (ngModelChange)="onDateChange()" [showIcon]="false" dateFormat="M d, yy"></p-datepicker>
+        </div>
+        <label class="series-toggle">
+          <p-checkbox [(ngModel)]="chart1ShowPriorYear" [binary]="true" (onChange)="onPriorYearChange(1)"></p-checkbox>
+          <span class="swatch-dashed">- - -</span>Overlay Prior Year
+        </label>
+        <label class="series-toggle">
+          <p-checkbox [(ngModel)]="chart1ShowScatter" [binary]="true" (onChange)="onChart1ScatterChange()"></p-checkbox>
+          <span class="swatch-dashed">&#10005;</span>Overlay Individual Transactions
+        </label>
+      </div>
+      <div class="chart-container">
+        <canvas baseChart [data]="chart1Data" [options]="chartOptions" type="line"></canvas>
+      </div>
+    </p-card>
+
+    <!-- Long-term chart -->
+    <p-card header="Long-term" styleClass="p-mb-4">
+      <div class="chart-header-row">
+        <div class="date-range-row">
+          <p-datepicker [(ngModel)]="chart2Start" (ngModelChange)="onDateChange()" [showIcon]="false" dateFormat="M d, yy"></p-datepicker>
+          <span class="date-sep">&ndash;</span>
+          <p-datepicker [(ngModel)]="chart2End" (ngModelChange)="onDateChange()" [showIcon]="false" dateFormat="M d, yy"></p-datepicker>
+        </div>
+        <label class="series-toggle">
+          <p-checkbox [(ngModel)]="chart2ShowPriorYear" [binary]="true" (onChange)="onPriorYearChange(2)"></p-checkbox>
+          <span class="swatch-dashed">- - -</span>Overlay Prior Year
+        </label>
+        <label class="series-toggle">
+          <p-checkbox [(ngModel)]="chart2ShowScatter" [binary]="true" (onChange)="onChart2ScatterChange()"></p-checkbox>
+          <span class="swatch-dashed">&#10005;</span>Overlay Individual Transactions
+        </label>
+      </div>
+      <div class="chart-container">
+        <canvas baseChart [data]="chart2Data" [options]="chartOptions" type="line"></canvas>
+      </div>
+    </p-card>
+
+  </ng-container>
+</div>

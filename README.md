@@ -28,7 +28,7 @@
 - Install Node 20, 22, or 24
 - `cd webapp`
 - Install cli globally on your machine: `npm install -g @angular/cli@latest`
-- install project dependencies: `npm install`
+- install project dependencies: `npm install --legacy-peer-deps` (legacy peer deps needed while deps like prime aren't yet compatible with Angular 22)
 - starts the dev server with hot reloading: `npm start`
 
 Tests:

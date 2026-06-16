@@ -1,0 +1,90 @@
+.trends-page h2 {
+  margin-bottom: 1.5rem;
+}
+
+.loading-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 200px;
+}
+
+.chart-container {
+  position: relative;
+  height: 350px;
+}
+
+.series-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.series-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.swatch-income  { background: #4caf50; }
+.swatch-expenses { background: #f44336; }
+
+.swatch-dashed {
+  color: #888;
+  font-weight: bold;
+  letter-spacing: -1px;
+  font-size: 0.85rem;
+}
+
+.categories-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.categories-row p-multiSelect {
+  flex: 1;
+}
+
+.totals-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 0.75rem;
+  align-items: center;
+}
+
+.total-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+}
+
+.total-surplus strong { color: #4caf50; }
+.total-deficit strong { color: #f44336; }
+
+.chart-header-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.chart-header-row .date-range-row {
+  margin-bottom: 0;
+}
+
