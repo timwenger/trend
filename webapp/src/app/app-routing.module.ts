@@ -7,6 +7,7 @@ import { ManageCategoriesComponent } from './manage-categories/manage-categories
 import { TrendsComponent } from './trends/trends.component';
 
 const routes: Routes = [
+  { path: '', redirectTo: 'trends', pathMatch: 'full' },
   { path: 'trends', component: TrendsComponent, canActivate: [AuthGuard] },
   { path: 'transactions', component: TransactionsFilterComponent, canActivate: [AuthGuard] },
   { path: 'add-transaction', component: AddTransactionComponent, canActivate: [AuthGuard] },
