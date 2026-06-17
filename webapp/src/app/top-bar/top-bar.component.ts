@@ -51,7 +51,12 @@ export class TopBarComponent implements OnInit {
         label: 'Manage Categories',
         icon: 'pi pi-fw pi-pencil',
         routerLink: "/manage-categories",
-      }
+      },
+      {
+        label: 'Logout',
+        icon: 'pi pi-power-off',
+        command: () => this.logout(),
+      },
     ];
   }
 

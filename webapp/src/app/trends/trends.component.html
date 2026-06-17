@@ -13,7 +13,7 @@
   <ng-container *ngIf="!loading && !errorMessage">
 
     <!-- Series controls -->
-    <p-card header="Series" styleClass="p-mb-4">
+    <p-card styleClass="p-mb-4">
       <div class="series-controls">
         <div class="totals-row">
           <span class="total-item total-income">
@@ -39,12 +39,16 @@
             [group]="true"
             placeholder="Add series…"
             (onChange)="onSelectionChange()"
-            display="chip">
+            display="chip"
+            appendTo="body">
           </p-multiSelect>
+        </div>
+        <div class="button-row">
           <p-button
             [label]="defaultSaved ? 'Saved!' : 'Set as Default'"
             [icon]="defaultSaved ? 'pi pi-check' : 'pi pi-bookmark'"
             [severity]="defaultSaved ? 'success' : 'secondary'"
+            size="small"
             (onClick)="saveAsDefault()">
           </p-button>
         </div>

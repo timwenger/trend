@@ -12,6 +12,8 @@ export interface StoredDefaults extends SeriesSelection {
   chart2DaysAgo: number;
   chart1ShowPriorYear: boolean;
   chart2ShowPriorYear: boolean;
+  chart1ShowScatter: boolean;
+  chart2ShowScatter: boolean;
 }
 
 const STORAGE_KEY = 'trend-defaults';
@@ -32,6 +34,8 @@ export class TrendAggregationService {
       chart2DaysAgo: 365,
       chart1ShowPriorYear: true,
       chart2ShowPriorYear: false,
+      chart1ShowScatter: true,
+      chart2ShowScatter: false,
     };
   }
 
@@ -53,6 +57,8 @@ export class TrendAggregationService {
     chart2Start: Date,
     chart1ShowPriorYear: boolean,
     chart2ShowPriorYear: boolean,
+    chart1ShowScatter: boolean,
+    chart2ShowScatter: boolean,
   ): StoredDefaults {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -63,6 +69,8 @@ export class TrendAggregationService {
       chart2DaysAgo: Math.round((today.getTime() - chart2Start.getTime()) / msPerDay),
       chart1ShowPriorYear,
       chart2ShowPriorYear,
+      chart1ShowScatter,
+      chart2ShowScatter,
     };
   }
 
@@ -170,11 +178,11 @@ export class TrendAggregationService {
 
     selection.customCategoryIds.forEach((catId, i) => {
       if (catId === '__income__') {
-        addSeries('Total Income', INCOME_COLOR, c => c.isIncome, datePoints, false);
-        if (showPriorYear) addSeries('Total Income (prior year)', INCOME_COLOR, c => c.isIncome, priorYearPoints, true);
+        addSeries('Income', INCOME_COLOR, c => c.isIncome, datePoints, false);
+        if (showPriorYear) addSeries('Income (prior year)', INCOME_COLOR, c => c.isIncome, priorYearPoints, true);
       } else if (catId === '__expenses__') {
-        addSeries('Total Expenses', EXPENSE_COLOR, c => !c.isIncome, datePoints, false);
-        if (showPriorYear) addSeries('Total Expenses (prior year)', EXPENSE_COLOR, c => !c.isIncome, priorYearPoints, true);
+        addSeries('Expenses', EXPENSE_COLOR, c => !c.isIncome, datePoints, false);
+        if (showPriorYear) addSeries('Expenses (prior year)', EXPENSE_COLOR, c => !c.isIncome, priorYearPoints, true);
       } else {
         const cat = allCategories.find(c => c.id === catId);
         if (!cat) return;

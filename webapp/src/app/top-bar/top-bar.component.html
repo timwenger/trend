@@ -1,15 +1,12 @@
-<p-menubar [model]="menuItems">
-  <ng-template pTemplate="start">
+<div class="top-bar-container">
+  <div class="top-bar-title">
     <h1>Trend</h1>
-  </ng-template>
-  <ng-template pTemplate="end">
-    @if (this.isLoggedIn) {
-      <div>
-        <!--profile picture or user name here -->
-        <button pButton (click)="logout()" label="Logout" icon="pi pi-power-off"></button>
-      </div>
-    } @else {
-      <button pButton (click)="login()" label="Login" icon="pi pi-angle-double-right"></button>
-    }
-  </ng-template>
-</p-menubar>
+  </div>
+  <p-menubar [model]="menuItems">
+    <ng-template pTemplate="end">
+      @if (!this.isLoggedIn) {
+        <button pButton (click)="login()" label="Login" icon="pi pi-angle-double-right"></button>
+      }
+    </ng-template>
+  </p-menubar>
+</div>

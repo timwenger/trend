@@ -45,8 +45,10 @@ export class TrendsComponent implements OnInit {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top',
+        position: 'bottom',
         labels: {
+          usePointStyle: true,
+          pointStyle: 'line',
           filter: item => !item.text?.startsWith('__scatter__'),
         },
       },
@@ -65,18 +67,26 @@ export class TrendsComponent implements OnInit {
     },
     scales: {
       y: {
-        title: { display: true, text: 'Running Totals' },
         ticks: {
-          callback: value => `$${(+value).toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+          callback: value => {
+            const n = +value;
+            if (Math.abs(n) >= 1_000_000) return `$${n / 1_000_000}M`;
+            if (Math.abs(n) >= 1_000) return `$${n / 1_000}k`;
+            return `$${n}`;
+          },
         },
       },
       y1: {
-        display: 'auto',
+        display: window.innerWidth > 600 ? 'auto' : false,
         position: 'right',
-        title: { display: true, text: 'Individual Transactions' },
         grid: { drawOnChartArea: false },
         ticks: {
-          callback: value => `$${(+value).toLocaleString('en-US', { maximumFractionDigits: 0 })}`,
+          callback: value => {
+            const n = +value;
+            if (Math.abs(n) >= 1_000_000) return `$${n / 1_000_000}M`;
+            if (Math.abs(n) >= 1_000) return `$${n / 1_000}k`;
+            return `$${n}`;
+          },
         },
       },
     },
@@ -127,6 +137,8 @@ export class TrendsComponent implements OnInit {
     };
     this.chart1ShowPriorYear = defaults.chart1ShowPriorYear;
     this.chart2ShowPriorYear = defaults.chart2ShowPriorYear;
+    this.chart1ShowScatter = defaults.chart1ShowScatter ?? true;
+    this.chart2ShowScatter = defaults.chart2ShowScatter ?? false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     this.chart1Start = this.aggregation.daysAgoToDate(defaults.chart1DaysAgo);
@@ -214,14 +226,23 @@ export class TrendsComponent implements OnInit {
 
   onChart1ScatterChange(): void {
     this.defaultSaved = false;
+    this.saveScatterToStorage();
     this.refreshChart1();
     this.cdr.markForCheck();
   }
 
   onChart2ScatterChange(): void {
     this.defaultSaved = false;
+    this.saveScatterToStorage();
     this.refreshChart2();
     this.cdr.markForCheck();
+  }
+
+  private saveScatterToStorage(): void {
+    const defaults = this.aggregation.loadDefaults();
+    defaults.chart1ShowScatter = this.chart1ShowScatter;
+    defaults.chart2ShowScatter = this.chart2ShowScatter;
+    this.aggregation.saveDefaults(defaults);
   }
 
   onDateChange(): void {
@@ -242,6 +263,7 @@ export class TrendsComponent implements OnInit {
     const defaults = this.aggregation.defaultsFromCurrentState(
       this.selection, this.chart1Start, this.chart2Start,
       this.chart1ShowPriorYear, this.chart2ShowPriorYear,
+      this.chart1ShowScatter, this.chart2ShowScatter,
     );
     this.aggregation.saveDefaults(defaults);
     this.defaultSaved = true;
