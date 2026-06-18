@@ -502,7 +502,15 @@ export class TrendsComponent implements OnInit {
     if (this.scrubPendingChart !== null && this.activeScrubChart === null) {
       const dx = Math.abs(event.clientX - this.scrubPointerDownX);
       const dy = Math.abs(event.clientY - this.scrubPointerDownY);
-      if (dx > 8 || dy > 8) {
+      if (dy > dx) {
+        // Primarily vertical — scroll the page manually and do not scrub
+        window.scrollBy(0, -(event.clientY - this.scrubPointerDownY));
+        this.scrubPointerDownX = event.clientX;
+        this.scrubPointerDownY = event.clientY;
+        this.scrubStartX = event.clientX;
+        return;
+      }
+      if (dx > 8) {
         this.activateScrub(this.scrubPendingChart);
       } else {
         return;
