@@ -15,19 +15,6 @@
     <!-- Series controls -->
     <p-card styleClass="p-mb-4">
       <div class="series-controls">
-        <div class="totals-row">
-          <span class="total-item total-income">
-            <span class="swatch swatch-income"></span>
-            Income: <strong>{{ totalIncome | currency }}</strong>
-          </span>
-          <span class="total-item total-expenses">
-            <span class="swatch swatch-expenses"></span>
-            Expenses: <strong>{{ totalExpenses | currency }}</strong>
-          </span>
-          <span class="total-item" [class.total-surplus]="totalIncome >= totalExpenses" [class.total-deficit]="totalIncome < totalExpenses">
-            Net: <strong>{{ totalIncome - totalExpenses | currency }}</strong>
-          </span>
-        </div>
         <div class="categories-row">
           <p-multiSelect
             [options]="categoryGroupOptions"
@@ -55,13 +42,13 @@
       </div>
     </p-card>
 
-    <!-- Short-term chart -->
-    <p-card header="Short-term" styleClass="p-mb-4">
+    <!-- Monthly rolling chart -->
+    <p-card header="Monthly Totals (30-day rolling)" styleClass="p-mb-4">
       <div class="chart-header-row">
         <div class="date-range-row">
-          <p-datepicker [(ngModel)]="chart1Start" (ngModelChange)="onDateChange()" [showIcon]="false" dateFormat="M d, yy"></p-datepicker>
+          <p-datepicker [(ngModel)]="chart1Start" (onSelect)="onDateChange()" (onBlur)="onDateChange()" [showIcon]="false" dateFormat="M d, yy"></p-datepicker>
           <span class="date-sep">&ndash;</span>
-          <p-datepicker [(ngModel)]="chart1End" (ngModelChange)="onDateChange()" [showIcon]="false" dateFormat="M d, yy"></p-datepicker>
+          <p-datepicker [(ngModel)]="chart1End" (onSelect)="onDateChange()" (onBlur)="onDateChange()" [showIcon]="false" dateFormat="M d, yy"></p-datepicker>
         </div>
         <label class="series-toggle">
           <p-checkbox [(ngModel)]="chart1ShowPriorYear" [binary]="true" (onChange)="onPriorYearChange(1)"></p-checkbox>
@@ -71,19 +58,23 @@
           <p-checkbox [(ngModel)]="chart1ShowScatter" [binary]="true" (onChange)="onChart1ScatterChange()"></p-checkbox>
           <span class="swatch-dashed">&#10005;</span>Overlay Individual Transactions
         </label>
+        <label class="series-toggle">
+          <p-checkbox [(ngModel)]="chart1StartAtZero" [binary]="true" (onChange)="onStartAtZeroChange(1)"></p-checkbox>
+          Start Y Axis at 0
+        </label>
       </div>
-      <div class="chart-container">
-        <canvas baseChart [data]="chart1Data" [options]="chartOptions" type="line"></canvas>
+      <div class="chart-container scrub-enabled" (pointerdown)="onChartScrubStart(1, $event)">
+        <canvas baseChart [data]="chart1Data" [options]="chart1Options" type="line"></canvas>
       </div>
     </p-card>
 
-    <!-- Long-term chart -->
-    <p-card header="Long-term" styleClass="p-mb-4">
+    <!-- Annual rolling chart -->
+    <p-card header="Annual Totals (365-day rolling)" styleClass="p-mb-4">
       <div class="chart-header-row">
         <div class="date-range-row">
-          <p-datepicker [(ngModel)]="chart2Start" (ngModelChange)="onDateChange()" [showIcon]="false" dateFormat="M d, yy"></p-datepicker>
+          <p-datepicker [(ngModel)]="chart2Start" (onSelect)="onDateChange()" (onBlur)="onDateChange()" [showIcon]="false" dateFormat="M d, yy"></p-datepicker>
           <span class="date-sep">&ndash;</span>
-          <p-datepicker [(ngModel)]="chart2End" (ngModelChange)="onDateChange()" [showIcon]="false" dateFormat="M d, yy"></p-datepicker>
+          <p-datepicker [(ngModel)]="chart2End" (onSelect)="onDateChange()" (onBlur)="onDateChange()" [showIcon]="false" dateFormat="M d, yy"></p-datepicker>
         </div>
         <label class="series-toggle">
           <p-checkbox [(ngModel)]="chart2ShowPriorYear" [binary]="true" (onChange)="onPriorYearChange(2)"></p-checkbox>
@@ -93,9 +84,23 @@
           <p-checkbox [(ngModel)]="chart2ShowScatter" [binary]="true" (onChange)="onChart2ScatterChange()"></p-checkbox>
           <span class="swatch-dashed">&#10005;</span>Overlay Individual Transactions
         </label>
+        <label class="series-toggle">
+          <p-checkbox [(ngModel)]="chart2StartAtZero" [binary]="true" (onChange)="onStartAtZeroChange(2)"></p-checkbox>
+          Start Y Axis at 0
+        </label>
       </div>
-      <div class="chart-container">
-        <canvas baseChart [data]="chart2Data" [options]="chartOptions" type="line"></canvas>
+      <div class="chart-container scrub-enabled" (pointerdown)="onChartScrubStart(2, $event)">
+        <ng-container *ngIf="!annualDateOnlyScrub; else annualScrubPreview">
+          <canvas baseChart [data]="chart2Data" [options]="chart2Options" type="line"></canvas>
+        </ng-container>
+        <ng-template #annualScrubPreview>
+          <div class="annual-scrub-preview">
+            <div class="annual-scrub-blank-plot"></div>
+            <div class="annual-scrub-x-axis">
+              <span *ngFor="let label of annualScrubXAxisLabels">{{ label }}</span>
+            </div>
+          </div>
+        </ng-template>
       </div>
     </p-card>
 

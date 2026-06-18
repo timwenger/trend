@@ -14,6 +14,8 @@ export interface StoredDefaults extends SeriesSelection {
   chart2ShowPriorYear: boolean;
   chart1ShowScatter: boolean;
   chart2ShowScatter: boolean;
+  chart1StartAtZero: boolean;
+  chart2StartAtZero: boolean;
 }
 
 const STORAGE_KEY = 'trend-defaults';
@@ -36,13 +38,20 @@ export class TrendAggregationService {
       chart2ShowPriorYear: false,
       chart1ShowScatter: true,
       chart2ShowScatter: false,
+      chart1StartAtZero: false,
+      chart2StartAtZero: false,
     };
   }
 
   loadDefaults(): StoredDefaults {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw) as StoredDefaults;
+      if (raw) {
+        return {
+          ...this.factoryDefaults(),
+          ...(JSON.parse(raw) as Partial<StoredDefaults>),
+        };
+      }
     } catch { /* ignore parse errors */ }
     return this.factoryDefaults();
   }
@@ -59,6 +68,8 @@ export class TrendAggregationService {
     chart2ShowPriorYear: boolean,
     chart1ShowScatter: boolean,
     chart2ShowScatter: boolean,
+    chart1StartAtZero: boolean,
+    chart2StartAtZero: boolean,
   ): StoredDefaults {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -71,6 +82,8 @@ export class TrendAggregationService {
       chart2ShowPriorYear,
       chart1ShowScatter,
       chart2ShowScatter,
+      chart1StartAtZero,
+      chart2StartAtZero,
     };
   }
 
@@ -95,7 +108,10 @@ export class TrendAggregationService {
   }
 
   formatLabel(d: Date): string {
-    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const month = d.toLocaleDateString('en-US', { month: 'short' });
+    const day = d.getDate();
+    const yy = String(d.getFullYear() % 100).padStart(2, '0');
+    return `${month} ${day} '${yy}`;
   }
 
   private computeTrailing(
@@ -140,11 +156,12 @@ export class TrendAggregationService {
     transactions: Transaction[],
     allCategories: Category[],
     selection: SeriesSelection,
+    rollingWindowDays: number,
     showPriorYear = false,
     includeScatterDots = false,
   ): ChartData<'line'> {
     const datePoints = this.buildDatePoints(startDate, endDate);
-    const windowDays = Math.max(1, datePoints.length);
+    const windowDays = Math.max(1, rollingWindowDays);
     const labels = datePoints.map(d => this.formatLabel(d));
 
     // Prior-year lookup points: same x-axis positions, but look up data from 1 year earlier

@@ -64,9 +64,7 @@
   /* Compact control text */
   .chart-header-row,
   .series-controls,
-  .totals-row,
-  .series-toggle,
-  .total-item {
+  .series-toggle {
     font-size: 0.82rem;
   }
 
@@ -87,9 +85,6 @@
   /* Tighter gaps */
   .chart-header-row {
     gap: 0.4rem;
-  }
-  .totals-row {
-    gap: 0.75rem;
   }
 
   /* Compact Set as Default button */
@@ -157,6 +152,49 @@
   flex-shrink: 0;
 }
 
+.scrub-enabled {
+  cursor: grab;
+  touch-action: none;
+}
+
+.scrub-enabled:active {
+  cursor: grabbing;
+}
+
+.annual-scrub-preview {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 0.6rem;
+  color: #cfd8dc;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 0.75rem 0.6rem 0.5rem;
+}
+
+.annual-scrub-blank-plot {
+  flex: 1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.annual-scrub-x-axis {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  opacity: 0.85;
+  line-height: 1;
+}
+
+.annual-scrub-x-axis span {
+  white-space: nowrap;
+}
+
 :host ::ng-deep .button-row .p-button {
   padding: 0.25rem 0.5rem !important;
 }
@@ -164,26 +202,6 @@
 :host ::ng-deep .button-row .p-button .p-button-label {
   font-size: 0.75rem;
 }
-
-.totals-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #e0e0e0;
-  margin-bottom: 0.75rem;
-  align-items: center;
-}
-
-.total-item {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.95rem;
-}
-
-.total-surplus strong { color: #4caf50; }
-.total-deficit strong { color: #f44336; }
 
 .chart-header-row {
   display: flex;
