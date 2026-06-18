@@ -86,6 +86,14 @@ export class TrendsComponent implements OnInit {
       },
       tooltip: {
         callbacks: {
+          title: ctx => {
+            const raw = ctx[0]?.raw as any;
+            // For scatter points, x is the formatted date label
+            if (raw?.desc !== undefined) {
+              return raw.x;
+            }
+            return ctx[0]?.label ?? '';
+          },
           label: ctx => {
             const raw = ctx.raw as any;
             if (raw?.desc !== undefined) {

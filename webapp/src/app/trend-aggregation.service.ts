@@ -230,11 +230,13 @@ export class TrendAggregationService {
 
         const scatterData = transactions
           .filter(t => {
-            const d = new Date(t.dateOfTransaction); d.setHours(0, 0, 0, 0);
+            const d = new Date(t.dateOfTransaction);
+            d.setHours(0, 0, 0, 0);
             return d >= start && d <= end && seriesFilter(t);
           })
           .map(t => {
-            const d = new Date(t.dateOfTransaction); d.setHours(0, 0, 0, 0);
+            const d = new Date(t.dateOfTransaction);
+            d.setHours(0, 0, 0, 0);
             const cats = t.categories.map(c => c.categoryName).join(', ');
             return { x: this.formatLabel(d), y: Math.abs(t.amount), desc: t.transactionDescription, cats };
           });
