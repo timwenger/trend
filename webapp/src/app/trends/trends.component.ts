@@ -53,7 +53,11 @@ export class TrendsComponent implements OnInit {
   chart2Options: ChartOptions<'line'> = this.buildChartOptions(this.chart2StartAtZero);
 
   private activeScrubChart: 1 | 2 | null = null;
+  private scrubPendingChart: 1 | 2 | null = null;  // set on pointerdown, before drag threshold
   private scrubStartX = 0;
+  private scrubPointerDownX = 0;
+  private scrubPointerDownY = 0;
+  private scrubCanvas: HTMLCanvasElement | null = null;
   private scrubAccumulatedPx = 0;
   private activeScrubSpanDays = 1;
   private activeScrubPlotWidthPx = 1;
@@ -460,17 +464,24 @@ export class TrendsComponent implements OnInit {
   }
 
   onChartScrubStart(chartNum: 1 | 2, event: PointerEvent): void {
-    this.activeScrubChart = chartNum;
+    this.scrubPendingChart = chartNum;
+    this.scrubPointerDownX = event.clientX;
+    this.scrubPointerDownY = event.clientY;
     this.scrubStartX = event.clientX;
     this.scrubAccumulatedPx = 0;
 
     const container = event.currentTarget as HTMLElement | null;
     this.activeScrubPlotWidthPx = Math.max(1, container?.clientWidth ?? 1);
+    this.scrubCanvas = container?.querySelector('canvas') ?? null;
     const msPerDay = 86_400_000;
     const spanStart = chartNum === 1 ? this.chart1Start : this.chart2Start;
     const spanEnd = chartNum === 1 ? this.chart1End : this.chart2End;
     this.activeScrubSpanDays = Math.max(1, Math.round((spanEnd.getTime() - spanStart.getTime()) / msPerDay));
+    // Don't activate scrub mode yet — wait until drag threshold is crossed
+  }
 
+  private activateScrub(chartNum: 1 | 2): void {
+    this.activeScrubChart = chartNum;
     if (chartNum === 1) {
       const fixedBounds = this.getFixedBoundsForScrub(this.chart1Data, this.chart1StartAtZero);
       this.chart1ScrubLightMode = true;
@@ -481,13 +492,22 @@ export class TrendsComponent implements OnInit {
       const fixedBounds = this.getFixedBoundsForScrub(this.chart2Data, this.chart2StartAtZero);
       this.chart2ScrubLightMode = true;
       this.chart2Options = this.buildChartOptions(this.chart2StartAtZero, true, fixedBounds, this.chart2ShowPriorYear);
-      // Skip chart re-render at scrub start for annual chart; we only update dates while dragging.
     }
     this.cdr.markForCheck();
   }
 
   @HostListener('window:pointermove', ['$event'])
   onGlobalPointerMove(event: PointerEvent): void {
+    // Activate scrub only after drag threshold (prevents tap from entering scrub mode)
+    if (this.scrubPendingChart !== null && this.activeScrubChart === null) {
+      const dx = Math.abs(event.clientX - this.scrubPointerDownX);
+      const dy = Math.abs(event.clientY - this.scrubPointerDownY);
+      if (dx > 8 || dy > 8) {
+        this.activateScrub(this.scrubPendingChart);
+      } else {
+        return;
+      }
+    }
     if (this.activeScrubChart === null) return;
 
     const delta = event.clientX - this.scrubStartX;
@@ -503,8 +523,10 @@ export class TrendsComponent implements OnInit {
     this.shiftChartWindow(this.activeScrubChart, -dayShift);
   }
 
-  @HostListener('window:pointerup')
-  onGlobalPointerUp(): void {
+  @HostListener('window:pointerup', ['$event'])
+  onGlobalPointerUp(event: PointerEvent): void {
+    const wasTap = this.scrubPendingChart !== null && this.activeScrubChart === null;
+
     if (this.activeScrubChart === 1) {
       this.chart1ScrubLightMode = false;
       this.chart1Options = this.buildChartOptions(this.chart1StartAtZero, false, undefined, this.chart1ShowPriorYear);
@@ -515,7 +537,20 @@ export class TrendsComponent implements OnInit {
       this.chart2Options = this.buildChartOptions(this.chart2StartAtZero, false, undefined, this.chart2ShowPriorYear);
       this.refreshChart2();
     }
+
+    // Tap: no drag occurred — dispatch a synthetic mousemove to the canvas so Chart.js shows the tooltip
+    if (wasTap && this.scrubCanvas) {
+      this.scrubCanvas.dispatchEvent(new MouseEvent('mousemove', {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        bubbles: true,
+        cancelable: true,
+      }));
+    }
+
     this.activeScrubChart = null;
+    this.scrubPendingChart = null;
+    this.scrubCanvas = null;
     this.scrubAccumulatedPx = 0;
     this.activeScrubSpanDays = 1;
     this.activeScrubPlotWidthPx = 1;
@@ -524,7 +559,7 @@ export class TrendsComponent implements OnInit {
 
   @HostListener('window:pointercancel')
   onGlobalPointerCancel(): void {
-    this.onGlobalPointerUp();
+    this.onGlobalPointerUp(new PointerEvent('pointercancel'));
   }
 
   private shiftChartWindow(chartNum: 1 | 2, shiftDays: number): void {
