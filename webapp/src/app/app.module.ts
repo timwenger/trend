@@ -16,6 +16,7 @@ import { TopBarComponent } from './top-bar/top-bar.component';
 import { ButtonModule } from 'primeng/button';
 import { DatePicker } from 'primeng/datepicker';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { InputText } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { Select } from 'primeng/select';
 import { TableModule } from 'primeng/table';
@@ -56,6 +57,7 @@ import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2
 
     ButtonModule,
     DatePicker,
+    InputText,
     BrowserAnimationsModule,
     MultiSelectModule,
     Select,

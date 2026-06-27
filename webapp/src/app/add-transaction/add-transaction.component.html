@@ -19,11 +19,11 @@
         </div>
       </div>
       <div class="col-12 md:col-4">
-        <p-multiSelect formControlName="categoriesDropdown" [options]="allCategories" placeholder="Tagged Categories"
+        <p-multiSelect class="w-full" formControlName="categoriesDropdown" [options]="allCategories" placeholder="Tagged Categories"
         optionLabel="categoryName" display="chip"></p-multiSelect>
       </div>
       <div class="col-12 md:col-4">
-        <div class="p-inputgroup">
+        <div class="p-inputgroup currency-inputgroup">
           <span class="p-inputgroup-addon">$</span>
           <input formControlName="amountInput" type="number" pInputText placeholder="Amount">
         </div>
