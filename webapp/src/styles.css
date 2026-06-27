@@ -40,3 +40,38 @@ html, body {
       padding: 0;
     }
   }
+
+.w-full.p-multiselect {
+  width: 100%;
+}
+
+.category-filter-row {
+  width: 100%;
+  padding: 0 0.75rem;
+}
+
+.category-filter-row .category-filter-input-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.category-filter-row .category-filter-input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.category-filter-row .category-filter-clear {
+  position: absolute;
+  right: 0.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.category-multiselect-panel .p-multiselect-list-container {
+  max-height: 24rem;
+}
+
+.category-multiselect-panel [role="option"].category-option-active {
+  outline: 1px solid var(--p-primary-color, #34d399);
+  outline-offset: -1px;
+}

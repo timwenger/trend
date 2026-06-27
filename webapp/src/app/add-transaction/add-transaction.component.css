@@ -24,10 +24,6 @@
   border-bottom-left-radius: 0;
 }
 
-:host ::ng-deep .w-full.p-multiselect {
-  width: 100%;
-}
-
 form {
   margin-bottom: 3rem;
 }
