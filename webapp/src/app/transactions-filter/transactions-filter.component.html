@@ -1,24 +1,36 @@
-<h2>Find Transactions</h2>
+<h2>Transactions</h2>
+<app-add-edit (transactionAdded)="onTransactionAdded()"></app-add-edit>
+
+<div class="find-header">
+  <h3>Find</h3>
+  <div class="find-totals">
+    <span class="find-total-expenses" aria-label="Expenses">
+      <i class="pi pi-arrow-down" aria-hidden="true"></i>
+      {{ totalExpensesAmount | currency }}
+    </span>
+    <span class="find-total-income" aria-label="Income">
+      <i class="pi pi-arrow-up" aria-hidden="true"></i>
+      {{ totalIncomeAmount | currency }}
+    </span>
+  </div>
+</div>
 <!-- ngIf used to only display the form once the categories have been fetched -->
 @if (allCategories.length > 0 ) {
-  <form #formDirective="ngForm" (ngSubmit)="onSubmit(formDirective)"
+  <form #formDirective="ngForm" (ngSubmit)="onSubmit()"
     [formGroup]="filterForm">
-    <div class="grid p-fluid">
-      <div class="col-12 md:col-4">
-        <div class="p-inputgroup">
-          <span class="p-inputgroup-addon">Oldest Date</span>
+    <div class="find-controls p-fluid">
+      <div class="find-date-range">
+        <div class="find-date">
           <p-datepicker formControlName="dateOfOldestTransaction" [showIcon]="true" dateFormat="M d, yy" appendTo="body">
           </p-datepicker>
         </div>
-      </div>
-      <div class="col-12 md:col-4">
-        <div class="p-inputgroup">
-          <span class="p-inputgroup-addon">Latest Date</span>
+        <span class="find-date-arrow" aria-hidden="true">→</span>
+        <div class="find-date">
           <p-datepicker formControlName="dateOfLatestTransaction" [showIcon]="true" dateFormat="M d, yy" appendTo="body">
           </p-datepicker>
         </div>
       </div>
-      <div class="col-12 md:col-4">
+      <div class="find-category">
         <p-multiSelect class="w-full" formControlName="multiSelectDropdown" [options]="filteredCategories" optionLabel="categoryName"
           display="chip" placeholder="(All Categories)" appendTo="body" [filter]="false" [showToggleAll]="false" [maxSelectedLabels]="1000"
           [scrollHeight]="'24rem'" panelStyleClass="category-multiselect-panel" (onPanelShow)="onCategoryPanelShow()">
@@ -37,11 +49,11 @@
           </ng-template>
         </p-multiSelect>
       </div>
-      <div class="col-12 md:col-4">
-        <p-button label="Submit" [disabled]="!filterForm.valid" (onClick)="onSubmit(formDirective)"></p-button>
+      <div class="find-submit">
+        <p-button label="Go" [disabled]="!filterForm.valid" (onClick)="onSubmit()"></p-button>
       </div>
       @if ( !filterForm.valid && filterForm.errors != null) {
-        <div class="col-12 md:col-8">
+        <div class="find-error">
           <div class="p-inputgroup">
             <span class="p-inputgroup-addon">Error</span>
             <input placeholder="{{ filterForm.errors['datesError']['message']}}" [disabled]="true">

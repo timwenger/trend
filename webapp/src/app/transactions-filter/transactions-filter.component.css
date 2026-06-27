@@ -1,10 +1,134 @@
-:host ::ng-deep .p-button {
-  width: 100%; /* make inputs use the full flex width, like other elements*/  
-}
-
 .p-fluid input {
 	width: 100%; /* make inputs use the full flex width, like other elements*/
   }
+
+.find-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.find-header h3 {
+  margin: 0;
+  padding-left: 0.35rem;
+}
+
+.find-totals {
+  display: flex;
+  gap: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.find-totals > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #d1d5db;
+}
+
+.find-total-income .pi-arrow-up {
+  color: #4caf50;
+}
+
+.find-total-income {
+  padding-right: 0.35rem;
+}
+
+.find-total-expenses .pi-arrow-down {
+  color: #f44336;
+}
+
+.find-controls {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.find-date-range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 1 35rem;
+}
+
+.find-date {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.find-date-arrow {
+  color: #9ca3af;
+  font-size: 1.15rem;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.find-category {
+  flex: 1 1 auto;
+  min-width: 14rem;
+}
+
+.find-submit {
+  flex: 0 0 auto;
+}
+
+.find-error {
+  flex: 1 1 100%;
+}
+
+:host ::ng-deep .find-date .p-datepicker,
+:host ::ng-deep .find-date .p-datepicker-input {
+  width: 100%;
+}
+
+:host ::ng-deep .find-submit .p-button {
+  width: auto;
+  min-width: 4.5rem;
+}
+
+@media (max-width: 768px) {
+  .find-header {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .find-totals {
+    width: auto;
+    margin-left: auto;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .find-controls {
+    flex-wrap: wrap;
+    row-gap: 0.75rem;
+  }
+
+  .find-date-range {
+    flex: 1 1 100%;
+  }
+
+  .find-category {
+    flex: 1 1 calc(100% - 5.25rem);
+    min-width: 0;
+  }
+
+  .find-submit {
+    flex: 0 0 4.5rem;
+    align-self: stretch;
+  }
+
+  :host ::ng-deep .find-submit .p-button {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+  }
+}
 
 form {
   margin-bottom: 3rem;

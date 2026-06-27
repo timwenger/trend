@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { AbstractControl, UntypedFormControl, UntypedFormGroup, FormGroupDirective } from '@angular/forms';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category } from '../category';
 import { Transaction } from '../transaction';
@@ -21,6 +21,8 @@ export class TransactionsFilterComponent implements OnInit {
   allCategories: Category[] = [];
   filteredCategories: Category[] = [];
   transactionsFromFilter: Transaction[] = [];
+  totalExpensesAmount: number = 0;
+  totalIncomeAmount: number = 0;
   noCategories: boolean = false;
   categoryFilterText: string = '';
 
@@ -34,6 +36,7 @@ export class TransactionsFilterComponent implements OnInit {
       .subscribe(categoriesReturned => {
         this.allCategories = categoriesReturned;
         this.filteredCategories = categoriesReturned;
+        this.refreshTransactions();
         if(categoriesReturned.length == 0)
           this.noCategories = true;
       });
@@ -65,8 +68,20 @@ export class TransactionsFilterComponent implements OnInit {
     }
   }
 
-  onSubmit(f: FormGroupDirective) {
-    let filter = this.buildFilter(f.form);
+  onSubmit() {
+    this.refreshTransactions();
+  }
+
+  onTransactionAdded(): void {
+    this.refreshTransactions();
+  }
+
+  private refreshTransactions(): void {
+    if (!this.filterForm || !this.filterForm.valid) {
+      return;
+    }
+
+    let filter = this.buildFilter(this.filterForm);
     this.getTransactions(filter);
   }
 
@@ -96,8 +111,37 @@ export class TransactionsFilterComponent implements OnInit {
       return;
     this.apiService.getTransactions(filter)
       .subscribe({
-        next: transactionsReturned => this.transactionsFromFilter = transactionsReturned
+        next: transactionsReturned => {
+          this.transactionsFromFilter = transactionsReturned;
+          this.updateTotals(transactionsReturned);
+        }
       });
+  }
+
+  private updateTotals(transactions: Transaction[]): void {
+    this.totalExpensesAmount = 0;
+    this.totalIncomeAmount = 0;
+
+    for (const transaction of transactions) {
+      let hasIncome = false;
+      let hasExpense = false;
+
+      for (const category of transaction.categories) {
+        if (category.isIncome) {
+          hasIncome = true;
+        } else {
+          hasExpense = true;
+        }
+      }
+
+      if (hasIncome) {
+        this.totalIncomeAmount += transaction.amount;
+      }
+
+      if (hasExpense) {
+        this.totalExpensesAmount += transaction.amount;
+      }
+    }
   }
 
   onCategoryFilterInput(event: Event): void {

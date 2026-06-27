@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators, FormGroupDirective, FormControl } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category } from '../category';
@@ -15,11 +15,11 @@ import { UtilityService } from '../utility.service';
 export class AddTransactionComponent implements OnInit {
   private readonly categoryPanelClass = 'category-multiselect-panel';
   addTransactionForm!: UntypedFormGroup;
-  transactionsAddedSoFar: Transaction[] = [];
   allCategories: Category[] = [];
   filteredCategories: Category[] = [];
   noCategories: boolean = false;
   categoryFilterText: string = '';
+  @Output() transactionAdded = new EventEmitter<Transaction>();
 
   constructor(
     private apiService: ApiService,
@@ -121,10 +121,8 @@ export class AddTransactionComponent implements OnInit {
 
     this.apiService.addTransaction(newTransaction)
       .subscribe({
-        // use the returned transaction to updated the "added so far" transactions table
         next: transactionReturned => {
-          // copy the array so that the transactions component sees the change
-          this.transactionsAddedSoFar = [...this.transactionsAddedSoFar, transactionReturned];
+          this.transactionAdded.emit(transactionReturned);
         }
       });
   }

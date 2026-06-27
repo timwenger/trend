@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Transaction } from '../transaction';
 import { ConfirmationService, SelectItem } from 'primeng/api';
@@ -12,12 +12,10 @@ import { Category } from '../category';
     changeDetection: ChangeDetectionStrategy.Eager,
     standalone: false
 })
-export class TransactionsComponent implements OnInit, OnChanges {
+export class TransactionsComponent implements OnInit {
 
   @Input() transactions!: Transaction[];
   @Input() categories: Category[] = [];
-  totalExpensesAmount: number = 0;
-  totalIncomeAmount: number = 0;
 
   transactionEditBackups: { [id: string]: Transaction; } = {};
 
@@ -29,39 +27,6 @@ export class TransactionsComponent implements OnInit, OnChanges {
   }
 
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (this.transactions && changes['transactions']) {
-      this.updateSummary(changes['transactions'].currentValue);
-    }
-  }
-
-  updateSummary(transactions: Transaction[]): void {
-    this.getTotalAmounts();
-  }
-
-  getTotalAmounts() {
-    this.totalExpensesAmount = 0;
-    this.totalIncomeAmount = 0;
-    for (let transaction of this.transactions) {
-      // awkward, but if a transaction has categories that are income
-      // and categories that are expenses, I'll include it in both counts.
-      let hasIncome = false;
-      let hasExpense = false;
-      for (let category of transaction.categories) {
-        if (category.isIncome)
-          hasIncome = true;
-        else
-          hasExpense = true;
-      }
-
-      if (hasIncome)
-        this.totalIncomeAmount += transaction.amount;
-      if (hasExpense)
-        this.totalExpensesAmount += transaction.amount;
-    }
-
-  }
-
   confirmDelete(event: Event, transaction: Transaction) {
     this.confirmationService.confirm({
       target: event.target as EventTarget,
@@ -69,7 +34,6 @@ export class TransactionsComponent implements OnInit, OnChanges {
       icon: 'pi pi-trash',
       accept: () => {
         this.deleteTransaction(transaction);
-        this.updateSummary(this.transactions);
       },
       reject: () => {
         //do nothing

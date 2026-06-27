@@ -3,9 +3,60 @@
   /* make inputs use the full flex width, like other elements*/
 }
 
+.add-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.add-primary-row,
+.add-secondary-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.add-date {
+  flex: 0 1 20rem;
+}
+
+.add-amount {
+  flex: 0 0 10rem;
+}
+
+.add-category {
+  flex: 1 1 auto;
+  min-width: 14rem;
+}
+
+.add-description {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.add-submit {
+  flex: 0 0 4.5rem;
+}
+
 .currency-inputgroup {
   display: flex;
   align-items: stretch;
+}
+
+.date-inputgroup {
+  display: flex;
+  align-items: stretch;
+}
+
+:host ::ng-deep .date-inputgroup .p-datepicker {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+:host ::ng-deep .date-inputgroup .p-datepicker-input {
+  width: 100%;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .currency-inputgroup .p-inputgroup-addon {
@@ -17,6 +68,26 @@
   border-radius: 0.5rem 0 0 0.5rem;
 }
 
+.date-nav-addon {
+  padding: 0;
+  border-left: 0;
+  display: flex;
+  align-items: center;
+  background: var(--p-content-background, #09090b);
+}
+
+.date-nav-btn {
+  border: 0;
+  border-radius: 0;
+  min-width: 1.6rem;
+  padding: 0 0.35rem;
+}
+
+.date-nav-addon:last-child {
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
 .currency-inputgroup input[pInputText] {
   flex: 1 1 auto;
   width: 1%;
@@ -24,10 +95,53 @@
   border-bottom-left-radius: 0;
 }
 
+:host ::ng-deep .date-nav-btn.p-button {
+  background: transparent;
+  color: #9ca3af;
+  height: 100%;
+}
+
+:host ::ng-deep .date-nav-btn.p-button:hover,
+:host ::ng-deep .date-nav-btn.p-button:focus {
+  background: rgba(148, 163, 184, 0.12);
+}
+
 form {
   margin-bottom: 3rem;
 }
 
-span.date-picker-arrows {
-  padding: 0rem;
+:host ::ng-deep .add-submit .p-button {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .add-primary-row {
+    flex-wrap: wrap;
+  }
+
+  .add-date {
+    flex: 1 1 calc(100% - 9.25rem);
+    min-width: 0;
+  }
+
+  .add-amount {
+    flex: 0 0 8.5rem;
+  }
+
+  .add-category {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .add-secondary-row {
+    flex-wrap: nowrap;
+  }
+
+  .add-description {
+    flex: 1 1 calc(100% - 5.25rem);
+  }
+
+  .add-submit {
+    flex: 0 0 4.5rem;
+  }
 }

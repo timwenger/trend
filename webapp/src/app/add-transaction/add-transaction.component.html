@@ -1,24 +1,31 @@
-<h2>Add a Transaction</h2>
+<h3>Add</h3>
 <!-- ngIf used to only display the form once the categories have been fetched -->
 @if (allCategories.length > 0 ) {
   <form #formDirective="ngForm" (ngSubmit)="onSubmit(formDirective)"
     [formGroup]="addTransactionForm">
-    <div class="grid p-fluid">
-      <div class="col-12 md:col-4">
-        <div class="p-inputgroup">
+    <div class="add-controls p-fluid">
+      <div class="add-primary-row">
+        <div class="add-date">
+        <div class="p-inputgroup date-inputgroup">
           <p-datepicker formControlName="dateOfTransaction" [numberOfMonths]="1" [showIcon]="false"
           [selectOtherMonths]="true" dateFormat="M d, yy" appendTo="body"></p-datepicker>
-          <span class="p-inputgroup-addon date-picker-arrows">
-            <p-button class="date-picker-arrows" icon="pi pi-angle-left" date-picker-arrows
-            (onClick)="onClickPrevDate(formDirective)"></p-button>
+          <span class="p-inputgroup-addon date-nav-addon">
+            <button pButton type="button" icon="pi pi-angle-left" class="p-button-text date-nav-btn"
+              (click)="onClickPrevDate(formDirective)"></button>
           </span>
-          <span class="p-inputgroup-addon date-picker-arrows">
-            <p-button class="date-picker-arrows" icon="pi pi-angle-right"
-            (onClick)="onClickNextDate(formDirective)"></p-button>
+          <span class="p-inputgroup-addon date-nav-addon">
+            <button pButton type="button" icon="pi pi-angle-right" class="p-button-text date-nav-btn"
+              (click)="onClickNextDate(formDirective)"></button>
           </span>
         </div>
-      </div>
-      <div class="col-12 md:col-4">
+        </div>
+        <div class="add-amount">
+        <div class="p-inputgroup currency-inputgroup">
+          <span class="p-inputgroup-addon">$</span>
+          <input formControlName="amountInput" type="number" pInputText placeholder="Amount">
+        </div>
+        </div>
+        <div class="add-category">
         <p-multiSelect class="w-full" formControlName="categoriesDropdown" [options]="filteredCategories" placeholder="Tagged Categories"
         optionLabel="categoryName" display="chip" appendTo="body" [filter]="false" [showToggleAll]="false"
         [maxSelectedLabels]="1000" [scrollHeight]="'24rem'"
@@ -37,31 +44,19 @@
             </div>
           </ng-template>
         </p-multiSelect>
-      </div>
-      <div class="col-12 md:col-4">
-        <div class="p-inputgroup currency-inputgroup">
-          <span class="p-inputgroup-addon">$</span>
-          <input formControlName="amountInput" type="number" pInputText placeholder="Amount">
         </div>
       </div>
-      <div class="col-12">
-        <div class="p-inputgroup">
-          <span class="p-inputgroup-addon">Description</span>
-          <input formControlName="descriptionInput" type="text" pInputText>
+
+      <div class="add-secondary-row">
+        <div class="add-description">
+          <input formControlName="descriptionInput" type="text" pInputText placeholder="Description">
+        </div>
+        <div class="add-submit">
+          <p-button label="Go" [disabled]="!addTransactionForm.valid" (onClick)="onSubmit(formDirective)"></p-button>
         </div>
       </div>
-    </div>
-    <div class="col-12 md:col-4">
-      <p-button label="Submit" [disabled]="!addTransactionForm.valid" (onClick)="onSubmit(formDirective)"></p-button>
     </div>
   </form>
 }
 
 <app-no-categories [visible]="noCategories"></app-no-categories>
-
-@if (transactionsAddedSoFar.length > 0 ) {
-  <div>
-    <h3>Added So Far:</h3>
-    <app-transactions [transactions]="transactionsAddedSoFar" [categories]="allCategories"></app-transactions>
-  </div>
-}
