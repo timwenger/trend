@@ -7,7 +7,7 @@
       <div class="col-12 md:col-4">
         <div class="p-inputgroup">
           <p-datepicker formControlName="dateOfTransaction" [numberOfMonths]="1" [showIcon]="false"
-          [selectOtherMonths]="true" dateFormat="M d, yy"></p-datepicker>
+          [selectOtherMonths]="true" dateFormat="M d, yy" appendTo="body"></p-datepicker>
           <span class="p-inputgroup-addon date-picker-arrows">
             <p-button class="date-picker-arrows" icon="pi pi-angle-left" date-picker-arrows
             (onClick)="onClickPrevDate(formDirective)"></p-button>
@@ -20,7 +20,7 @@
       </div>
       <div class="col-12 md:col-4">
         <p-multiSelect class="w-full" formControlName="categoriesDropdown" [options]="allCategories" placeholder="Tagged Categories"
-        optionLabel="categoryName" display="chip"></p-multiSelect>
+        optionLabel="categoryName" display="chip" appendTo="body"></p-multiSelect>
       </div>
       <div class="col-12 md:col-4">
         <div class="p-inputgroup currency-inputgroup">
