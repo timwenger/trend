@@ -34,6 +34,8 @@ export class TransactionsComponent implements OnInit {
   private descriptionTapTimer: ReturnType<typeof setTimeout> | null = null;
   private lastDescriptionTapAt: number = 0;
   private lastDescriptionTapTransactionId: string = '';
+  private dialogHistoryActive: boolean = false;
+  private consumingDialogHistory: boolean = false;
 
   constructor(
     private apiService: ApiService,
@@ -166,6 +168,7 @@ export class TransactionsComponent implements OnInit {
     this.mobileEditAmount = transaction.amount;
     this.mobileEditDescription = transaction.transactionDescription ?? '';
     this.mobileEditDialogVisible = true;
+    this.activateDialogHistory();
   }
 
   get mobileEditDialogTitle(): string {
@@ -208,17 +211,26 @@ export class TransactionsComponent implements OnInit {
       .subscribe();
 
     this.transactions = [...this.transactions];
-    this.mobileEditDialogVisible = false;
+    this.closeMobileEditDialog();
+  }
+
+  onMobileDateSelected(): void {
+    if (this.mobileEditField !== 'date') {
+      return;
+    }
+
+    this.saveMobileFieldEdit();
   }
 
   cancelMobileFieldEdit(): void {
-    this.mobileEditDialogVisible = false;
+    this.closeMobileEditDialog();
   }
 
   openDescriptionDialog(event: Event, description: string | null | undefined): void {
     event.stopPropagation();
     this.descriptionDialogText = description ?? '';
     this.descriptionDialogVisible = true;
+    this.activateDialogHistory();
   }
 
   onDescriptionPointerUp(
@@ -283,11 +295,66 @@ export class TransactionsComponent implements OnInit {
 
     if (this.descriptionDialogVisible) {
       event.preventDefault();
-      this.descriptionDialogVisible = false;
+      this.closeDescriptionDialog();
     }
   }
 
-  private isMobile(): boolean {
+  @HostListener('window:popstate', ['$event'])
+  onBrowserPopState(_event: PopStateEvent): void {
+    if (this.consumingDialogHistory) {
+      this.consumingDialogHistory = false;
+      return;
+    }
+
+    if (this.mobileEditDialogVisible || this.descriptionDialogVisible) {
+      this.mobileEditDialogVisible = false;
+      this.descriptionDialogVisible = false;
+      this.dialogHistoryActive = false;
+    }
+  }
+
+  onAnyDialogHide(): void {
+    if (this.mobileEditDialogVisible || this.descriptionDialogVisible) {
+      return;
+    }
+
+    this.releaseDialogHistory();
+  }
+
+  private closeMobileEditDialog(): void {
+    this.mobileEditDialogVisible = false;
+    if (!this.descriptionDialogVisible) {
+      this.releaseDialogHistory();
+    }
+  }
+
+  closeDescriptionDialog(): void {
+    this.descriptionDialogVisible = false;
+    if (!this.mobileEditDialogVisible) {
+      this.releaseDialogHistory();
+    }
+  }
+
+  private activateDialogHistory(): void {
+    if (!this.isMobile() || this.dialogHistoryActive) {
+      return;
+    }
+
+    window.history.pushState({ dialog: true }, '', window.location.href);
+    this.dialogHistoryActive = true;
+  }
+
+  private releaseDialogHistory(): void {
+    if (!this.isMobile() || !this.dialogHistoryActive) {
+      return;
+    }
+
+    this.dialogHistoryActive = false;
+    this.consumingDialogHistory = true;
+    window.history.back();
+  }
+
+  isMobile(): boolean {
     return window.matchMedia('(max-width: 768px)').matches;
   }
 }

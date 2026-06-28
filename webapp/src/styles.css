@@ -75,3 +75,10 @@ html, body {
   outline: 1px solid var(--p-primary-color, #34d399);
   outline-offset: -1px;
 }
+
+@media (max-width: 768px) {
+  .mobile-date-overlay-calendar .p-datepicker {
+    transform: scale(0.75);
+    transform-origin: top center;
+  }
+}

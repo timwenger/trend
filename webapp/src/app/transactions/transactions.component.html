@@ -85,7 +85,12 @@
             (pointerup)="onDescriptionPointerUp(transaction, $event, transaction.transactionDescription)"
             (pointerleave)="cancelMobileEditHold()"
             (pointercancel)="cancelMobileEditHold()">
-            {{transaction.transactionDescription}}
+            @if (transaction.transactionDescription && transaction.transactionDescription.trim().length > 0) {
+              {{transaction.transactionDescription}}
+            }
+            @if (!transaction.transactionDescription || transaction.transactionDescription.trim().length === 0) {
+              <span class="description-empty">none</span>
+            }
           </div>
         </ng-template>
       </p-cellEditor>
@@ -120,38 +125,52 @@
 </ng-template>
 </p-table>
 
-<p-dialog [header]="mobileEditDialogTitle" [(visible)]="mobileEditDialogVisible" [modal]="true" [draggable]="false"
-  [resizable]="false" [style]="{ width: '22rem' }" [breakpoints]="{ '640px': '95vw' }">
-  @if (mobileEditField === 'date') {
-    <p-datepicker [(ngModel)]="mobileEditDate" [showIcon]="true" dateFormat="M d, yy" appendTo="body"></p-datepicker>
-  }
-
-  @if (mobileEditField === 'category') {
-    <app-category-multiselect [(ngModel)]="mobileEditCategories" [options]="categories"
-      placeholder="Tagged Categories"></app-category-multiselect>
-  }
-
-  @if (mobileEditField === 'amount') {
-    <div class="p-inputgroup">
-      <span class="p-inputgroup-addon">$</span>
-      <input [(ngModel)]="mobileEditAmount" type="number" pInputText>
+@if (mobileEditDialogVisible && mobileEditField === 'date') {
+  <div class="mobile-date-overlay" (click)="cancelMobileFieldEdit()">
+    <div class="mobile-date-overlay-calendar" (click)="$event.stopPropagation()">
+      <p-datepicker [(ngModel)]="mobileEditDate" [inline]="true" [showButtonBar]="false" dateFormat="M d, yy" (onSelect)="onMobileDateSelected()"></p-datepicker>
     </div>
-  }
+  </div>
+}
 
-  @if (mobileEditField === 'description') {
-    <input [(ngModel)]="mobileEditDescription" type="text" pInputText class="w-full">
-  }
+@if (mobileEditDialogVisible && mobileEditField !== 'date') {
+  <p-dialog [header]="mobileEditDialogTitle" [(visible)]="mobileEditDialogVisible" [modal]="true" [draggable]="false"
+    [resizable]="false" [dismissableMask]="true" [closeOnEscape]="true" (onHide)="onAnyDialogHide()"
+    [appendTo]="'body'" [position]="isMobile() ? 'top' : 'center'"
+    [styleClass]="'mobile-field-dialog'"
+    [contentStyle]="{ overflow: 'auto' }"
+    [style]="{ width: '22rem' }" [breakpoints]="{ '640px': '95vw' }">
+    @if (mobileEditField === 'category') {
+      <app-category-multiselect [(ngModel)]="mobileEditCategories" [options]="categories"
+        placeholder="Tagged Categories"></app-category-multiselect>
+    }
 
-  <ng-template pTemplate="footer">
-    <p-button label="Cancel" severity="secondary" (onClick)="cancelMobileFieldEdit()"></p-button>
-    <p-button label="Save" (onClick)="saveMobileFieldEdit()"></p-button>
-  </ng-template>
-</p-dialog>
+    @if (mobileEditField === 'amount') {
+      <div class="p-inputgroup">
+        <span class="p-inputgroup-addon">$</span>
+        <input [(ngModel)]="mobileEditAmount" type="number" pInputText>
+      </div>
+    }
+
+    @if (mobileEditField === 'description') {
+      <textarea [(ngModel)]="mobileEditDescription" rows="4" class="mobile-description-input"></textarea>
+    }
+
+    <ng-template pTemplate="footer">
+      <p-button label="Cancel" severity="secondary" (onClick)="cancelMobileFieldEdit()"></p-button>
+      <p-button label="Save" (onClick)="saveMobileFieldEdit()"></p-button>
+    </ng-template>
+  </p-dialog>
+}
 
 <p-dialog header="Description" [(visible)]="descriptionDialogVisible" [modal]="true" [draggable]="false"
-  [resizable]="false" [style]="{ width: '24rem' }" [breakpoints]="{ '640px': '95vw' }">
+  [resizable]="false" [dismissableMask]="true" [closeOnEscape]="true" (onHide)="onAnyDialogHide()"
+  [appendTo]="'body'" [position]="isMobile() ? 'top' : 'center'"
+  [styleClass]="'mobile-description-dialog'"
+  [contentStyle]="{ overflow: 'auto' }"
+  [style]="{ width: '24rem' }" [breakpoints]="{ '640px': '95vw' }">
   <p class="description-dialog-text">{{ descriptionDialogText }}</p>
   <ng-template pTemplate="footer">
-    <p-button label="Close" (onClick)="descriptionDialogVisible = false"></p-button>
+    <p-button label="Close" (onClick)="closeDescriptionDialog()"></p-button>
   </ng-template>
 </p-dialog>
