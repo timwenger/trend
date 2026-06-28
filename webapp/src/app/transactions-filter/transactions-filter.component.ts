@@ -5,6 +5,7 @@ import { Category } from '../category';
 import { Transaction } from '../transaction';
 import { TransactionFilters } from '../transactionfilters';
 import { UtilityService } from '../utility.service';
+import { MessageService as PrimeMessageService } from 'primeng/api';
 
 @Component({
     selector: 'app-transactions-filter',
@@ -26,6 +27,7 @@ export class TransactionsFilterComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private utilityService: UtilityService,
+    private toastService: PrimeMessageService,
   ) { }
 
   ngOnInit(): void {
@@ -68,17 +70,17 @@ export class TransactionsFilterComponent implements OnInit {
     this.refreshTransactions();
   }
 
-  onTransactionAdded(): void {
-    this.refreshTransactions();
+  onTransactionAdded(newTransaction: Transaction): void {
+    this.refreshTransactions(newTransaction);
   }
 
-  private refreshTransactions(): void {
+  private refreshTransactions(addedTransaction?: Transaction): void {
     if (!this.filterForm || !this.filterForm.valid) {
       return;
     }
 
     let filter = this.buildFilter(this.filterForm);
-    this.getTransactions(filter);
+    this.getTransactions(filter, addedTransaction);
   }
 
   buildFilter(form: UntypedFormGroup): TransactionFilters {
@@ -101,7 +103,7 @@ export class TransactionsFilterComponent implements OnInit {
     }
   }
 
-  getTransactions(filter: TransactionFilters): void {
+  getTransactions(filter: TransactionFilters, addedTransaction?: Transaction): void {
     // don't get transactions without a valid filter. (gets ALL transactions)
     if (filter == null)
       return;
@@ -110,6 +112,15 @@ export class TransactionsFilterComponent implements OnInit {
         next: transactionsReturned => {
           this.transactionsFromFilter = transactionsReturned;
           this.updateTotals(transactionsReturned);
+
+          if (addedTransaction && !transactionsReturned.some((transaction) => transaction.id === addedTransaction.id)) {
+            this.toastService.add({
+              severity: 'info',
+              summary: 'Added',
+              detail: 'Transaction was added but is outside the current Find filter.',
+              life: 3500,
+            });
+          }
         }
       });
   }

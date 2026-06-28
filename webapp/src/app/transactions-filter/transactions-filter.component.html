@@ -1,5 +1,6 @@
 <h2>Transactions</h2>
-<app-add-edit (transactionAdded)="onTransactionAdded()"></app-add-edit>
+<p-toast position="top-right"></p-toast>
+<app-add-edit (transactionAdded)="onTransactionAdded($event)"></app-add-edit>
 
 <div class="find-header">
   <h3>Find</h3>

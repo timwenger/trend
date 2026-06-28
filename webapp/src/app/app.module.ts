@@ -24,10 +24,11 @@ import { CardModule } from 'primeng/card';
 import { MenubarModule } from 'primeng/menubar';
 import { RippleModule } from 'primeng/ripple';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService as PrimeMessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { CheckboxModule } from 'primeng/checkbox';
+import { ToastModule } from 'primeng/toast';
 
 import { AuthModule, AuthHttpInterceptor } from '@auth0/auth0-angular';
 import { environment } from '../environments/environment';
@@ -71,6 +72,7 @@ import { CategoryMultiselectComponent } from './category-multiselect/category-mu
     DialogModule,
     RadioButtonModule,
     CheckboxModule,
+    ToastModule,
     BaseChartDirective,
     AuthModule.forRoot({
       domain: environment.auth.domain,
@@ -86,6 +88,7 @@ import { CategoryMultiselectComponent } from './category-multiselect/category-mu
 
   providers: [
     ConfirmationService,
+    PrimeMessageService,
     Title,
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
     provideCharts(withDefaultRegisterables()),
