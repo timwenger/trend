@@ -35,6 +35,7 @@ import { ManageCategoriesComponent } from './manage-categories/manage-categories
 import { NoCategoriesComponent } from './no-categories/no-categories.component';
 import { TrendsComponent } from './trends/trends.component';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
+import { CategoryMultiselectComponent } from './category-multiselect/category-multiselect.component';
 
 @NgModule({
   declarations: [
@@ -47,6 +48,7 @@ import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2
     ManageCategoriesComponent,
     NoCategoriesComponent,
     TrendsComponent,
+    CategoryMultiselectComponent,
   ],
   imports: [
     BrowserModule,

@@ -26,24 +26,8 @@
         </div>
         </div>
         <div class="add-category">
-        <p-multiSelect class="w-full" formControlName="categoriesDropdown" [options]="filteredCategories" placeholder="Tagged Categories"
-        optionLabel="categoryName" display="chip" appendTo="body" [filter]="false" [showToggleAll]="false"
-        [maxSelectedLabels]="1000" [scrollHeight]="'24rem'"
-        panelStyleClass="category-multiselect-panel" (onPanelShow)="onCategoryPanelShow()">
-          <ng-template pTemplate="header">
-            <div class="category-filter-row">
-              <div class="category-filter-input-wrap">
-                <input pInputText type="text" class="category-filter-input" placeholder="Search"
-                  [value]="categoryFilterText" (input)="onCategoryFilterInput($event)"
-                  (keydown)="onCategoryFilterKeyDown($event)"
-                  (keydown.delete)="onCategoryFilterDelete($event)">
-                <button pButton type="button" icon="pi pi-times" aria-label="Clear category filter"
-                  class="p-button-text p-button-rounded category-filter-clear"
-                  [disabled]="!categoryFilterText" (click)="clearCategoryFilter()"></button>
-              </div>
-            </div>
-          </ng-template>
-        </p-multiSelect>
+        <app-category-multiselect formControlName="categoriesDropdown" [options]="allCategories"
+          placeholder="Tagged Categories"></app-category-multiselect>
         </div>
       </div>
 

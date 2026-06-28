@@ -14,17 +14,14 @@ import { UtilityService } from '../utility.service';
     standalone: false
 })
 export class TransactionsFilterComponent implements OnInit {
-  private readonly categoryPanelClass = 'category-multiselect-panel';
   filterForm!: UntypedFormGroup;
   configuredFilter!: TransactionFilters;
 
   allCategories: Category[] = [];
-  filteredCategories: Category[] = [];
   transactionsFromFilter: Transaction[] = [];
   totalExpensesAmount: number = 0;
   totalIncomeAmount: number = 0;
   noCategories: boolean = false;
-  categoryFilterText: string = '';
 
   constructor(
     private apiService: ApiService,
@@ -35,7 +32,6 @@ export class TransactionsFilterComponent implements OnInit {
     this.apiService.getCategories()
       .subscribe(categoriesReturned => {
         this.allCategories = categoriesReturned;
-        this.filteredCategories = categoriesReturned;
         this.refreshTransactions();
         if(categoriesReturned.length == 0)
           this.noCategories = true;
@@ -144,31 +140,4 @@ export class TransactionsFilterComponent implements OnInit {
     }
   }
 
-  onCategoryFilterInput(event: Event): void {
-    const input = event.target as HTMLInputElement | null;
-    this.categoryFilterText = input?.value ?? '';
-    this.applyCategoryFilter();
-  }
-
-  clearCategoryFilter(): void {
-    this.categoryFilterText = '';
-    this.applyCategoryFilter();
-  }
-
-  onCategoryFilterDelete(event: Event): void {
-    event.preventDefault();
-    this.clearCategoryFilter();
-  }
-
-  onCategoryFilterKeyDown(event: Event): void {
-    this.utilityService.handleCategoryFilterKeyDown(event, this.categoryPanelClass);
-  }
-
-  onCategoryPanelShow(): void {
-    this.utilityService.focusElement(`.${this.categoryPanelClass} .category-filter-input`);
-  }
-
-  private applyCategoryFilter(): void {
-    this.filteredCategories = this.utilityService.filterCategoriesByName(this.allCategories, this.categoryFilterText);
-  }
 }

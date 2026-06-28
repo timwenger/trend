@@ -8,9 +8,9 @@
   </th>
   <th pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon>
 </th>
-<th>Description</th>
-<th></th>
-<th></th>
+  <th>Descr</th>
+  <th class="col-edit"></th>
+  <th class="col-delete"></th>
 </tr>
 </ng-template>
 <ng-template pTemplate="body" let-transaction let-editing="editing" let-rowIndex="rowIndex">
@@ -23,7 +23,13 @@
           dateFormat="M d, yy"></p-datepicker>
         </ng-template>
         <ng-template pTemplate="output">
-          {{transaction.dateOfTransaction | date}}
+          <div class="mobile-edit-trigger"
+            (pointerdown)="startMobileEditHold(transaction, 'date')"
+            (pointerup)="onMobileEditPointerUp(transaction, 'date', $event)"
+            (pointerleave)="cancelMobileEditHold()"
+            (pointercancel)="cancelMobileEditHold()">
+            {{transaction.dateOfTransaction | date}}
+          </div>
         </ng-template>
       </p-cellEditor>
     </td>
@@ -31,16 +37,21 @@
     <td>
       <p-cellEditor>
         <ng-template pTemplate="input">
-          <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
-          <p-multiSelect [(ngModel)]="transaction.categories" appendTo="body" [options]="categories"
-          optionLabel="categoryName" display="chip"></p-multiSelect>
+          <app-category-multiselect [(ngModel)]="transaction.categories" [options]="categories"
+            placeholder="Tagged Categories"></app-category-multiselect>
         </ng-template>
         <ng-template pTemplate="output">
-          @for (category of transaction.categories; track category) {
-            <div>
-              {{category.categoryName}}
-            </div>
-          }
+          <div class="mobile-edit-trigger"
+            (pointerdown)="startMobileEditHold(transaction, 'category')"
+            (pointerup)="onMobileEditPointerUp(transaction, 'category', $event)"
+            (pointerleave)="cancelMobileEditHold()"
+            (pointercancel)="cancelMobileEditHold()">
+            @for (category of transaction.categories; track category) {
+              <div>
+                {{category.categoryName}}
+              </div>
+            }
+          </div>
         </ng-template>
       </p-cellEditor>
     </td>
@@ -53,7 +64,13 @@
           </div>
         </ng-template>
         <ng-template pTemplate="output">
-          {{transaction.amount | currency}}
+          <div class="mobile-edit-trigger"
+            (pointerdown)="startMobileEditHold(transaction, 'amount')"
+            (pointerup)="onMobileEditPointerUp(transaction, 'amount', $event)"
+            (pointerleave)="cancelMobileEditHold()"
+            (pointercancel)="cancelMobileEditHold()">
+            {{transaction.amount | currency}}
+          </div>
         </ng-template>
       </p-cellEditor>
     </td>
@@ -63,11 +80,17 @@
           <input [(ngModel)]="transaction.transactionDescription" type="text" pInputText>
         </ng-template>
         <ng-template pTemplate="output">
-          {{transaction.transactionDescription}}
+          <div class="description-preview"
+            (pointerdown)="startMobileEditHold(transaction, 'description')"
+            (pointerup)="onDescriptionPointerUp(transaction, $event, transaction.transactionDescription)"
+            (pointerleave)="cancelMobileEditHold()"
+            (pointercancel)="cancelMobileEditHold()">
+            {{transaction.transactionDescription}}
+          </div>
         </ng-template>
       </p-cellEditor>
     </td>
-    <td style="text-align:center">
+    <td class="col-edit" style="text-align:center">
       @if (!editing) {
         <button pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
           (click)="onRowEditInit(transaction)" class="p-button-rounded p-button-text">
@@ -79,7 +102,7 @@
         </button>
       }
     </td>
-    <td style="text-align:center">
+    <td class="col-delete" style="text-align:center">
       <p-confirmpopup></p-confirmpopup>
       @if (!editing) {
         <button pButton pRipple type="button" icon="pi pi-trash"
@@ -96,3 +119,39 @@
   </tr>
 </ng-template>
 </p-table>
+
+<p-dialog [header]="mobileEditDialogTitle" [(visible)]="mobileEditDialogVisible" [modal]="true" [draggable]="false"
+  [resizable]="false" [style]="{ width: '22rem' }" [breakpoints]="{ '640px': '95vw' }">
+  @if (mobileEditField === 'date') {
+    <p-datepicker [(ngModel)]="mobileEditDate" [showIcon]="true" dateFormat="M d, yy" appendTo="body"></p-datepicker>
+  }
+
+  @if (mobileEditField === 'category') {
+    <app-category-multiselect [(ngModel)]="mobileEditCategories" [options]="categories"
+      placeholder="Tagged Categories"></app-category-multiselect>
+  }
+
+  @if (mobileEditField === 'amount') {
+    <div class="p-inputgroup">
+      <span class="p-inputgroup-addon">$</span>
+      <input [(ngModel)]="mobileEditAmount" type="number" pInputText>
+    </div>
+  }
+
+  @if (mobileEditField === 'description') {
+    <input [(ngModel)]="mobileEditDescription" type="text" pInputText class="w-full">
+  }
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" (onClick)="cancelMobileFieldEdit()"></p-button>
+    <p-button label="Save" (onClick)="saveMobileFieldEdit()"></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog header="Description" [(visible)]="descriptionDialogVisible" [modal]="true" [draggable]="false"
+  [resizable]="false" [style]="{ width: '24rem' }" [breakpoints]="{ '640px': '95vw' }">
+  <p class="description-dialog-text">{{ descriptionDialogText }}</p>
+  <ng-template pTemplate="footer">
+    <p-button label="Close" (onClick)="descriptionDialogVisible = false"></p-button>
+  </ng-template>
+</p-dialog>

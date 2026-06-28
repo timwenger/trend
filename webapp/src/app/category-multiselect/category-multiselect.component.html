@@ -1,0 +1,31 @@
+<p-multiSelect class="w-full"
+  [options]="filteredOptions"
+  optionLabel="categoryName"
+  display="chip"
+  [placeholder]="placeholder"
+  [appendTo]="appendTo"
+  [filter]="false"
+  [showToggleAll]="false"
+  [maxSelectedLabels]="maxSelectedLabels"
+  [scrollHeight]="scrollHeight"
+  panelStyleClass="category-multiselect-panel"
+  [disabled]="disabled"
+  [ngModel]="value"
+  (ngModelChange)="onValueChange($event)"
+  (onPanelShow)="onPanelShow()"
+  (onBlur)="onTouched()">
+  <ng-template pTemplate="header">
+    <div class="category-filter-row">
+      <div class="category-filter-input-wrap">
+        <input pInputText type="text" class="category-filter-input" placeholder="Search"
+          [value]="filterText" (input)="onFilterInput($event)"
+          (keydown)="onFilterKeyDown($event)"
+          (keydown.delete)="onFilterDelete($event)"
+          (keydown.escape)="onFilterEscape($event)">
+        <button pButton type="button" icon="pi pi-times" aria-label="Clear category filter"
+          class="p-button-text p-button-rounded category-filter-clear"
+          [disabled]="!filterText" (click)="clearFilter()"></button>
+      </div>
+    </div>
+  </ng-template>
+</p-multiSelect>

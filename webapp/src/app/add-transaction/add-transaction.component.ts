@@ -3,7 +3,6 @@ import { UntypedFormControl, UntypedFormGroup, Validators, FormGroupDirective, F
 import { ApiService } from '../api.service';
 import { Category } from '../category';
 import { NewTransaction, Transaction } from '../transaction';
-import { UtilityService } from '../utility.service';
 
 @Component({
     selector: 'app-add-edit',
@@ -13,17 +12,13 @@ import { UtilityService } from '../utility.service';
     standalone: false
 })
 export class AddTransactionComponent implements OnInit {
-  private readonly categoryPanelClass = 'category-multiselect-panel';
   addTransactionForm!: UntypedFormGroup;
   allCategories: Category[] = [];
-  filteredCategories: Category[] = [];
   noCategories: boolean = false;
-  categoryFilterText: string = '';
   @Output() transactionAdded = new EventEmitter<Transaction>();
 
   constructor(
     private apiService: ApiService,
-    private utilityService: UtilityService,
   ) { }
 
 
@@ -31,7 +26,6 @@ export class AddTransactionComponent implements OnInit {
     this.apiService.getCategories()
       .subscribe(categoriesReturned => {
         this.allCategories = categoriesReturned;
-        this.filteredCategories = categoriesReturned;
         // only create the form after the categories have been fetched.
         this.createForm();
         if(categoriesReturned.length ==0)
@@ -75,34 +69,6 @@ export class AddTransactionComponent implements OnInit {
     let date = calendar.value as Date;
     date.setDate(date.getDate()+1);
     calendar.setValue(date);
-  }
-
-  onCategoryFilterInput(event: Event): void {
-    const input = event.target as HTMLInputElement | null;
-    this.categoryFilterText = input?.value ?? '';
-    this.applyCategoryFilter();
-  }
-
-  clearCategoryFilter(): void {
-    this.categoryFilterText = '';
-    this.applyCategoryFilter();
-  }
-
-  onCategoryFilterDelete(event: Event): void {
-    event.preventDefault();
-    this.clearCategoryFilter();
-  }
-
-  onCategoryFilterKeyDown(event: Event): void {
-    this.utilityService.handleCategoryFilterKeyDown(event, this.categoryPanelClass);
-  }
-
-  onCategoryPanelShow(): void {
-    this.utilityService.focusElement(`.${this.categoryPanelClass} .category-filter-input`);
-  }
-
-  private applyCategoryFilter(): void {
-    this.filteredCategories = this.utilityService.filterCategoriesByName(this.allCategories, this.categoryFilterText);
   }
 
   addTransactionToDb(f: UntypedFormGroup) {
