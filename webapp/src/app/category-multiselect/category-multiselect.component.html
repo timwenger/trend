@@ -36,4 +36,17 @@
       </div>
     </div>
   </ng-template>
+  <ng-template pTemplate="item" let-category>
+    <span [class.category-option-inactive]="category.isInactive">
+      {{category.categoryName}}
+    </span>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <div class="category-inactive-footer">
+      <button pButton type="button" [icon]="showInactive ? 'pi pi-eye-slash' : 'pi pi-eye'"
+        [label]="showInactive ? 'Hide inactive' : 'Show inactive'"
+        class="p-button-text category-inactive-toggle"
+        [attr.aria-pressed]="showInactive" (click)="toggleInactive($event)"></button>
+    </div>
+  </ng-template>
 </p-multiSelect>

@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, FormGroupDirective, Validators } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category, NewCategory } from '../category';
@@ -19,8 +19,6 @@ interface ManagedCategory extends Category {
     standalone: false
 })
 export class ManageCategoriesComponent implements OnInit {
-  @ViewChild('categoryTable') private categoryTable!: Table;
-
   addCategoryForm!: UntypedFormGroup;
   existingCategories: ManagedCategory[] = [];
   categoryEditBackups: { [id: string]: ManagedCategory; } = {};
@@ -81,6 +79,14 @@ export class ManageCategoriesComponent implements OnInit {
     return isIncome? 'Income' : 'Expense';
   }
 
+  get activeCategories(): ManagedCategory[] {
+    return this.existingCategories.filter(category => !category.isInactive);
+  }
+
+  get inactiveCategories(): ManagedCategory[] {
+    return this.existingCategories.filter(category => category.isInactive);
+  }
+
 
 
   onRowEditInit(category: ManagedCategory) {
@@ -97,7 +103,8 @@ export class ManageCategoriesComponent implements OnInit {
 
   onRowEditCancel(category: ManagedCategory, rowIndex: number) {
     // revert the row to the saved copy before edits began
-    this.existingCategories[rowIndex] = this.categoryEditBackups[category.id];
+    const existingIndex = this.existingCategories.findIndex(item => item.id === category.id);
+    this.existingCategories[existingIndex] = this.categoryEditBackups[category.id];
     // make a new array, so the table refreshes
     this.existingCategories = [...this.existingCategories];
     delete this.categoryEditBackups[category.id];
@@ -107,7 +114,8 @@ export class ManageCategoriesComponent implements OnInit {
     event: KeyboardEvent,
     category: ManagedCategory,
     rowIndex: number,
-    editing: boolean
+    editing: boolean,
+    categoryTable: Table
   ): void {
     if (!editing || this.isMobile()) {
       return;
@@ -118,7 +126,7 @@ export class ManageCategoriesComponent implements OnInit {
     if (event.key === 'Escape') {
       event.preventDefault();
       event.stopPropagation();
-      this.categoryTable.cancelRowEdit(category);
+      categoryTable.cancelRowEdit(category);
       this.onRowEditCancel(category, rowIndex);
       return;
     }
@@ -126,13 +134,21 @@ export class ManageCategoriesComponent implements OnInit {
     if (event.key === 'Enter' && event.ctrlKey) {
       event.preventDefault();
       event.stopPropagation();
-      this.categoryTable.saveRowEdit(category, rowElement);
+      categoryTable.saveRowEdit(category, rowElement);
       this.onRowEditSave(category);
     }
   }
 
   isMobile(): boolean {
     return window.matchMedia('(max-width: 768px)').matches;
+  }
+
+  setCategoryInactive(category: ManagedCategory, isInactive: boolean): void {
+    this.apiService.setCategoryInactive(category, isInactive)
+      .subscribe(() => {
+        category.isInactive = isInactive;
+        this.existingCategories = [...this.existingCategories];
+      });
   }
 
   confirmDelete(event: Event, category: Category) {

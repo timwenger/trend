@@ -147,11 +147,31 @@ namespace Trend.API.Controllers
         public async Task<ActionResult> PutCategory(string id, Category category)
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
-            if (uid == null || uid != category.UserId)
+            if (uid == null)
                 return Unauthorized();
 
             if (id != category.Id.ToString())
                 return BadRequest();
+
+            Category existingCategory;
+            try
+            {
+                existingCategory = await CategoriesContainer.ReadItemAsync<Category>(id, new PartitionKey(id));
+            }
+            catch (CosmosException e) when (e.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return NotFound();
+            }
+
+            if (uid != existingCategory.UserId)
+                return Unauthorized();
+
+            bool IsCategoryNameChanged = existingCategory.CategoryName != category.CategoryName;
+            bool IsIncomeChanged = existingCategory.IsIncome != category.IsIncome;
+            bool IsWeightingChanged = existingCategory.Weighting != category.Weighting;
+            bool IsTransactionsUpdateNeeded = IsCategoryNameChanged || IsIncomeChanged || IsWeightingChanged;
+
+            category.UserId = existingCategory.UserId;
 
             Category? replacedCategory = null;
             try
@@ -170,6 +190,8 @@ namespace Trend.API.Controllers
                     return NotFound(e.Message);  // includes too many requests
             }
 
+            if (!IsTransactionsUpdateNeeded)
+                return NoContent();
 
             // Update all the transaction documents that use this category
             // This is a lot of processing, but I think that's okay, since you don't normally change a category

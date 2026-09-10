@@ -92,6 +92,10 @@ export class ApiService {
       );
   }
 
+  setCategoryInactive(category: Category, isInactive: boolean): Observable<Category> {
+    return this.updateCategory({ ...category, isInactive });
+  }
+
   deleteCategory(toBeDeleted: Category): Observable<Category> {
     let url = this.apiBaseUrl + this.categoriesApiUrl + '/' + toBeDeleted.id;
     return this.http.delete<Category>(url)

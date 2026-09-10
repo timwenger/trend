@@ -30,6 +30,7 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
   value: Category[] = [];
   filteredOptions: Category[] = [];
   filterText: string = '';
+  showInactive: boolean = false;
   disabled: boolean = false;
 
   private readonly categoryPanelClass = 'category-multiselect-panel';
@@ -76,6 +77,12 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
     this.applyFilter();
   }
 
+  toggleInactive(event: Event): void {
+    event.stopPropagation();
+    this.showInactive = !this.showInactive;
+    this.applyFilter();
+  }
+
   onFilterDelete(event: Event): void {
     event.preventDefault();
     this.clearFilter();
@@ -96,6 +103,11 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
   }
 
   private applyFilter(): void {
-    this.filteredOptions = this.utilityService.filterCategoriesByName(this.options ?? [], this.filterText);
+    const matchingOptions = this.utilityService.filterCategoriesByName(this.options ?? [], this.filterText);
+    const activeOptions = matchingOptions.filter(category => !category.isInactive);
+    const inactiveOptions = matchingOptions.filter(category => category.isInactive);
+    this.filteredOptions = this.showInactive
+      ? [...activeOptions, ...inactiveOptions]
+      : activeOptions;
   }
 }

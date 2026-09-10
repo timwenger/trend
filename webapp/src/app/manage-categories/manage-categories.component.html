@@ -1,12 +1,9 @@
 <h2>Add a new category</h2>
 <form #formDirective="ngForm" (ngSubmit)="onSubmit(formDirective)" [formGroup]="addCategoryForm">
-  <div class="grid p-fluid">
+  <div class="grid p-fluid add-category-row">
     <div class="col-12 md:col-4">
-      <div class="p-inputgroup">
-        <span class="p-inputgroup-addon">Name</span>
-        <input formControlName="categoryName" type="text" pInputText>
-      </div>
-
+      <input formControlName="categoryName" type="text" pInputText
+        placeholder="New Category Name" aria-label="New Category Name">
     </div>
     <div class="col-12 md:col-4">
       <div class="category-type-options">
@@ -29,10 +26,8 @@
 </form>
 
 
-@if (existingCategories.length > 0 ) {
-  <div>
-    <h3>Existing Categories:</h3>
-    <p-table #categoryTable [value]="existingCategories" dataKey="id" responsiveLayout="scroll" sortField="isIncome" [sortOrder]="-1" editMode="row"
+<ng-template #categoryTableTemplate let-categories="categories" let-isInactive="isInactive">
+  <p-table #categoryTable [value]="categories" dataKey="id" responsiveLayout="scroll" sortField="isIncome" [sortOrder]="-1" editMode="row"
       styleClass="p-datatable-striped">
       <ng-template pTemplate="header">
         <tr>
@@ -44,11 +39,12 @@
       </th>
       <th></th>
       <th></th>
+      <th></th>
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-category let-editing="editing" let-rowIndex="rowIndex">
     <tr [pEditableRow]="category"
-      (keydown)="onRowEditKeyDown($event, category, rowIndex, editing)">
+      (keydown)="onRowEditKeyDown($event, category, rowIndex, editing, categoryTable)">
       <td>
         <p-cellEditor>
           <ng-template pTemplate="input">
@@ -100,10 +96,23 @@
         }
       </td>
       <td style="text-align:center">
+        @if (!editing) {
+          <button pButton pRipple type="button"
+            [icon]="isInactive ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+            [class.category-make-active]="isInactive"
+            [class.category-make-inactive]="!isInactive"
+            [attr.aria-label]="isInactive ? 'Make category active' : 'Make category inactive'"
+            [title]="isInactive ? 'Make category active' : 'Make category inactive'"
+            (click)="setCategoryInactive(category, !isInactive)"
+            class="p-button-rounded p-button-text">
+          </button>
+        }
+      </td>
+      <td style="text-align:center">
         <p-confirmpopup></p-confirmpopup>
         @if (!editing) {
           <button pButton pRipple type="button" icon="pi pi-trash"
-            (click)="confirmDelete($event, category)" class="p-button-rounded p-button-text">
+            (click)="confirmDelete($event, category)" class="p-button-rounded p-button-text p-button-danger">
           </button>
         }
         @if (editing) {
@@ -115,9 +124,25 @@
       </td>
     </tr>
   </ng-template>
+  <ng-template pTemplate="emptymessage">
+    <tr>
+      <td colspan="6">No categories</td>
+    </tr>
+  </ng-template>
 </p-table>
+</ng-template>
+
+<div class="category-table-section">
+  <h3>Active</h3>
+  <ng-container *ngTemplateOutlet="categoryTableTemplate; context: { categories: activeCategories, isInactive: false }">
+  </ng-container>
 </div>
-}
+
+<div class="category-table-section">
+  <h3>Inactive</h3>
+  <ng-container *ngTemplateOutlet="categoryTableTemplate; context: { categories: inactiveCategories, isInactive: true }">
+  </ng-container>
+</div>
 
 <p-dialog header="Sorry, can't delete that :(" [(visible)]="deleteCategoryErrorPopup.visible">
 {{deleteCategoryErrorPopup.errorString}}</p-dialog>

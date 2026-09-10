@@ -9,6 +9,7 @@ namespace Trend.API.Models
         public string CategoryName { get; set; } = string.Empty;
         public string UserId { get; set; } = string.Empty;
         public bool IsIncome { get; set; }
+        public bool IsInactive { get; set; }
         public int Weighting { get; set; }
     }
 }

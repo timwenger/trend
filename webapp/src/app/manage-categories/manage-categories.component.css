@@ -12,6 +12,11 @@ td {
 	width: 100%; /* make inputs use the full flex width, like other elements*/
   }
 
+.add-category-row > div {
+	display: flex;
+	align-items: center;
+}
+
 .category-type-options,
 .category-type-option {
 	display: flex;
@@ -29,4 +34,16 @@ td {
 .category-type-option label {
 	color: inherit;
 	cursor: pointer;
+}
+
+.category-table-section + .category-table-section {
+	margin-top: 2rem;
+}
+
+.category-make-inactive {
+	color: var(--p-yellow-500) !important;
+}
+
+.category-make-active {
+	color: var(--p-green-500) !important;
 }
