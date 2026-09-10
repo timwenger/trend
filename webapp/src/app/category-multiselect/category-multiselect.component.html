@@ -14,6 +14,14 @@
   (ngModelChange)="onValueChange($event)"
   (onPanelShow)="onPanelShow()"
   (onBlur)="onTouched()">
+  <ng-template pTemplate="selecteditems" let-selectedCategories let-removeChip="removeChip">
+    @for (category of selectedCategories; track category.id) {
+      <div class="p-multiselect-chip-item">
+        <p-chip [label]="category.categoryName" [removable]="!disabled"
+          (onRemove)="removeChip(category, $event)"></p-chip>
+      </div>
+    }
+  </ng-template>
   <ng-template pTemplate="header">
     <div class="category-filter-row">
       <div class="category-filter-input-wrap">

@@ -29,6 +29,7 @@ import { DialogModule } from 'primeng/dialog';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
+import { Chip } from 'primeng/chip';
 
 import { AuthModule, AuthHttpInterceptor } from '@auth0/auth0-angular';
 import { environment } from '../environments/environment';
@@ -73,6 +74,7 @@ import { CategoryMultiselectComponent } from './category-multiselect/category-mu
     RadioButtonModule,
     CheckboxModule,
     ToastModule,
+    Chip,
     BaseChartDirective,
     AuthModule.forRoot({
       domain: environment.auth.domain,
