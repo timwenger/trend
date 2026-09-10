@@ -77,7 +77,8 @@
     <td>
       <p-cellEditor>
         <ng-template pTemplate="input">
-          <input [(ngModel)]="transaction.transactionDescription" type="text" pInputText>
+          <textarea [(ngModel)]="transaction.transactionDescription" rows="1"
+            class="desktop-description-input"></textarea>
         </ng-template>
         <ng-template pTemplate="output">
           <div class="description-preview"
