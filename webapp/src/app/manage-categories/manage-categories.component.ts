@@ -1,9 +1,15 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, FormGroupDirective, Validators } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category, NewCategory } from '../category';
 import { ConfirmationService } from 'primeng/api';
 import { TransactionFilters } from '../transactionfilters';
+import { Table } from 'primeng/table';
+import { forkJoin } from 'rxjs';
+
+interface ManagedCategory extends Category {
+  dateLastUsed: Date | null;
+}
 
 @Component({
     selector: 'app-manage-categories',
@@ -13,9 +19,11 @@ import { TransactionFilters } from '../transactionfilters';
     standalone: false
 })
 export class ManageCategoriesComponent implements OnInit {
+  @ViewChild('categoryTable') private categoryTable!: Table;
+
   addCategoryForm!: UntypedFormGroup;
-  existingCategories: Category[] = [];
-  categoryEditBackups: { [id: string]: Category; } = {};
+  existingCategories: ManagedCategory[] = [];
+  categoryEditBackups: { [id: string]: ManagedCategory; } = {};
 
   constructor(
     private apiService: ApiService,
@@ -25,10 +33,16 @@ export class ManageCategoriesComponent implements OnInit {
   ngOnInit(): void {
     this.createForm();
 
-    this.apiService.getCategories()
-      .subscribe(categoriesReturned => {
-        this.existingCategories = categoriesReturned;
-
+    forkJoin({
+      categories: this.apiService.getCategories(),
+      lastUsedDates: this.apiService.getCategoryLastUsedDates(),
+    }).subscribe(({ categories, lastUsedDates }) => {
+        this.existingCategories = categories.map(category => ({
+          ...category,
+          dateLastUsed: lastUsedDates[category.id]
+            ? new Date(lastUsedDates[category.id])
+            : null,
+        }));
       });
   }
 
@@ -56,7 +70,10 @@ export class ManageCategoriesComponent implements OnInit {
       .subscribe((categoryReturned) => {
         // use the returned transaction to update the existing categories table
         // copy the array so that the transactions component sees the change
-        this.existingCategories = [...this.existingCategories, categoryReturned];
+        this.existingCategories = [
+          ...this.existingCategories,
+          { ...categoryReturned, dateLastUsed: null },
+        ];
       });
   }
 
@@ -66,24 +83,56 @@ export class ManageCategoriesComponent implements OnInit {
 
 
 
-  onRowEditInit(category: Category) {
+  onRowEditInit(category: ManagedCategory) {
     // make a deep copy, not just a new ref to the same obj
     this.categoryEditBackups[category.id] = { ...category };
   }
 
-  onRowEditSave(category: Category) {
+  onRowEditSave(category: ManagedCategory) {
     delete this.categoryEditBackups[category.id];
     // edit the category in the database
     this.apiService.updateCategory(category)
       .subscribe(/* I'm not using the returned updated category */);
   }
 
-  onRowEditCancel(category: Category, rowIndex: number) {
+  onRowEditCancel(category: ManagedCategory, rowIndex: number) {
     // revert the row to the saved copy before edits began
     this.existingCategories[rowIndex] = this.categoryEditBackups[category.id];
     // make a new array, so the table refreshes
     this.existingCategories = [...this.existingCategories];
     delete this.categoryEditBackups[category.id];
+  }
+
+  onRowEditKeyDown(
+    event: KeyboardEvent,
+    category: ManagedCategory,
+    rowIndex: number,
+    editing: boolean
+  ): void {
+    if (!editing || this.isMobile()) {
+      return;
+    }
+
+    const rowElement = event.currentTarget as HTMLTableRowElement;
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.categoryTable.cancelRowEdit(category);
+      this.onRowEditCancel(category, rowIndex);
+      return;
+    }
+
+    if (event.key === 'Enter' && event.ctrlKey) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.categoryTable.saveRowEdit(category, rowElement);
+      this.onRowEditSave(category);
+    }
+  }
+
+  isMobile(): boolean {
+    return window.matchMedia('(max-width: 768px)').matches;
   }
 
   confirmDelete(event: Event, category: Category) {
@@ -120,7 +169,7 @@ export class ManageCategoriesComponent implements OnInit {
           this.showDeleteCategoryErrorPopup(transactions.length);
         }
         else {
-          // request a delete from database. 
+          // request a delete from database.
           this.apiService.deleteCategory(category)
             .subscribe(returnedCategory => this.onSuccessfulDelete(returnedCategory));
         }

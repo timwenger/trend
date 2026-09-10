@@ -9,8 +9,16 @@
 
     </div>
     <div class="col-12 md:col-4">
-      <p-radioButton value="Expense" label="Expense" formControlName="isIncome"></p-radioButton>
-      <p-radioButton value="Income" label="Income" formControlName="isIncome"></p-radioButton>
+      <div class="category-type-options">
+        <span class="category-type-option">
+          <p-radioButton inputId="new-category-expense" value="Expense" formControlName="isIncome"></p-radioButton>
+          <label for="new-category-expense">Expense</label>
+        </span>
+        <span class="category-type-option">
+          <p-radioButton inputId="new-category-income" value="Income" formControlName="isIncome"></p-radioButton>
+          <label for="new-category-income">Income</label>
+        </span>
+      </div>
     </div>
     <div class="col-12 md:col-4">
       <p-button label="Add Category" [disabled]="!addCategoryForm.valid" (onClick)="onSubmit(formDirective)">
@@ -24,7 +32,7 @@
 @if (existingCategories.length > 0 ) {
   <div>
     <h3>Existing Categories:</h3>
-    <p-table [value]="existingCategories" dataKey="id" responsiveLayout="scroll" sortField="isIncome" [sortOrder]="-1" editMode="row"
+    <p-table #categoryTable [value]="existingCategories" dataKey="id" responsiveLayout="scroll" sortField="isIncome" [sortOrder]="-1" editMode="row"
       styleClass="p-datatable-striped">
       <ng-template pTemplate="header">
         <tr>
@@ -32,12 +40,15 @@
         </th>
         <th pSortableColumn="isIncome">Type <p-sortIcon field="isIncome"></p-sortIcon>
       </th>
+      <th pSortableColumn="dateLastUsed">Last used <p-sortIcon field="dateLastUsed"></p-sortIcon>
+      </th>
       <th></th>
       <th></th>
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-category let-editing="editing" let-rowIndex="rowIndex">
-    <tr [pEditableRow]="category">
+    <tr [pEditableRow]="category"
+      (keydown)="onRowEditKeyDown($event, category, rowIndex, editing)">
       <td>
         <p-cellEditor>
           <ng-template pTemplate="input">
@@ -51,15 +62,30 @@
       <td>
         <p-cellEditor>
           <ng-template pTemplate="input">
-            <p-radioButton name="isIncome" label="Expense" [value]="false"
-            [(ngModel)]="category.isIncome"></p-radioButton>
-            <p-radioButton name="isIncome" label="Income" [value]="true"
-            [(ngModel)]="category.isIncome"></p-radioButton>
+            <div class="category-type-options">
+              <span class="category-type-option">
+                <p-radioButton name="isIncome" [inputId]="'category-' + category.id + '-expense'" [value]="false"
+                [(ngModel)]="category.isIncome"></p-radioButton>
+                <label [for]="'category-' + category.id + '-expense'">Expense</label>
+              </span>
+              <span class="category-type-option">
+                <p-radioButton name="isIncome" [inputId]="'category-' + category.id + '-income'" [value]="true"
+                [(ngModel)]="category.isIncome"></p-radioButton>
+                <label [for]="'category-' + category.id + '-income'">Income</label>
+              </span>
+            </div>
           </ng-template>
           <ng-template pTemplate="output">
             {{getIsIncomeText(category.isIncome)}}
           </ng-template>
         </p-cellEditor>
+      </td>
+      <td>
+        @if (category.dateLastUsed) {
+          {{category.dateLastUsed | date}}
+        } @else {
+          Never
+        }
       </td>
       <td style="text-align:center">
         @if (!editing) {

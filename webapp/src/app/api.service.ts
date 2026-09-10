@@ -64,6 +64,14 @@ export class ApiService {
       );
   }
 
+  getCategoryLastUsedDates(): Observable<Record<string, string>> {
+    return this.http.get<Record<string, string>>(
+      this.apiBaseUrl + this.categoriesApiUrl + '/last-used'
+    ).pipe(
+      catchError(this.handleError<Record<string, string>>('getCategoryLastUsedDates', {}))
+    );
+  }
+
   categoryCompareFn = (c1: Category, c2: Category) => {
     return c1.categoryName.localeCompare(c2.categoryName);
   };

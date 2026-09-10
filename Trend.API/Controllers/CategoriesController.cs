@@ -48,7 +48,44 @@ namespace Trend.API.Controllers
 
             return Ok(categories);
         }
-        
+
+        [HttpGet("last-used")]
+        public async Task<ActionResult> GetCategoryLastUsedDates()
+        {
+            string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (uid == null)
+                return Unauthorized();
+
+            QueryDefinition query = new QueryDefinition(
+                "SELECT category.id AS categoryId, MAX(transaction.DateOfTransaction) AS dateLastUsed " +
+                "FROM transaction JOIN category IN transaction.Categories " +
+                "WHERE transaction.UserId = @uid " +
+                "GROUP BY category.id")
+                .WithParameter("@uid", uid);
+
+            using FeedIterator<CategoryLastUsed> lastUsedFeed =
+                TransactionsContainer.GetItemQueryIterator<CategoryLastUsed>(query);
+            Dictionary<string, DateTime> lastUsedDates = new();
+
+            while (lastUsedFeed.HasMoreResults)
+            {
+                var response = await lastUsedFeed.ReadNextAsync();
+                foreach (CategoryLastUsed item in response)
+                    lastUsedDates[item.CategoryId] = item.DateLastUsed;
+            }
+
+            return Ok(lastUsedDates);
+        }
+
+        private sealed class CategoryLastUsed
+        {
+            [Newtonsoft.Json.JsonProperty(PropertyName = "categoryId")]
+            public string CategoryId { get; set; } = string.Empty;
+
+            [Newtonsoft.Json.JsonProperty(PropertyName = "dateLastUsed")]
+            public DateTime DateLastUsed { get; set; }
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult> GetCategory(string id)
         {
@@ -70,14 +107,14 @@ namespace Trend.API.Controllers
             return Ok(category);
         }
 
-        
+
         [HttpPost]
         public async Task<ActionResult> AddCategory(Category category)
         {
             string? uid = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
             if (uid == null)
-                return Unauthorized(); 
-            
+                return Unauthorized();
+
             if (!ModelState.IsValid)
                 return BadRequest();
 
@@ -104,7 +141,7 @@ namespace Trend.API.Controllers
                 new { id = createdItem.Id },
                 createdItem);
         }
-        
+
 
         [HttpPut("{id}")]
         public async Task<ActionResult> PutCategory(string id, Category category)
@@ -129,7 +166,7 @@ namespace Trend.API.Controllers
             {
                 if(e.StatusCode == System.Net.HttpStatusCode.Forbidden)
                     return Forbid(e.Message);
-                else 
+                else
                     return NotFound(e.Message);  // includes too many requests
             }
 
@@ -179,7 +216,7 @@ namespace Trend.API.Controllers
             return NoContent();
         }
 
-        
+
         [HttpDelete("{id}")]
         public async Task<ActionResult<Category>> DeleteCategory(string id)
         {
@@ -227,6 +264,6 @@ namespace Trend.API.Controllers
 
             return category;
         }
-        
+
     }
 }

@@ -1,4 +1,4 @@
-/* copied this cell size css from the Transactions component*/  
+/* copied this cell size css from the Transactions component*/
 :host ::ng-deep .p-cell-editing {
 	padding-top: 0 !important;
 	padding-bottom: 0 !important;
@@ -11,3 +11,22 @@ td {
   .p-fluid input {
 	width: 100%; /* make inputs use the full flex width, like other elements*/
   }
+
+.category-type-options,
+.category-type-option {
+	display: flex;
+	align-items: center;
+}
+
+.category-type-options {
+	gap: 1rem;
+}
+
+.category-type-option {
+	gap: 0.4rem;
+}
+
+.category-type-option label {
+	color: inherit;
+	cursor: pointer;
+}
