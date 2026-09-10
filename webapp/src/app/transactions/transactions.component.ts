@@ -1,7 +1,8 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy, HostListener } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy, HostListener, ViewChild } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Transaction } from '../transaction';
 import { ConfirmationService, SelectItem } from 'primeng/api';
+import { Table } from 'primeng/table';
 import { Category } from '../category';
 
 
@@ -13,6 +14,7 @@ import { Category } from '../category';
     standalone: false
 })
 export class TransactionsComponent implements OnInit {
+  @ViewChild('transactionTable') private transactionTable!: Table;
 
   @Input() transactions!: Transaction[];
   @Input() categories: Category[] = [];
@@ -92,6 +94,34 @@ export class TransactionsComponent implements OnInit {
     // make a new array, so the table refreshes
     this.transactions = [...this.transactions];
     delete this.transactionEditBackups[transaction.id];
+  }
+
+  onRowEditKeyDown(
+    event: KeyboardEvent,
+    transaction: Transaction,
+    rowIndex: number,
+    editing: boolean
+  ): void {
+    if (!editing || this.isMobile()) {
+      return;
+    }
+
+    const rowElement = event.currentTarget as HTMLTableRowElement;
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.transactionTable.cancelRowEdit(transaction);
+      this.onRowEditCancel(transaction, rowIndex);
+      return;
+    }
+
+    if (event.key === 'Enter' && event.ctrlKey) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.transactionTable.saveRowEdit(transaction, rowElement);
+      this.onRowEditSave(transaction);
+    }
   }
 
   startMobileEditHold(transaction: Transaction, field: 'date' | 'category' | 'amount' | 'description') {

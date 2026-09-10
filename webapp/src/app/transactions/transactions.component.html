@@ -1,4 +1,4 @@
-<p-table [value]="transactions" dataKey="id" responsiveLayout="scroll" sortField="dateOfTransaction" [sortOrder]="-1"
+<p-table #transactionTable [value]="transactions" dataKey="id" responsiveLayout="scroll" sortField="dateOfTransaction" [sortOrder]="-1"
   editMode="row" styleClass="p-datatable-striped">
   <ng-template pTemplate="header">
     <tr>
@@ -14,7 +14,8 @@
 </tr>
 </ng-template>
 <ng-template pTemplate="body" let-transaction let-editing="editing" let-rowIndex="rowIndex">
-  <tr [pEditableRow]="transaction">
+  <tr [pEditableRow]="transaction"
+    (keydown)="onRowEditKeyDown($event, transaction, rowIndex, editing)">
     <td>
       <p-cellEditor>
         <ng-template pTemplate="input">
