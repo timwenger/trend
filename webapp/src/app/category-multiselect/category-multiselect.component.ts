@@ -1,5 +1,6 @@
-import { Component, forwardRef, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
+import { Component, forwardRef, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { MultiSelect } from 'primeng/multiselect';
 import { Category } from '../category';
 import { UtilityService } from '../utility.service';
 
@@ -18,6 +19,8 @@ import { UtilityService } from '../utility.service';
   standalone: false,
 })
 export class CategoryMultiselectComponent implements ControlValueAccessor, OnChanges {
+  @ViewChild('multiSelect') private multiSelect!: MultiSelect;
+
   @Input() options: Category[] = [];
   @Input() placeholder: string = 'Tagged Categories';
   @Input() maxSelectedLabels: number = 1000;
@@ -80,7 +83,8 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
 
   onFilterEscape(event: Event): void {
     event.preventDefault();
-    this.clearFilter();
+    event.stopPropagation();
+    this.multiSelect.hide(true);
   }
 
   onFilterKeyDown(event: Event): void {
