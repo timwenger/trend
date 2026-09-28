@@ -2,13 +2,13 @@
   editMode="row" styleClass="p-datatable-striped">
   <ng-template pTemplate="header">
     <tr>
-      <th pSortableColumn="dateOfTransaction">Date <p-sortIcon field="dateOfTransaction"></p-sortIcon>
+      <th class="col-date" pSortableColumn="dateOfTransaction">Date <p-sortIcon field="dateOfTransaction"></p-sortIcon>
     </th>
-    <th pSortableColumn="category.categoryName">Category <p-sortIcon field="category.categoryName"></p-sortIcon>
+    <th class="col-category" pSortableColumn="category.categoryName">Category <p-sortIcon field="category.categoryName"></p-sortIcon>
   </th>
-  <th pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon>
+  <th class="col-amount" pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon>
 </th>
-  <th>Descr</th>
+  <th class="col-description">Descr</th>
   <th class="col-edit mobile-action-column"></th>
   <th class="col-delete mobile-action-column"></th>
 </tr>
@@ -16,7 +16,7 @@
 <ng-template pTemplate="body" let-transaction let-editing="editing" let-rowIndex="rowIndex">
   <tr [pEditableRow]="transaction"
     (keydown)="onRowEditKeyDown($event, transaction, rowIndex, editing)">
-    <td>
+    <td class="col-date">
       <p-cellEditor>
         <ng-template pTemplate="input">
           <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
@@ -35,28 +35,26 @@
       </p-cellEditor>
     </td>
 
-    <td>
+    <td class="col-category">
       <p-cellEditor>
         <ng-template pTemplate="input">
           <app-category-multiselect [(ngModel)]="transaction.categories" [options]="categories"
             placeholder="Tagged Categories"></app-category-multiselect>
         </ng-template>
         <ng-template pTemplate="output">
-          <div class="mobile-edit-trigger"
+          <div class="mobile-edit-trigger category-preview"
             (pointerdown)="startMobileEditHold(transaction, 'category')"
             (pointerup)="onMobileEditPointerUp(transaction, 'category', $event)"
             (pointerleave)="cancelMobileEditHold()"
             (pointercancel)="cancelMobileEditHold()">
-            @for (category of transaction.categories; track category) {
-              <div>
-                {{category.categoryName}}
-              </div>
+            @for (category of transaction.categories; track category; let last = $last) {
+              <span>{{category.categoryName}}{{last ? '' : ', '}}</span>
             }
           </div>
         </ng-template>
       </p-cellEditor>
     </td>
-    <td>
+    <td class="col-amount">
       <p-cellEditor>
         <ng-template pTemplate="input">
           <div class="p-inputgroup">
@@ -75,7 +73,7 @@
         </ng-template>
       </p-cellEditor>
     </td>
-    <td>
+    <td class="col-description">
       <p-cellEditor>
         <ng-template pTemplate="input">
           <textarea [(ngModel)]="transaction.transactionDescription" rows="1"
@@ -148,18 +146,27 @@
   </div>
 }
 
-@if (mobileEditDialogVisible && mobileEditField !== 'date') {
+@if (mobileEditDialogVisible && mobileEditField === 'category') {
+  <div class="mobile-category-overlay" (click)="cancelMobileFieldEdit()">
+    <div class="mobile-category-editor" (click)="$event.stopPropagation()">
+      <h3>Edit Categories</h3>
+      <app-category-multiselect [(ngModel)]="mobileEditCategories" [options]="categories"
+        placeholder="Tagged Categories"></app-category-multiselect>
+      <div class="mobile-category-editor-actions">
+        <p-button label="Cancel" severity="secondary" (onClick)="cancelMobileFieldEdit()"></p-button>
+        <p-button label="Save" (onClick)="saveMobileFieldEdit()"></p-button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (mobileEditDialogVisible && mobileEditField !== 'date' && mobileEditField !== 'category') {
   <p-dialog [header]="mobileEditDialogTitle" [(visible)]="mobileEditDialogVisible" [modal]="true" [draggable]="false"
     [resizable]="false" [dismissableMask]="true" [closeOnEscape]="true" (onHide)="onAnyDialogHide()"
     [appendTo]="'body'" [position]="isMobile() ? 'top' : 'center'"
     [styleClass]="'mobile-field-dialog'"
     [contentStyle]="{ overflow: 'auto' }"
     [style]="{ width: '22rem' }" [breakpoints]="{ '640px': '95vw' }">
-    @if (mobileEditField === 'category') {
-      <app-category-multiselect [(ngModel)]="mobileEditCategories" [options]="categories"
-        placeholder="Tagged Categories"></app-category-multiselect>
-    }
-
     @if (mobileEditField === 'amount') {
       <div class="p-inputgroup">
         <span class="p-inputgroup-addon">$</span>

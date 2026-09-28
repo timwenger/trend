@@ -202,7 +202,9 @@ export class TransactionsComponent implements OnInit {
     if (this.lastTapKey === tapKey && now - this.lastTapAt <= 320) {
       this.lastTapKey = '';
       this.lastTapAt = 0;
-      this.openMobileFieldEditor(transaction, field, event);
+      event.preventDefault();
+      event.stopPropagation();
+      setTimeout(() => this.openMobileFieldEditor(transaction, field));
       return;
     }
 
@@ -326,7 +328,9 @@ export class TransactionsComponent implements OnInit {
       this.cancelPendingDescriptionTap();
       this.lastDescriptionTapTransactionId = '';
       this.lastDescriptionTapAt = 0;
-      this.openMobileFieldEditor(transaction, 'description', event);
+      event.preventDefault();
+      event.stopPropagation();
+      setTimeout(() => this.openMobileFieldEditor(transaction, 'description'));
       return;
     }
 
