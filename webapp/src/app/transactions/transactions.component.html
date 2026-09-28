@@ -9,8 +9,8 @@
   <th pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon>
 </th>
   <th>Descr</th>
-  <th class="col-edit"></th>
-  <th class="col-delete"></th>
+  <th class="col-edit mobile-action-column"></th>
+  <th class="col-delete mobile-action-column"></th>
 </tr>
 </ng-template>
 <ng-template pTemplate="body" let-transaction let-editing="editing" let-rowIndex="rowIndex">
@@ -97,7 +97,7 @@
         </ng-template>
       </p-cellEditor>
     </td>
-    <td class="col-edit" style="text-align:center">
+    <td class="col-edit mobile-action-column" style="text-align:center">
       @if (!editing) {
         <button pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
           (click)="onRowEditInit(transaction)" class="p-button-rounded p-button-text">
@@ -109,8 +109,7 @@
         </button>
       }
     </td>
-    <td class="col-delete" style="text-align:center">
-      <p-confirmpopup></p-confirmpopup>
+    <td class="col-delete mobile-action-column" style="text-align:center">
       @if (!editing) {
         <button pButton pRipple type="button" icon="pi pi-trash"
           (click)="confirmDelete($event, transaction)" class="p-button-rounded p-button-text p-button-danger">
@@ -126,6 +125,20 @@
   </tr>
 </ng-template>
 </p-table>
+
+<p-confirmpopup></p-confirmpopup>
+
+<p-dialog [(visible)]="mobileActionsVisible" [showHeader]="false" [modal]="true" [draggable]="false"
+  [resizable]="false" [dismissableMask]="true" [closeOnEscape]="true" (onHide)="onAnyDialogHide()"
+  [appendTo]="'body'" position="bottom" [styleClass]="'mobile-actions-dialog'"
+  [style]="{ width: 'min(24rem, 95vw)' }">
+  <div class="mobile-transaction-actions">
+    <button pButton type="button" label="Edit" class="w-full"
+      (click)="editMobileActionField()"></button>
+    <button pButton type="button" label="Delete transaction" severity="danger"
+      class="w-full" (click)="confirmMobileDelete($event)"></button>
+  </div>
+</p-dialog>
 
 @if (mobileEditDialogVisible && mobileEditField === 'date') {
   <div class="mobile-date-overlay" (click)="cancelMobileFieldEdit()">

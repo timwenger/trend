@@ -29,6 +29,9 @@ export class TransactionsComponent implements OnInit {
   mobileEditDescription: string = '';
   descriptionDialogVisible: boolean = false;
   descriptionDialogText: string = '';
+  mobileActionsVisible: boolean = false;
+  mobileActionTarget: Transaction | null = null;
+  mobileActionField: 'date' | 'category' | 'amount' | 'description' | null = null;
   private holdTimer: ReturnType<typeof setTimeout> | null = null;
   private holdTriggered: boolean = false;
   private lastTapAt: number = 0;
@@ -133,8 +136,36 @@ export class TransactionsComponent implements OnInit {
     this.holdTriggered = false;
     this.holdTimer = setTimeout(() => {
       this.holdTriggered = true;
-      this.openMobileFieldEditor(transaction, field);
+      this.mobileActionTarget = transaction;
+      this.mobileActionField = field;
+      this.mobileActionsVisible = true;
+      this.activateDialogHistory();
     }, 450);
+  }
+
+  editMobileActionField(): void {
+    if (!this.mobileActionTarget || !this.mobileActionField) {
+      return;
+    }
+
+    const transaction = this.mobileActionTarget;
+    const field = this.mobileActionField;
+    this.mobileActionsVisible = false;
+    this.mobileActionTarget = null;
+    this.mobileActionField = null;
+    this.openMobileFieldEditor(transaction, field);
+  }
+
+  confirmMobileDelete(event: Event): void {
+    if (!this.mobileActionTarget) {
+      return;
+    }
+
+    const transaction = this.mobileActionTarget;
+    this.mobileActionsVisible = false;
+    this.mobileActionTarget = null;
+    this.mobileActionField = null;
+    this.confirmDelete(event, transaction);
   }
 
   cancelMobileEditHold() {
@@ -336,15 +367,16 @@ export class TransactionsComponent implements OnInit {
       return;
     }
 
-    if (this.mobileEditDialogVisible || this.descriptionDialogVisible) {
+    if (this.mobileEditDialogVisible || this.descriptionDialogVisible || this.mobileActionsVisible) {
       this.mobileEditDialogVisible = false;
       this.descriptionDialogVisible = false;
+      this.mobileActionsVisible = false;
       this.dialogHistoryActive = false;
     }
   }
 
   onAnyDialogHide(): void {
-    if (this.mobileEditDialogVisible || this.descriptionDialogVisible) {
+    if (this.mobileEditDialogVisible || this.descriptionDialogVisible || this.mobileActionsVisible) {
       return;
     }
 

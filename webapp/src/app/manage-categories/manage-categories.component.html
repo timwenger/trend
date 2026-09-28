@@ -37,9 +37,9 @@
       </th>
       <th pSortableColumn="dateLastUsed">Last used <p-sortIcon field="dateLastUsed"></p-sortIcon>
       </th>
-      <th></th>
-      <th></th>
-      <th></th>
+      <th class="mobile-action-column"></th>
+      <th class="mobile-action-column"></th>
+      <th class="mobile-action-column"></th>
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-category let-editing="editing" let-rowIndex="rowIndex">
@@ -51,7 +51,13 @@
             <input [(ngModel)]="category.categoryName" type="text" pInputText>
           </ng-template>
           <ng-template pTemplate="output">
-            {{category.categoryName}}
+            <div class="mobile-edit-trigger"
+              (pointerdown)="startMobileActionHold(category, 'name')"
+              (pointerup)="onMobileFieldPointerUp(category, 'name', $event)"
+              (pointerleave)="cancelMobileActionHold()"
+              (pointercancel)="cancelMobileActionHold()">
+              {{category.categoryName}}
+            </div>
           </ng-template>
         </p-cellEditor>
       </td>
@@ -72,18 +78,30 @@
             </div>
           </ng-template>
           <ng-template pTemplate="output">
-            {{getIsIncomeText(category.isIncome)}}
+            <div class="mobile-edit-trigger"
+              (pointerdown)="startMobileActionHold(category, 'type')"
+              (pointerup)="onMobileFieldPointerUp(category, 'type', $event)"
+              (pointerleave)="cancelMobileActionHold()"
+              (pointercancel)="cancelMobileActionHold()">
+              {{getIsIncomeText(category.isIncome)}}
+            </div>
           </ng-template>
         </p-cellEditor>
       </td>
       <td>
-        @if (category.dateLastUsed) {
-          {{category.dateLastUsed | date}}
-        } @else {
-          Never
-        }
+        <div class="mobile-edit-trigger"
+          (pointerdown)="startMobileActionHold(category)"
+          (pointerup)="finishMobileActionHold()"
+          (pointerleave)="cancelMobileActionHold()"
+          (pointercancel)="cancelMobileActionHold()">
+          @if (category.dateLastUsed) {
+            {{category.dateLastUsed | date}}
+          } @else {
+            Never
+          }
+        </div>
       </td>
-      <td style="text-align:center">
+      <td class="mobile-action-column" style="text-align:center">
         @if (!editing) {
           <button pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
             (click)="onRowEditInit(category)" class="p-button-rounded p-button-text">
@@ -95,7 +113,7 @@
           </button>
         }
       </td>
-      <td style="text-align:center">
+      <td class="mobile-action-column" style="text-align:center">
         @if (!editing) {
           <button pButton pRipple type="button"
             [icon]="isInactive ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
@@ -108,8 +126,7 @@
           </button>
         }
       </td>
-      <td style="text-align:center">
-        <p-confirmpopup></p-confirmpopup>
+      <td class="mobile-action-column" style="text-align:center">
         @if (!editing) {
           <button pButton pRipple type="button" icon="pi pi-trash"
             (click)="confirmDelete($event, category)" class="p-button-rounded p-button-text p-button-danger">
@@ -131,6 +148,52 @@
   </ng-template>
 </p-table>
 </ng-template>
+
+<p-confirmpopup></p-confirmpopup>
+
+<p-dialog [header]="mobileEditField === 'name' ? 'Edit Category' : 'Edit Type'"
+  [(visible)]="mobileEditVisible" [modal]="true" [draggable]="false" [resizable]="false"
+  [dismissableMask]="true" [closeOnEscape]="true" [appendTo]="'body'" position="top"
+  [style]="{ width: 'min(22rem, 95vw)' }">
+  @if (mobileEditField === 'name') {
+    <input [(ngModel)]="mobileEditName" type="text" pInputText class="w-full">
+  }
+  @if (mobileEditField === 'type') {
+    <div class="category-type-options">
+      <span class="category-type-option">
+        <p-radioButton inputId="mobile-category-expense" [value]="false"
+          [(ngModel)]="mobileEditIsIncome"></p-radioButton>
+        <label for="mobile-category-expense">Expense</label>
+      </span>
+      <span class="category-type-option">
+        <p-radioButton inputId="mobile-category-income" [value]="true"
+          [(ngModel)]="mobileEditIsIncome"></p-radioButton>
+        <label for="mobile-category-income">Income</label>
+      </span>
+    </div>
+  }
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" (onClick)="mobileEditVisible = false"></p-button>
+    <p-button label="Save" [disabled]="mobileEditField === 'name' && !mobileEditName.trim()"
+      (onClick)="saveMobileFieldEdit()"></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [(visible)]="mobileActionsVisible" [showHeader]="false" [modal]="true" [draggable]="false"
+  [resizable]="false" [dismissableMask]="true" [closeOnEscape]="true" [appendTo]="'body'"
+  position="bottom" [style]="{ width: 'min(24rem, 95vw)' }">
+  <div class="mobile-category-actions">
+    @if (mobileActionField) {
+      <button pButton type="button" label="Edit" class="w-full"
+        (click)="editMobileActionField()"></button>
+    }
+    <button pButton type="button"
+      [label]="mobileActionTarget?.isInactive ? 'Make category active' : 'Make category inactive'"
+      class="w-full" (click)="setMobileCategoryInactive(!mobileActionTarget?.isInactive)"></button>
+    <button pButton type="button" label="Delete category" severity="danger"
+      class="w-full" (click)="confirmMobileDelete($event)"></button>
+  </div>
+</p-dialog>
 
 <div class="category-table-section">
   <h3>Active</h3>

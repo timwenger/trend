@@ -99,7 +99,9 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
   }
 
   onPanelShow(): void {
-    this.utilityService.focusElement(`.${this.categoryPanelClass} .category-filter-input`);
+    if (!window.matchMedia('(max-width: 768px)').matches) {
+      this.utilityService.focusElement(`.${this.categoryPanelClass} .category-filter-input`);
+    }
   }
 
   private applyFilter(): void {

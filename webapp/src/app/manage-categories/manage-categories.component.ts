@@ -22,6 +22,18 @@ export class ManageCategoriesComponent implements OnInit {
   addCategoryForm!: UntypedFormGroup;
   existingCategories: ManagedCategory[] = [];
   categoryEditBackups: { [id: string]: ManagedCategory; } = {};
+  mobileEditVisible: boolean = false;
+  mobileEditField: 'name' | 'type' | null = null;
+  mobileEditTarget: ManagedCategory | null = null;
+  mobileEditName: string = '';
+  mobileEditIsIncome: boolean = false;
+  mobileActionsVisible: boolean = false;
+  mobileActionTarget: ManagedCategory | null = null;
+  mobileActionField: 'name' | 'type' | null = null;
+  private holdTimer: ReturnType<typeof setTimeout> | null = null;
+  private holdTriggered: boolean = false;
+  private lastTapAt: number = 0;
+  private lastTapKey: string = '';
 
   constructor(
     private apiService: ApiService,
@@ -141,6 +153,122 @@ export class ManageCategoriesComponent implements OnInit {
 
   isMobile(): boolean {
     return window.matchMedia('(max-width: 768px)').matches;
+  }
+
+  startMobileActionHold(category: ManagedCategory, field: 'name' | 'type' | null = null): void {
+    if (!this.isMobile()) {
+      return;
+    }
+
+    this.cancelMobileActionHold();
+    this.holdTriggered = false;
+    this.holdTimer = setTimeout(() => {
+      this.holdTriggered = true;
+      this.mobileActionTarget = category;
+      this.mobileActionField = field;
+      this.mobileActionsVisible = true;
+    }, 450);
+  }
+
+  cancelMobileActionHold(): void {
+    if (this.holdTimer) {
+      clearTimeout(this.holdTimer);
+      this.holdTimer = null;
+    }
+  }
+
+  finishMobileActionHold(): void {
+    this.cancelMobileActionHold();
+    this.holdTriggered = false;
+  }
+
+  onMobileFieldPointerUp(category: ManagedCategory, field: 'name' | 'type', event: Event): void {
+    if (!this.isMobile()) {
+      return;
+    }
+
+    this.cancelMobileActionHold();
+    if (this.holdTriggered) {
+      this.holdTriggered = false;
+      return;
+    }
+
+    if ((event as PointerEvent).pointerType === 'mouse') {
+      return;
+    }
+
+    const tapKey = `${category.id}:${field}`;
+    const now = Date.now();
+    if (this.lastTapKey === tapKey && now - this.lastTapAt <= 320) {
+      this.lastTapKey = '';
+      this.lastTapAt = 0;
+      this.openMobileFieldEditor(category, field);
+      return;
+    }
+
+    this.lastTapKey = tapKey;
+    this.lastTapAt = now;
+  }
+
+  openMobileFieldEditor(category: ManagedCategory, field: 'name' | 'type'): void {
+    this.mobileEditTarget = category;
+    this.mobileEditField = field;
+    this.mobileEditName = category.categoryName;
+    this.mobileEditIsIncome = category.isIncome;
+    this.mobileEditVisible = true;
+  }
+
+  saveMobileFieldEdit(): void {
+    if (!this.mobileEditTarget || !this.mobileEditField) {
+      return;
+    }
+
+    if (this.mobileEditField === 'name') {
+      this.mobileEditTarget.categoryName = this.mobileEditName.trim();
+    } else {
+      this.mobileEditTarget.isIncome = this.mobileEditIsIncome;
+    }
+
+    this.apiService.updateCategory(this.mobileEditTarget).subscribe();
+    this.existingCategories = [...this.existingCategories];
+    this.mobileEditVisible = false;
+  }
+
+  editMobileActionField(): void {
+    if (!this.mobileActionTarget || !this.mobileActionField) {
+      return;
+    }
+
+    const category = this.mobileActionTarget;
+    const field = this.mobileActionField;
+    this.mobileActionsVisible = false;
+    this.mobileActionTarget = null;
+    this.mobileActionField = null;
+    this.openMobileFieldEditor(category, field);
+  }
+
+  setMobileCategoryInactive(isInactive: boolean): void {
+    if (!this.mobileActionTarget) {
+      return;
+    }
+
+    const category = this.mobileActionTarget;
+    this.mobileActionsVisible = false;
+    this.mobileActionTarget = null;
+    this.mobileActionField = null;
+    this.setCategoryInactive(category, isInactive);
+  }
+
+  confirmMobileDelete(event: Event): void {
+    if (!this.mobileActionTarget) {
+      return;
+    }
+
+    const category = this.mobileActionTarget;
+    this.mobileActionsVisible = false;
+    this.mobileActionTarget = null;
+    this.mobileActionField = null;
+    this.confirmDelete(event, category);
   }
 
   setCategoryInactive(category: ManagedCategory, isInactive: boolean): void {
