@@ -29,6 +29,8 @@ export class TransactionsComponent implements OnInit {
   mobileEditDescription: string = '';
   descriptionDialogVisible: boolean = false;
   descriptionDialogText: string = '';
+  categoryDialogVisible: boolean = false;
+  categoryDialogNames: string[] = [];
   mobileActionsVisible: boolean = false;
   mobileActionTarget: Transaction | null = null;
   mobileActionField: 'date' | 'category' | 'amount' | 'description' | null = null;
@@ -36,6 +38,7 @@ export class TransactionsComponent implements OnInit {
   private holdTriggered: boolean = false;
   private lastTapAt: number = 0;
   private lastTapKey: string = '';
+  private categoryTapTimer: ReturnType<typeof setTimeout> | null = null;
   private descriptionTapTimer: ReturnType<typeof setTimeout> | null = null;
   private lastDescriptionTapAt: number = 0;
   private lastDescriptionTapTransactionId: string = '';
@@ -200,6 +203,7 @@ export class TransactionsComponent implements OnInit {
     const now = Date.now();
 
     if (this.lastTapKey === tapKey && now - this.lastTapAt <= 320) {
+      this.cancelPendingCategoryTap();
       this.lastTapKey = '';
       this.lastTapAt = 0;
       event.preventDefault();
@@ -210,6 +214,14 @@ export class TransactionsComponent implements OnInit {
 
     this.lastTapKey = tapKey;
     this.lastTapAt = now;
+
+    if (field === 'category') {
+      this.cancelPendingCategoryTap();
+      this.categoryTapTimer = setTimeout(() => {
+        this.openCategoryDialog(transaction.categories);
+        this.categoryTapTimer = null;
+      }, 320);
+    }
   }
 
   openMobileFieldEditor(
@@ -296,6 +308,26 @@ export class TransactionsComponent implements OnInit {
     this.activateDialogHistory();
   }
 
+  openCategoryDialog(categories: Category[]): void {
+    this.categoryDialogNames = categories.map(category => category.categoryName);
+    this.categoryDialogVisible = true;
+    this.activateDialogHistory();
+  }
+
+  closeCategoryDialog(): void {
+    this.categoryDialogVisible = false;
+    if (!this.mobileEditDialogVisible && !this.descriptionDialogVisible) {
+      this.releaseDialogHistory();
+    }
+  }
+
+  private cancelPendingCategoryTap(): void {
+    if (this.categoryTapTimer) {
+      clearTimeout(this.categoryTapTimer);
+      this.categoryTapTimer = null;
+    }
+  }
+
   onDescriptionPointerUp(
     transaction: Transaction,
     event: Event,
@@ -361,6 +393,12 @@ export class TransactionsComponent implements OnInit {
     if (this.descriptionDialogVisible) {
       event.preventDefault();
       this.closeDescriptionDialog();
+      return;
+    }
+
+    if (this.categoryDialogVisible) {
+      event.preventDefault();
+      this.closeCategoryDialog();
     }
   }
 
@@ -371,16 +409,17 @@ export class TransactionsComponent implements OnInit {
       return;
     }
 
-    if (this.mobileEditDialogVisible || this.descriptionDialogVisible || this.mobileActionsVisible) {
+    if (this.mobileEditDialogVisible || this.descriptionDialogVisible || this.categoryDialogVisible || this.mobileActionsVisible) {
       this.mobileEditDialogVisible = false;
       this.descriptionDialogVisible = false;
+      this.categoryDialogVisible = false;
       this.mobileActionsVisible = false;
       this.dialogHistoryActive = false;
     }
   }
 
   onAnyDialogHide(): void {
-    if (this.mobileEditDialogVisible || this.descriptionDialogVisible || this.mobileActionsVisible) {
+    if (this.mobileEditDialogVisible || this.descriptionDialogVisible || this.categoryDialogVisible || this.mobileActionsVisible) {
       return;
     }
 
@@ -389,14 +428,14 @@ export class TransactionsComponent implements OnInit {
 
   private closeMobileEditDialog(): void {
     this.mobileEditDialogVisible = false;
-    if (!this.descriptionDialogVisible) {
+    if (!this.descriptionDialogVisible && !this.categoryDialogVisible) {
       this.releaseDialogHistory();
     }
   }
 
   closeDescriptionDialog(): void {
     this.descriptionDialogVisible = false;
-    if (!this.mobileEditDialogVisible) {
+    if (!this.mobileEditDialogVisible && !this.categoryDialogVisible) {
       this.releaseDialogHistory();
     }
   }

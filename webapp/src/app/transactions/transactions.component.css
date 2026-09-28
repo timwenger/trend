@@ -190,3 +190,40 @@ td {
 		display: none;
 	}
 }
+
+.mobile-field-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 1200;
+	background: rgba(0, 0, 0, 0.45);
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	padding: max(env(safe-area-inset-top), 0.5rem) 0.5rem 0.5rem;
+}
+
+.mobile-field-editor {
+	width: min(22rem, 100%);
+	padding: 1rem;
+	border-radius: 6px;
+	background: var(--p-content-background, #18181b);
+	color: var(--p-text-color, #f4f4f5);
+	box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.35);
+}
+
+.mobile-field-editor h3 {
+	margin: 0 0 1rem;
+}
+
+.mobile-field-editor-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin-top: 1rem;
+}
+
+.category-dialog-list {
+	display: grid;
+	gap: 0.5rem;
+	word-break: break-word;
+}

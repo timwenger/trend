@@ -160,23 +160,30 @@
   </div>
 }
 
-@if (mobileEditDialogVisible && mobileEditField !== 'date' && mobileEditField !== 'category') {
+@if (mobileEditDialogVisible && mobileEditField === 'amount') {
+  <div class="mobile-field-overlay" (click)="cancelMobileFieldEdit()">
+    <div class="mobile-field-editor" (click)="$event.stopPropagation()">
+      <h3>Edit Amount</h3>
+      <div class="p-inputgroup">
+        <span class="p-inputgroup-addon">$</span>
+        <input [(ngModel)]="mobileEditAmount" type="number" pInputText>
+      </div>
+      <div class="mobile-field-editor-actions">
+        <p-button label="Cancel" severity="secondary" (onClick)="cancelMobileFieldEdit()"></p-button>
+        <p-button label="Save" (onClick)="saveMobileFieldEdit()"></p-button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (mobileEditDialogVisible && mobileEditField === 'description') {
   <p-dialog [header]="mobileEditDialogTitle" [(visible)]="mobileEditDialogVisible" [modal]="true" [draggable]="false"
     [resizable]="false" [dismissableMask]="true" [closeOnEscape]="true" (onHide)="onAnyDialogHide()"
     [appendTo]="'body'" [position]="isMobile() ? 'top' : 'center'"
     [styleClass]="'mobile-field-dialog'"
     [contentStyle]="{ overflow: 'auto' }"
     [style]="{ width: '22rem' }" [breakpoints]="{ '640px': '95vw' }">
-    @if (mobileEditField === 'amount') {
-      <div class="p-inputgroup">
-        <span class="p-inputgroup-addon">$</span>
-        <input [(ngModel)]="mobileEditAmount" type="number" pInputText>
-      </div>
-    }
-
-    @if (mobileEditField === 'description') {
-      <textarea [(ngModel)]="mobileEditDescription" rows="4" class="mobile-description-input"></textarea>
-    }
+    <textarea [(ngModel)]="mobileEditDescription" rows="4" class="mobile-description-input"></textarea>
 
     <ng-template pTemplate="footer">
       <p-button label="Cancel" severity="secondary" (onClick)="cancelMobileFieldEdit()"></p-button>
@@ -194,5 +201,20 @@
   <p class="description-dialog-text">{{ descriptionDialogText }}</p>
   <ng-template pTemplate="footer">
     <p-button label="Close" (onClick)="closeDescriptionDialog()"></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog header="Categories" [(visible)]="categoryDialogVisible" [modal]="true" [draggable]="false"
+  [resizable]="false" [dismissableMask]="true" [closeOnEscape]="true" (onHide)="onAnyDialogHide()"
+  [appendTo]="'body'" [position]="isMobile() ? 'top' : 'center'"
+  [styleClass]="'mobile-category-preview-dialog'"
+  [style]="{ width: '24rem' }" [breakpoints]="{ '640px': '95vw' }">
+  <div class="category-dialog-list">
+    @for (categoryName of categoryDialogNames; track categoryName) {
+      <div>{{categoryName}}</div>
+    }
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Close" (onClick)="closeCategoryDialog()"></p-button>
   </ng-template>
 </p-dialog>
