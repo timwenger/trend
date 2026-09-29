@@ -114,19 +114,44 @@
   }
 
   .find-category {
-    flex: 1 1 calc(100% - 5.25rem);
+    flex: 1 1 100%;
     min-width: 0;
   }
 
+  :host ::ng-deep .find-category app-category-multiselect .p-multiselect {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  :host ::ng-deep .find-category app-category-multiselect .p-multiselect-label-container {
+    flex: 1 1 calc(100% - 2.5rem);
+    min-width: 0;
+  }
+
+  :host ::ng-deep .find-category app-category-multiselect .p-multiselect-dropdown {
+    flex: 0 0 2.5rem;
+  }
+
+  :host ::ng-deep .find-category app-category-multiselect .p-overlay {
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    flex: 0 0 100%;
+    width: 100%;
+  }
+
+  :host ::ng-deep .find-category .category-multiselect-panel {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
   .find-submit {
-    flex: 0 0 4.5rem;
-    align-self: stretch;
+    flex: 1 1 100%;
   }
 
   :host ::ng-deep .find-submit .p-button {
     width: 100%;
     min-width: 0;
-    height: 100%;
   }
 }
 

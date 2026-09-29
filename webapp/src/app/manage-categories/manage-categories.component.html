@@ -152,7 +152,7 @@
 <p-confirmpopup></p-confirmpopup>
 
 @if (mobileEditVisible) {
-  <div class="mobile-overlay" (click)="closeMobileEdit()">
+  <div class="mobile-overlay" (pointerdown)="onMobileOverlayPointerDown($event, 'edit')">
     <div class="mobile-editor" (click)="$event.stopPropagation()">
       <h3>{{mobileEditField === 'name' ? 'Edit Category' : 'Edit Type'}}</h3>
       @if (mobileEditField === 'name') {
@@ -182,7 +182,8 @@
 }
 
 @if (mobileActionsVisible) {
-  <div class="mobile-overlay mobile-actions-overlay" (click)="closeMobileActions()">
+  <div class="mobile-overlay mobile-actions-overlay"
+    (pointerdown)="onMobileOverlayPointerDown($event, 'actions')">
     <div class="mobile-editor mobile-category-actions" (click)="$event.stopPropagation()">
       @if (mobileActionField) {
         <button pButton type="button" label="Edit" class="w-full"
@@ -198,7 +199,7 @@
 }
 
 @if (categoryNamePreviewVisible) {
-  <div class="mobile-overlay" (click)="categoryNamePreviewVisible = false">
+  <div class="mobile-overlay" (pointerdown)="onMobileOverlayPointerDown($event, 'preview')">
     <div class="mobile-editor" (click)="$event.stopPropagation()">
       <h3>Category</h3>
       <p class="category-name-full">{{categoryNamePreview}}</p>

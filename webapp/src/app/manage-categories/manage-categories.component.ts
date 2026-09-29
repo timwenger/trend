@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, FormGroupDirective, Validators } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category, NewCategory } from '../category';
@@ -37,6 +37,7 @@ export class ManageCategoriesComponent implements OnInit {
   private lastTapAt: number = 0;
   private lastTapKey: string = '';
   private categoryNameTapTimer: ReturnType<typeof setTimeout> | null = null;
+  private dismissedOverlayPointerId: number | null = null;
 
   constructor(
     private apiService: ApiService,
@@ -190,6 +191,10 @@ export class ManageCategoriesComponent implements OnInit {
       return;
     }
 
+    if (this.consumeDismissedOverlayPointer(event)) {
+      return;
+    }
+
     this.cancelMobileActionHold();
     if (this.holdTriggered) {
       this.holdTriggered = false;
@@ -240,6 +245,51 @@ export class ManageCategoriesComponent implements OnInit {
     this.mobileActionsVisible = false;
     this.mobileActionTarget = null;
     this.mobileActionField = null;
+  }
+
+  onMobileOverlayPointerDown(
+    event: PointerEvent,
+    overlay: 'edit' | 'actions' | 'preview'
+  ): void {
+    if (event.target !== event.currentTarget) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.dismissedOverlayPointerId = event.pointerId;
+    this.cancelPendingCategoryNameTap();
+
+    switch (overlay) {
+      case 'edit':
+        this.closeMobileEdit();
+        break;
+      case 'actions':
+        this.closeMobileActions();
+        break;
+      case 'preview':
+        this.categoryNamePreviewVisible = false;
+        break;
+    }
+  }
+
+  private consumeDismissedOverlayPointer(event: Event): boolean {
+    const pointerEvent = event as PointerEvent;
+    if (pointerEvent.pointerId !== this.dismissedOverlayPointerId) {
+      return false;
+    }
+
+    this.dismissedOverlayPointerId = null;
+    event.preventDefault();
+    event.stopPropagation();
+    return true;
+  }
+
+  @HostListener('document:pointerup', ['$event'])
+  onDocumentPointerUp(event: PointerEvent): void {
+    if (event.pointerId === this.dismissedOverlayPointerId) {
+      this.dismissedOverlayPointerId = null;
+    }
   }
 
   openMobileFieldEditor(category: ManagedCategory, field: 'name' | 'type'): void {

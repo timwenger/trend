@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { Component, ElementRef, forwardRef, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MultiSelect } from 'primeng/multiselect';
 import { Category } from '../category';
@@ -38,7 +38,10 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
   private onChange: (value: Category[]) => void = () => {};
   onTouched: () => void = () => {};
 
-  constructor(private utilityService: UtilityService) {}
+  constructor(
+    private elementRef: ElementRef<HTMLElement>,
+    private utilityService: UtilityService
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['options']) {
@@ -102,20 +105,24 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
   prepareMobilePanel(): void {
     if (window.matchMedia('(max-width: 768px)').matches) {
       this.mobileFilterReadOnly = true;
+      this.disableMobileTriggerInput();
     }
   }
 
   onPanelShow(): void {
     if (window.matchMedia('(max-width: 768px)').matches) {
       this.mobileFilterReadOnly = true;
+      this.disableMobileTriggerInput();
       setTimeout(() => {
         const input = document.querySelector(
           `.${this.categoryPanelClass} .category-filter-input`
         ) as HTMLInputElement | null;
         if (input) {
           input.readOnly = true;
+          input.inputMode = 'none';
         }
         input?.blur();
+        this.disableMobileTriggerInput();
       });
     } else {
       this.utilityService.focusElement(`.${this.categoryPanelClass} .category-filter-input`);
@@ -128,13 +135,25 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
       const input = event.currentTarget as HTMLInputElement | null;
       if (input) {
         input.readOnly = false;
+        input.inputMode = 'search';
+        input.focus();
       }
-      setTimeout(() => input?.focus());
     }
   }
 
   onPanelHide(): void {
     this.mobileFilterReadOnly = window.matchMedia('(max-width: 768px)').matches;
+  }
+
+  private disableMobileTriggerInput(): void {
+    const triggerInput = this.elementRef.nativeElement.querySelector<HTMLInputElement>(
+      'input[data-pc-section="hiddeninput"]'
+    );
+    if (triggerInput) {
+      triggerInput.readOnly = true;
+      triggerInput.inputMode = 'none';
+      triggerInput.blur();
+    }
   }
 
   private applyFilter(): void {

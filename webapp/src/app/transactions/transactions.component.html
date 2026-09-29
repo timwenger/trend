@@ -127,7 +127,8 @@
 <p-confirmpopup></p-confirmpopup>
 
 @if (mobileActionsVisible) {
-  <div class="mobile-field-overlay mobile-actions-overlay" (click)="closeMobileActions()">
+  <div class="mobile-field-overlay mobile-actions-overlay"
+    (pointerdown)="onMobileOverlayPointerDown($event, 'actions')">
     <div class="mobile-field-editor mobile-transaction-actions" (click)="$event.stopPropagation()">
       <button pButton type="button" label="Edit" class="w-full"
         (click)="editMobileActionField()"></button>
@@ -138,7 +139,7 @@
 }
 
 @if (mobileEditDialogVisible && mobileEditField === 'date') {
-  <div class="mobile-date-overlay" (click)="cancelMobileFieldEdit()">
+  <div class="mobile-date-overlay" (pointerdown)="onMobileOverlayPointerDown($event, 'edit')">
     <div class="mobile-date-overlay-calendar" (click)="$event.stopPropagation()">
       <p-datepicker [(ngModel)]="mobileEditDate" [inline]="true" [showButtonBar]="false" dateFormat="M d, yy" (onSelect)="onMobileDateSelected()"></p-datepicker>
     </div>
@@ -146,11 +147,11 @@
 }
 
 @if (mobileEditDialogVisible && mobileEditField === 'category') {
-  <div class="mobile-category-overlay" (click)="cancelMobileFieldEdit()">
+  <div class="mobile-category-overlay" (pointerdown)="onMobileOverlayPointerDown($event, 'edit')">
     <div class="mobile-category-editor" (click)="$event.stopPropagation()">
       <h3>Edit Categories</h3>
       <app-category-multiselect [(ngModel)]="mobileEditCategories" [options]="categories"
-        placeholder="Tagged Categories"></app-category-multiselect>
+        [appendTo]="null" placeholder="Tagged Categories"></app-category-multiselect>
       <div class="mobile-category-editor-actions">
         <p-button label="Cancel" severity="secondary" (onClick)="cancelMobileFieldEdit()"></p-button>
         <p-button label="Save" (onClick)="saveMobileFieldEdit()"></p-button>
@@ -160,7 +161,7 @@
 }
 
 @if (mobileEditDialogVisible && mobileEditField === 'amount') {
-  <div class="mobile-field-overlay" (click)="cancelMobileFieldEdit()">
+  <div class="mobile-field-overlay" (pointerdown)="onMobileOverlayPointerDown($event, 'edit')">
     <div class="mobile-field-editor" (click)="$event.stopPropagation()">
       <h3>Edit Amount</h3>
       <div class="p-inputgroup">
@@ -176,7 +177,7 @@
 }
 
 @if (mobileEditDialogVisible && mobileEditField === 'description') {
-  <div class="mobile-field-overlay" (click)="cancelMobileFieldEdit()">
+  <div class="mobile-field-overlay" (pointerdown)="onMobileOverlayPointerDown($event, 'edit')">
     <div class="mobile-field-editor" (click)="$event.stopPropagation()">
       <h3>Edit Description</h3>
       <textarea [(ngModel)]="mobileEditDescription" rows="4" class="mobile-description-input"></textarea>
@@ -189,7 +190,7 @@
 }
 
 @if (descriptionDialogVisible) {
-  <div class="mobile-field-overlay" (click)="closeDescriptionDialog()">
+  <div class="mobile-field-overlay" (pointerdown)="onMobileOverlayPointerDown($event, 'description')">
     <div class="mobile-field-editor" (click)="$event.stopPropagation()">
       <h3>Description</h3>
       <p class="description-dialog-text">{{ descriptionDialogText }}</p>
@@ -201,7 +202,7 @@
 }
 
 @if (categoryDialogVisible) {
-  <div class="mobile-field-overlay" (click)="closeCategoryDialog()">
+  <div class="mobile-field-overlay" (pointerdown)="onMobileOverlayPointerDown($event, 'category')">
     <div class="mobile-field-editor" (click)="$event.stopPropagation()">
       <h3>Categories</h3>
       <div class="category-dialog-list">

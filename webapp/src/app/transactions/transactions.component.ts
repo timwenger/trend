@@ -42,6 +42,7 @@ export class TransactionsComponent implements OnInit {
   private descriptionTapTimer: ReturnType<typeof setTimeout> | null = null;
   private lastDescriptionTapAt: number = 0;
   private lastDescriptionTapTransactionId: string = '';
+  private dismissedOverlayPointerId: number | null = null;
   private dialogHistoryActive: boolean = false;
   private consumingDialogHistory: boolean = false;
 
@@ -196,6 +197,10 @@ export class TransactionsComponent implements OnInit {
       return;
     }
 
+    if (this.consumeDismissedOverlayPointer(event)) {
+      return;
+    }
+
     this.cancelMobileEditHold();
 
     if (this.holdTriggered) {
@@ -310,6 +315,36 @@ export class TransactionsComponent implements OnInit {
     this.closeMobileEditDialog();
   }
 
+  onMobileOverlayPointerDown(
+    event: PointerEvent,
+    overlay: 'actions' | 'edit' | 'description' | 'category'
+  ): void {
+    if (event.target !== event.currentTarget) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.dismissedOverlayPointerId = event.pointerId;
+    this.cancelPendingCategoryTap();
+    this.cancelPendingDescriptionTap();
+
+    switch (overlay) {
+      case 'actions':
+        this.closeMobileActions();
+        break;
+      case 'edit':
+        this.cancelMobileFieldEdit();
+        break;
+      case 'description':
+        this.closeDescriptionDialog();
+        break;
+      case 'category':
+        this.closeCategoryDialog();
+        break;
+    }
+  }
+
   openDescriptionDialog(event: Event, description: string | null | undefined): void {
     event.stopPropagation();
     this.descriptionDialogText = description ?? '';
@@ -343,6 +378,10 @@ export class TransactionsComponent implements OnInit {
     description: string | null | undefined
   ): void {
     if (!this.isMobile()) {
+      return;
+    }
+
+    if (this.consumeDismissedOverlayPointer(event)) {
       return;
     }
 
@@ -388,6 +427,25 @@ export class TransactionsComponent implements OnInit {
     if (this.descriptionTapTimer) {
       clearTimeout(this.descriptionTapTimer);
       this.descriptionTapTimer = null;
+    }
+  }
+
+  private consumeDismissedOverlayPointer(event: Event): boolean {
+    const pointerEvent = event as PointerEvent;
+    if (pointerEvent.pointerId !== this.dismissedOverlayPointerId) {
+      return false;
+    }
+
+    this.dismissedOverlayPointerId = null;
+    event.preventDefault();
+    event.stopPropagation();
+    return true;
+  }
+
+  @HostListener('document:pointerup', ['$event'])
+  onDocumentPointerUp(event: PointerEvent): void {
+    if (event.pointerId === this.dismissedOverlayPointerId) {
+      this.dismissedOverlayPointerId = null;
     }
   }
 

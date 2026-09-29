@@ -78,8 +78,8 @@ html, body {
 }
 
 .category-multiselect-panel {
-  max-height: 28rem;
-  overflow-y: auto;
+  max-height: min(28rem, calc(100dvh - 2rem));
+  overflow: hidden;
 }
 
 .category-multiselect-panel .p-multiselect-header {
@@ -89,8 +89,11 @@ html, body {
 }
 
 .category-multiselect-panel .p-multiselect-list-container {
-  max-height: none !important;
-  overflow: visible !important;
+  max-height: min(24rem, calc(100dvh - 10rem)) !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
 }
 
 .category-multiselect-panel [role="option"].category-option-active {

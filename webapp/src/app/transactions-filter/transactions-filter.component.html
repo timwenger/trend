@@ -33,7 +33,7 @@
       </div>
       <div class="find-category">
         <app-category-multiselect formControlName="multiSelectDropdown" [options]="allCategories"
-          placeholder="(All Categories)"></app-category-multiselect>
+          [appendTo]="null" placeholder="(All Categories)"></app-category-multiselect>
       </div>
       <div class="find-submit">
         <p-button label="Go" [disabled]="!filterForm.valid" (onClick)="onSubmit()"></p-button>
