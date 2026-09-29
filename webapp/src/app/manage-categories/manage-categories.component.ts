@@ -30,10 +30,13 @@ export class ManageCategoriesComponent implements OnInit {
   mobileActionsVisible: boolean = false;
   mobileActionTarget: ManagedCategory | null = null;
   mobileActionField: 'name' | 'type' | null = null;
+  categoryNamePreviewVisible: boolean = false;
+  categoryNamePreview: string = '';
   private holdTimer: ReturnType<typeof setTimeout> | null = null;
   private holdTriggered: boolean = false;
   private lastTapAt: number = 0;
   private lastTapKey: string = '';
+  private categoryNameTapTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private apiService: ApiService,
@@ -200,14 +203,43 @@ export class ManageCategoriesComponent implements OnInit {
     const tapKey = `${category.id}:${field}`;
     const now = Date.now();
     if (this.lastTapKey === tapKey && now - this.lastTapAt <= 320) {
+      this.cancelPendingCategoryNameTap();
       this.lastTapKey = '';
       this.lastTapAt = 0;
-      this.openMobileFieldEditor(category, field);
+      event.preventDefault();
+      event.stopPropagation();
+      setTimeout(() => this.openMobileFieldEditor(category, field));
       return;
     }
 
     this.lastTapKey = tapKey;
     this.lastTapAt = now;
+
+    if (field === 'name') {
+      this.cancelPendingCategoryNameTap();
+      this.categoryNameTapTimer = setTimeout(() => {
+        this.categoryNamePreview = category.categoryName;
+        this.categoryNamePreviewVisible = true;
+        this.categoryNameTapTimer = null;
+      }, 320);
+    }
+  }
+
+  private cancelPendingCategoryNameTap(): void {
+    if (this.categoryNameTapTimer) {
+      clearTimeout(this.categoryNameTapTimer);
+      this.categoryNameTapTimer = null;
+    }
+  }
+
+  closeMobileEdit(): void {
+    this.mobileEditVisible = false;
+  }
+
+  closeMobileActions(): void {
+    this.mobileActionsVisible = false;
+    this.mobileActionTarget = null;
+    this.mobileActionField = null;
   }
 
   openMobileFieldEditor(category: ManagedCategory, field: 'name' | 'type'): void {
@@ -231,7 +263,7 @@ export class ManageCategoriesComponent implements OnInit {
 
     this.apiService.updateCategory(this.mobileEditTarget).subscribe();
     this.existingCategories = [...this.existingCategories];
-    this.mobileEditVisible = false;
+    this.closeMobileEdit();
   }
 
   editMobileActionField(): void {

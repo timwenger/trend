@@ -58,7 +58,74 @@ td {
 	gap: 0.75rem;
 }
 
+.mobile-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: 1200;
+	background: rgba(0, 0, 0, 0.45);
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	padding: max(env(safe-area-inset-top), 0.5rem) 0.5rem 0.5rem;
+}
+
+.mobile-actions-overlay {
+	align-items: flex-end;
+}
+
+.mobile-editor {
+	width: min(24rem, 100%);
+	padding: 1rem;
+	border-radius: 6px;
+	background: var(--p-content-background, #18181b);
+	color: var(--p-text-color, #f4f4f5);
+	box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.35);
+}
+
+.mobile-editor h3 {
+	margin: 0 0 1rem;
+}
+
+.mobile-editor-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin-top: 1rem;
+}
+
+.category-name-full {
+	margin: 0;
+	word-break: break-word;
+}
+
 @media (max-width: 768px) {
+	:host ::ng-deep .p-datatable-table {
+		width: 100% !important;
+		min-width: 0 !important;
+		table-layout: fixed;
+	}
+
+	:host ::ng-deep .p-datatable-table-container {
+		overflow-x: hidden;
+	}
+
+	.col-category-name {
+		width: 42%;
+		min-width: 0;
+		overflow: hidden;
+	}
+
+	.category-name-preview {
+		display: -webkit-box;
+		line-clamp: 2;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		line-height: 1.25;
+		max-height: 2.5em;
+		word-break: break-word;
+	}
+
 	.mobile-edit-trigger {
 		-webkit-touch-callout: none;
 		user-select: none;

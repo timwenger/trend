@@ -171,6 +171,15 @@ export class TransactionsComponent implements OnInit {
     this.confirmDelete(event, transaction);
   }
 
+  closeMobileActions(): void {
+    this.mobileActionsVisible = false;
+    this.mobileActionTarget = null;
+    this.mobileActionField = null;
+    if (!this.mobileEditDialogVisible && !this.descriptionDialogVisible && !this.categoryDialogVisible) {
+      this.releaseDialogHistory();
+    }
+  }
+
   cancelMobileEditHold() {
     if (this.holdTimer) {
       clearTimeout(this.holdTimer);

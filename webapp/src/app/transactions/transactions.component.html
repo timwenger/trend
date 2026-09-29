@@ -126,17 +126,16 @@
 
 <p-confirmpopup></p-confirmpopup>
 
-<p-dialog [(visible)]="mobileActionsVisible" [showHeader]="false" [modal]="true" [draggable]="false"
-  [resizable]="false" [dismissableMask]="true" [closeOnEscape]="true" (onHide)="onAnyDialogHide()"
-  [appendTo]="'body'" position="bottom" [styleClass]="'mobile-actions-dialog'"
-  [style]="{ width: 'min(24rem, 95vw)' }">
-  <div class="mobile-transaction-actions">
-    <button pButton type="button" label="Edit" class="w-full"
-      (click)="editMobileActionField()"></button>
-    <button pButton type="button" label="Delete transaction" severity="danger"
-      class="w-full" (click)="confirmMobileDelete($event)"></button>
+@if (mobileActionsVisible) {
+  <div class="mobile-field-overlay mobile-actions-overlay" (click)="closeMobileActions()">
+    <div class="mobile-field-editor mobile-transaction-actions" (click)="$event.stopPropagation()">
+      <button pButton type="button" label="Edit" class="w-full"
+        (click)="editMobileActionField()"></button>
+      <button pButton type="button" label="Delete transaction" severity="danger"
+        class="w-full" (click)="confirmMobileDelete($event)"></button>
+    </div>
   </div>
-</p-dialog>
+}
 
 @if (mobileEditDialogVisible && mobileEditField === 'date') {
   <div class="mobile-date-overlay" (click)="cancelMobileFieldEdit()">
@@ -177,32 +176,29 @@
 }
 
 @if (mobileEditDialogVisible && mobileEditField === 'description') {
-  <p-dialog [header]="mobileEditDialogTitle" [(visible)]="mobileEditDialogVisible" [modal]="true" [draggable]="false"
-    [resizable]="false" [dismissableMask]="true" [closeOnEscape]="true" (onHide)="onAnyDialogHide()"
-    [appendTo]="'body'" [position]="isMobile() ? 'top' : 'center'"
-    [styleClass]="'mobile-field-dialog'"
-    [contentStyle]="{ overflow: 'auto' }"
-    [style]="{ width: '22rem' }" [breakpoints]="{ '640px': '95vw' }">
-    <textarea [(ngModel)]="mobileEditDescription" rows="4" class="mobile-description-input"></textarea>
-
-    <ng-template pTemplate="footer">
-      <p-button label="Cancel" severity="secondary" (onClick)="cancelMobileFieldEdit()"></p-button>
-      <p-button label="Save" (onClick)="saveMobileFieldEdit()"></p-button>
-    </ng-template>
-  </p-dialog>
+  <div class="mobile-field-overlay" (click)="cancelMobileFieldEdit()">
+    <div class="mobile-field-editor" (click)="$event.stopPropagation()">
+      <h3>Edit Description</h3>
+      <textarea [(ngModel)]="mobileEditDescription" rows="4" class="mobile-description-input"></textarea>
+      <div class="mobile-field-editor-actions">
+        <p-button label="Cancel" severity="secondary" (onClick)="cancelMobileFieldEdit()"></p-button>
+        <p-button label="Save" (onClick)="saveMobileFieldEdit()"></p-button>
+      </div>
+    </div>
+  </div>
 }
 
-<p-dialog header="Description" [(visible)]="descriptionDialogVisible" [modal]="true" [draggable]="false"
-  [resizable]="false" [dismissableMask]="true" [closeOnEscape]="true" (onHide)="onAnyDialogHide()"
-  [appendTo]="'body'" [position]="isMobile() ? 'top' : 'center'"
-  [styleClass]="'mobile-description-dialog'"
-  [contentStyle]="{ overflow: 'auto' }"
-  [style]="{ width: '24rem' }" [breakpoints]="{ '640px': '95vw' }">
-  <p class="description-dialog-text">{{ descriptionDialogText }}</p>
-  <ng-template pTemplate="footer">
-    <p-button label="Close" (onClick)="closeDescriptionDialog()"></p-button>
-  </ng-template>
-</p-dialog>
+@if (descriptionDialogVisible) {
+  <div class="mobile-field-overlay" (click)="closeDescriptionDialog()">
+    <div class="mobile-field-editor" (click)="$event.stopPropagation()">
+      <h3>Description</h3>
+      <p class="description-dialog-text">{{ descriptionDialogText }}</p>
+      <div class="mobile-field-editor-actions">
+        <p-button label="Close" (onClick)="closeDescriptionDialog()"></p-button>
+      </div>
+    </div>
+  </div>
+}
 
 <p-dialog header="Categories" [(visible)]="categoryDialogVisible" [modal]="true" [draggable]="false"
   [resizable]="false" [dismissableMask]="true" [closeOnEscape]="true" (onHide)="onAnyDialogHide()"
