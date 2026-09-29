@@ -135,9 +135,18 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
       this.mobileFilterReadOnly = false;
       const input = event.currentTarget as HTMLInputElement | null;
       if (input) {
+        const wasReadOnly = this.multiSelect.readonly;
+        if (event.type === 'click') {
+          this.multiSelect.readonly = true;
+        }
         input.readOnly = false;
         input.inputMode = 'search';
         input.focus();
+        if (event.type === 'click') {
+          setTimeout(() => {
+            this.multiSelect.readonly = wasReadOnly;
+          }, 0);
+        }
       }
     }
   }
