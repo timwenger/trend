@@ -13,6 +13,7 @@
   [ngModel]="value"
   (ngModelChange)="onValueChange($event)"
   (onPanelShow)="onPanelShow()"
+  (onPanelHide)="onPanelHide()"
   (onBlur)="onTouched()">
   <ng-template pTemplate="selecteditems" let-selectedCategories let-removeChip="removeChip">
     @for (category of selectedCategories; track category.id) {
@@ -26,6 +27,7 @@
     <div class="category-filter-row">
       <div class="category-filter-input-wrap">
         <input pInputText type="text" class="category-filter-input" placeholder="Search"
+          [readOnly]="mobileFilterReadOnly" (pointerdown)="enableMobileFilter()"
           [value]="filterText" (input)="onFilterInput($event)"
           (keydown)="onFilterKeyDown($event)"
           (keydown.delete)="onFilterDelete($event)"

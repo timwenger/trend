@@ -200,17 +200,18 @@
   </div>
 }
 
-<p-dialog header="Categories" [(visible)]="categoryDialogVisible" [modal]="true" [draggable]="false"
-  [resizable]="false" [dismissableMask]="true" [closeOnEscape]="true" (onHide)="onAnyDialogHide()"
-  [appendTo]="'body'" [position]="isMobile() ? 'top' : 'center'"
-  [styleClass]="'mobile-category-preview-dialog'"
-  [style]="{ width: '24rem' }" [breakpoints]="{ '640px': '95vw' }">
-  <div class="category-dialog-list">
-    @for (categoryName of categoryDialogNames; track categoryName) {
-      <div>{{categoryName}}</div>
-    }
+@if (categoryDialogVisible) {
+  <div class="mobile-field-overlay" (click)="closeCategoryDialog()">
+    <div class="mobile-field-editor" (click)="$event.stopPropagation()">
+      <h3>Categories</h3>
+      <div class="category-dialog-list">
+        @for (categoryName of categoryDialogNames; track categoryName) {
+          <div>{{categoryName}}</div>
+        }
+      </div>
+      <div class="mobile-field-editor-actions">
+        <p-button label="Close" (onClick)="closeCategoryDialog()"></p-button>
+      </div>
+    </div>
   </div>
-  <ng-template pTemplate="footer">
-    <p-button label="Close" (onClick)="closeCategoryDialog()"></p-button>
-  </ng-template>
-</p-dialog>
+}

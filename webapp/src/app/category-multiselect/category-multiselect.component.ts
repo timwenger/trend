@@ -32,6 +32,7 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
   filterText: string = '';
   showInactive: boolean = false;
   disabled: boolean = false;
+  mobileFilterReadOnly: boolean = window.matchMedia('(max-width: 768px)').matches;
 
   private readonly categoryPanelClass = 'category-multiselect-panel';
   private onChange: (value: Category[]) => void = () => {};
@@ -99,9 +100,27 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
   }
 
   onPanelShow(): void {
-    if (!window.matchMedia('(max-width: 768px)').matches) {
+    if (window.matchMedia('(max-width: 768px)').matches) {
+      this.mobileFilterReadOnly = true;
+      setTimeout(() => {
+        const input = document.querySelector(
+          `.${this.categoryPanelClass} .category-filter-input`
+        ) as HTMLInputElement | null;
+        input?.blur();
+      });
+    } else {
       this.utilityService.focusElement(`.${this.categoryPanelClass} .category-filter-input`);
     }
+  }
+
+  enableMobileFilter(): void {
+    if (window.matchMedia('(max-width: 768px)').matches) {
+      this.mobileFilterReadOnly = false;
+    }
+  }
+
+  onPanelHide(): void {
+    this.mobileFilterReadOnly = window.matchMedia('(max-width: 768px)').matches;
   }
 
   private applyFilter(): void {
