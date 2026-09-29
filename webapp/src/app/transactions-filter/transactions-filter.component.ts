@@ -49,6 +49,8 @@ export class TransactionsFilterComponent implements OnInit {
       dateOfOldestTransaction: new UntypedFormControl(oneMonthAgo),
       dateOfLatestTransaction: new UntypedFormControl(new Date()),
       multiSelectDropdown: new UntypedFormControl(),
+      searchText: new UntypedFormControl(''),
+      match: new UntypedFormControl('All'),
     }, { validators: this.dateValidator('dateOfOldestTransaction', 'dateOfLatestTransaction') });
   }
 
@@ -68,6 +70,10 @@ export class TransactionsFilterComponent implements OnInit {
 
   onSubmit() {
     this.refreshTransactions();
+  }
+
+  setMatch(match: 'All' | 'Any'): void {
+    this.filterForm.controls['match'].setValue(match);
   }
 
   onTransactionAdded(newTransaction: Transaction): void {
@@ -100,6 +106,8 @@ export class TransactionsFilterComponent implements OnInit {
       dateLatest: this.utilityService.getShortDate(this.filterForm.controls['dateOfLatestTransaction'].value),
       categoryFilter: categoryFilterIsUsed,
       selectedCategoryIds: ids,
+      searchText: form.controls['searchText'].value.trim(),
+      match: form.controls['match'].value,
     }
   }
 

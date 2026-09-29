@@ -1,9 +1,16 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using System.Linq.Expressions;
 using Trend.API.Models;
 
 namespace Trend.API.Filters
 {
+    public enum SearchMatchMode
+    {
+        All,
+        Any
+    }
+
     public class TransactionFilters
     {
         public bool DateFilter { get; set; }
@@ -11,29 +18,111 @@ namespace Trend.API.Filters
         public DateTime DateLatest { get; set; }
         public bool CategoryFilter { get; set; }
         public List<string>? SelectedCategoryIds { get; set; }
-
+        public string? SearchText { get; set; }
+        public SearchMatchMode Match { get; set; } = SearchMatchMode.All;
 
         public FeedIterator<Transaction> GetFeedIterator(Container TransactionsContainer, string userId)
         {
             var queryable = TransactionsContainer.GetItemLinqQueryable<Transaction>();
 
             var query = queryable.Where(t => t.UserId == userId);
+            var filterPredicate = BuildPredicate();
+            if (filterPredicate != null)
+                query = query.Where(filterPredicate);
+
+            return query.ToFeedIterator();
+        }
+
+        public Expression<Func<Transaction, bool>>? BuildPredicate()
+        {
+            List<Expression<Func<Transaction, bool>>> conditions = new();
 
             // in case the t.DateOfTransaction was recorded with hours and minutes too, it won't compare
             // correctly with the DateLatest, which has no hours, minutes, so it compares it to midnight.
             // instead, we compare less than the next day.
-            DateLatest = DateLatest.AddDays(1);
+            DateTime dateLatestExclusive = DateLatest.AddDays(1);
             if (DateFilter)
-                query = query
-                .Where(t => t.DateOfTransaction >= DateOldest && t.DateOfTransaction < DateLatest);
+                conditions.Add(t => t.DateOfTransaction >= DateOldest && t.DateOfTransaction < dateLatestExclusive);
 
             if (CategoryFilter && SelectedCategoryIds != null)
-                query = query
-                .Where(t => t.Categories.Any(c => SelectedCategoryIds.Contains(c.Id)));
+                conditions.Add(t => t.Categories.Any(c => SelectedCategoryIds.Contains(c.Id)));
 
-            FeedIterator<Transaction> iterator = query.ToFeedIterator();
+            foreach (string searchTerm in ParseSearchTerms(SearchText))
+            {
+                string normalizedTerm = searchTerm.ToLowerInvariant();
+                conditions.Add(t =>
+                    t.TransactionDescription.ToLower().Contains(normalizedTerm) ||
+                    t.Categories.Any(c => c.CategoryName.ToLower().Contains(normalizedTerm)));
+            }
 
-            return iterator;
+            if (conditions.Count == 0)
+                return null;
+
+            ParameterExpression parameter = Expression.Parameter(typeof(Transaction), "transaction");
+            Expression body = ReplaceParameter(conditions[0], parameter);
+
+            foreach (Expression<Func<Transaction, bool>> condition in conditions.Skip(1))
+            {
+                Expression nextBody = ReplaceParameter(condition, parameter);
+                body = Match == SearchMatchMode.All
+                    ? Expression.AndAlso(body, nextBody)
+                    : Expression.OrElse(body, nextBody);
+            }
+
+            return Expression.Lambda<Func<Transaction, bool>>(body, parameter);
+        }
+
+        public static IReadOnlyList<string> ParseSearchTerms(string? searchText)
+        {
+            List<string> terms = new();
+            if (string.IsNullOrWhiteSpace(searchText))
+                return terms;
+
+            int position = 0;
+            while (position < searchText.Length)
+            {
+                while (position < searchText.Length && char.IsWhiteSpace(searchText[position]))
+                    position++;
+
+                if (position >= searchText.Length)
+                    break;
+
+                bool quoted = searchText[position] == '"';
+                if (quoted)
+                    position++;
+
+                int start = position;
+                while (position < searchText.Length &&
+                    (quoted ? searchText[position] != '"' : !char.IsWhiteSpace(searchText[position])))
+                    position++;
+
+                string term = searchText[start..position].Trim();
+                if (term.Length > 0)
+                    terms.Add(term);
+
+                if (quoted && position < searchText.Length && searchText[position] == '"')
+                    position++;
+            }
+
+            return terms;
+        }
+
+        private static Expression ReplaceParameter(
+            Expression<Func<Transaction, bool>> expression,
+            ParameterExpression parameter)
+        {
+            return new ParameterReplaceVisitor(expression.Parameters[0], parameter)
+                .Visit(expression.Body)!;
+        }
+
+        private sealed class ParameterReplaceVisitor(
+            ParameterExpression source,
+            ParameterExpression target) : ExpressionVisitor
+        {
+            protected override Expression VisitParameter(ParameterExpression node)
+            {
+                return node == source ? target : base.VisitParameter(node);
+            }
         }
     }
 }

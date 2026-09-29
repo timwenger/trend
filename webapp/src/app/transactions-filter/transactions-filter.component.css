@@ -43,9 +43,16 @@
 
 .find-controls {
   display: flex;
-  align-items: stretch;
+  flex-direction: column;
   gap: 0.75rem;
   width: 100%;
+}
+
+.find-filter-row,
+.find-search-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
 }
 
 .find-date-range {
@@ -70,6 +77,43 @@
 .find-category {
   flex: 1 1 auto;
   min-width: 14rem;
+}
+
+.find-match {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.find-match-options {
+  display: inline-flex;
+  overflow: hidden;
+  border: 1px solid var(--p-content-border-color, #3f3f46);
+  border-radius: 0.5rem;
+}
+
+.find-match-options button {
+  min-width: 3.25rem;
+  padding: 0.65rem 0.75rem;
+  border: 0;
+  border-right: 1px solid var(--p-content-border-color, #3f3f46);
+  background: var(--p-content-background, #09090b);
+  color: #d1d5db;
+  cursor: pointer;
+}
+
+.find-match-options button:last-child {
+  border-right: 0;
+}
+
+.find-match-options button.active {
+  background: var(--p-primary-color, #10b981);
+  color: var(--p-primary-contrast-color, #ffffff);
+}
+
+.find-search {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .find-submit {
@@ -105,8 +149,11 @@
   }
 
   .find-controls {
-    flex-wrap: wrap;
     row-gap: 0.75rem;
+  }
+
+  .find-filter-row {
+    flex-wrap: wrap;
   }
 
   .find-date-range {
@@ -114,7 +161,20 @@
   }
 
   .find-category {
-    flex: 1 1 100%;
+    flex: 1 1 calc(100% - 8.25rem);
+    min-width: 0;
+  }
+
+  .find-match {
+    flex: 0 0 7.5rem;
+  }
+
+  .find-match-options {
+    width: 100%;
+  }
+
+  .find-match-options button {
+    flex: 1 1 50%;
     min-width: 0;
   }
 
@@ -146,12 +206,11 @@
   }
 
   .find-submit {
-    flex: 1 1 100%;
+    flex: 0 0 4.5rem;
   }
 
   :host ::ng-deep .find-submit .p-button {
     width: 100%;
-    min-width: 0;
   }
 }
 

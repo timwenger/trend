@@ -4,4 +4,6 @@ export interface TransactionFilters {
 	dateLatest: string;
 	categoryFilter: boolean;
 	selectedCategoryIds: string[];
+	searchText?: string;
+	match?: 'All' | 'Any';
 }

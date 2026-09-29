@@ -20,23 +20,39 @@
   <form #formDirective="ngForm" (ngSubmit)="onSubmit()"
     [formGroup]="filterForm">
     <div class="find-controls p-fluid">
-      <div class="find-date-range">
-        <div class="find-date">
-          <p-datepicker formControlName="dateOfOldestTransaction" [showIcon]="true" dateFormat="M d, yy" appendTo="body">
-          </p-datepicker>
+      <div class="find-filter-row">
+        <div class="find-date-range">
+          <div class="find-date">
+            <p-datepicker formControlName="dateOfOldestTransaction" [showIcon]="true" dateFormat="M d, yy" appendTo="body">
+            </p-datepicker>
+          </div>
+          <span class="find-date-arrow" aria-hidden="true">→</span>
+          <div class="find-date">
+            <p-datepicker formControlName="dateOfLatestTransaction" [showIcon]="true" dateFormat="M d, yy" appendTo="body">
+            </p-datepicker>
+          </div>
         </div>
-        <span class="find-date-arrow" aria-hidden="true">→</span>
-        <div class="find-date">
-          <p-datepicker formControlName="dateOfLatestTransaction" [showIcon]="true" dateFormat="M d, yy" appendTo="body">
-          </p-datepicker>
+        <div class="find-category">
+          <app-category-multiselect formControlName="multiSelectDropdown" [options]="allCategories"
+            [appendTo]="null" placeholder="(All Categories)"></app-category-multiselect>
+        </div>
+        <div class="find-match" role="group" aria-label="Match">
+          <div class="find-match-options">
+            <button type="button" [class.active]="filterForm.controls['match'].value === 'All'"
+              [attr.aria-pressed]="filterForm.controls['match'].value === 'All'" (click)="setMatch('All')">All</button>
+            <button type="button" [class.active]="filterForm.controls['match'].value === 'Any'"
+              [attr.aria-pressed]="filterForm.controls['match'].value === 'Any'" (click)="setMatch('Any')">Any</button>
+          </div>
         </div>
       </div>
-      <div class="find-category">
-        <app-category-multiselect formControlName="multiSelectDropdown" [options]="allCategories"
-          [appendTo]="null" placeholder="(All Categories)"></app-category-multiselect>
-      </div>
-      <div class="find-submit">
-        <p-button label="Go" [disabled]="!filterForm.valid" (onClick)="onSubmit()"></p-button>
+      <div class="find-search-row">
+        <div class="find-search">
+          <input formControlName="searchText" type="search" pInputText
+            placeholder="Description">
+        </div>
+        <div class="find-submit">
+          <p-button label="Go" type="submit" [disabled]="!filterForm.valid"></p-button>
+        </div>
       </div>
       @if ( !filterForm.valid && filterForm.errors != null) {
         <div class="find-error">

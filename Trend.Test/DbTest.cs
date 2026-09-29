@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Trend.API.Controllers;
 using Trend.API.Filters;
@@ -7,6 +9,70 @@ using Xunit;
 
 namespace Trend.Test
 {
+    public class TransactionFiltersTest
+    {
+        [Fact]
+        public void ParseSearchTerms_PreservesQuotedPhrases()
+        {
+            IReadOnlyList<string> terms = TransactionFilters.ParseSearchTerms(" transit  \"monthly pass\" ");
+
+            Assert.Equal(new[] { "transit", "monthly pass" }, terms);
+        }
+
+        [Theory]
+        [InlineData(SearchMatchMode.All, 1)]
+        [InlineData(SearchMatchMode.Any, 4)]
+        public void BuildPredicate_CombinesActiveConditions(SearchMatchMode match, int expectedCount)
+        {
+            var filters = new TransactionFilters
+            {
+                CategoryFilter = true,
+                SelectedCategoryIds = new List<string> { "transport" },
+                SearchText = "TRANSIT pass",
+                Match = match
+            };
+            Transaction[] transactions =
+            {
+                CreateTransaction("Transit pass", "transport", "Commuting"),
+                CreateTransaction("Transit ticket", "travel", "Commuting"),
+                CreateTransaction("Monthly pass", "travel", "Commuting"),
+                CreateTransaction("Coffee", "transport", "Commuting")
+            };
+
+            Transaction[] matches = transactions.Where(filters.BuildPredicate()!.Compile()).ToArray();
+
+            Assert.Equal(expectedCount, matches.Length);
+        }
+
+        [Fact]
+        public void BuildPredicate_SearchesDescriptionAndCategoryNameCaseInsensitively()
+        {
+            var filters = new TransactionFilters { SearchText = "bus" };
+            Transaction[] transactions =
+            {
+                CreateTransaction("BUS fare", "travel", "Commuting"),
+                CreateTransaction("Monthly pass", "travel", "Bus and train"),
+                CreateTransaction("Coffee", "food", "Dining")
+            };
+
+            Transaction[] matches = transactions.Where(filters.BuildPredicate()!.Compile()).ToArray();
+
+            Assert.Equal(2, matches.Length);
+        }
+
+        private static Transaction CreateTransaction(string description, string categoryId, string categoryName)
+        {
+            return new Transaction
+            {
+                TransactionDescription = description,
+                Categories = new List<Category>
+                {
+                    new() { Id = categoryId, CategoryName = categoryName }
+                }
+            };
+        }
+    }
+
     public class TestDatabaseFixture
     {
         // How to test with a real DB (not in-memory, but can still be local):
