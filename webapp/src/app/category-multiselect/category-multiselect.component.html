@@ -1,4 +1,5 @@
 <p-multiSelect #multiSelect class="w-full"
+  (pointerdown)="prepareMobilePanel()"
   [options]="filteredOptions"
   optionLabel="categoryName"
   display="chip"
@@ -27,7 +28,7 @@
     <div class="category-filter-row">
       <div class="category-filter-input-wrap">
         <input pInputText type="text" class="category-filter-input" placeholder="Search"
-          [readOnly]="mobileFilterReadOnly" (pointerdown)="enableMobileFilter()"
+          [readOnly]="mobileFilterReadOnly" (pointerdown)="enableMobileFilter($event)"
           [value]="filterText" (input)="onFilterInput($event)"
           (keydown)="onFilterKeyDown($event)"
           (keydown.delete)="onFilterDelete($event)"
