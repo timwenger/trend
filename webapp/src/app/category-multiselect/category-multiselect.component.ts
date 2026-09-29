@@ -131,6 +131,7 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
 
   enableMobileFilter(event: Event): void {
     if (window.matchMedia('(max-width: 768px)').matches) {
+      event.stopPropagation();
       this.mobileFilterReadOnly = false;
       const input = event.currentTarget as HTMLInputElement | null;
       if (input) {
