@@ -5,8 +5,28 @@ import { Category } from './category';
   providedIn: 'root'
 })
 export class UtilityService {
+  private categoryOverlayDismissPointerId: number | null = null;
 
   constructor() { }
+
+  markCategoryOverlayDismissal(pointerId: number): void {
+    this.categoryOverlayDismissPointerId = pointerId;
+  }
+
+  consumeCategoryOverlayDismissal(pointerId: number): boolean {
+    if (pointerId !== this.categoryOverlayDismissPointerId) {
+      return false;
+    }
+
+    this.categoryOverlayDismissPointerId = null;
+    return true;
+  }
+
+  clearCategoryOverlayDismissal(pointerId: number): void {
+    if (pointerId === this.categoryOverlayDismissPointerId) {
+      this.categoryOverlayDismissPointerId = null;
+    }
+  }
 
   getShortDate(dateStr:string){
     let d = new Date(Date.parse(dateStr));

@@ -1,4 +1,4 @@
-import { Component, ElementRef, forwardRef, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { Component, ElementRef, forwardRef, HostListener, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MultiSelect } from 'primeng/multiselect';
 import { Category } from '../category';
@@ -153,6 +153,24 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
 
   onPanelHide(): void {
     this.mobileFilterReadOnly = window.matchMedia('(max-width: 768px)').matches;
+  }
+
+  @HostListener('document:pointerdown', ['$event'])
+  onDocumentPointerDown(event: PointerEvent): void {
+    if (!this.multiSelect?.overlayVisible || !window.matchMedia('(max-width: 768px)').matches) {
+      return;
+    }
+
+    const target = event.target as Node | null;
+    const panel = document.querySelector(`.${this.categoryPanelClass}`);
+    if (target && !this.elementRef.nativeElement.contains(target) && !panel?.contains(target)) {
+      this.utilityService.markCategoryOverlayDismissal(event.pointerId);
+    }
+  }
+
+  @HostListener('document:pointerup', ['$event'])
+  onDocumentPointerUp(event: PointerEvent): void {
+    this.utilityService.clearCategoryOverlayDismissal(event.pointerId);
   }
 
   private disableMobileTriggerInput(): void {

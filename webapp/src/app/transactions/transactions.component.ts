@@ -4,6 +4,7 @@ import { Transaction } from '../transaction';
 import { ConfirmationService, SelectItem } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Category } from '../category';
+import { UtilityService } from '../utility.service';
 
 
 @Component({
@@ -48,7 +49,8 @@ export class TransactionsComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private confirmationService: ConfirmationService) { }
+    private confirmationService: ConfirmationService,
+    private utilityService: UtilityService) { }
 
   ngOnInit(): void {
   }
@@ -197,11 +199,11 @@ export class TransactionsComponent implements OnInit {
       return;
     }
 
+    this.cancelMobileEditHold();
+
     if (this.consumeDismissedOverlayPointer(event)) {
       return;
     }
-
-    this.cancelMobileEditHold();
 
     if (this.holdTriggered) {
       this.holdTriggered = false;
@@ -381,11 +383,11 @@ export class TransactionsComponent implements OnInit {
       return;
     }
 
+    this.cancelMobileEditHold();
+
     if (this.consumeDismissedOverlayPointer(event)) {
       return;
     }
-
-    this.cancelMobileEditHold();
 
     if (this.holdTriggered) {
       this.holdTriggered = false;
@@ -432,11 +434,15 @@ export class TransactionsComponent implements OnInit {
 
   private consumeDismissedOverlayPointer(event: Event): boolean {
     const pointerEvent = event as PointerEvent;
-    if (pointerEvent.pointerId !== this.dismissedOverlayPointerId) {
+    const dismissedExplicitOverlay = pointerEvent.pointerId === this.dismissedOverlayPointerId;
+    const dismissedCategoryOverlay = this.utilityService.consumeCategoryOverlayDismissal(pointerEvent.pointerId);
+    if (!dismissedExplicitOverlay && !dismissedCategoryOverlay) {
       return false;
     }
 
-    this.dismissedOverlayPointerId = null;
+    if (dismissedExplicitOverlay) {
+      this.dismissedOverlayPointerId = null;
+    }
     event.preventDefault();
     event.stopPropagation();
     return true;
