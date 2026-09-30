@@ -2,7 +2,7 @@
 <!-- ngIf used to only display the form once the categories have been fetched -->
 @if (allCategories.length > 0 ) {
   <form #formDirective="ngForm" (ngSubmit)="onSubmit(formDirective)"
-    [formGroup]="addTransactionForm">
+    [formGroup]="addTransactionForm" (keydown)="onFormKeyDown($event, formDirective)">
     <div class="add-controls p-fluid">
       <div class="add-primary-row">
         <div class="add-date">
@@ -27,7 +27,8 @@
         </div>
         <div class="add-category">
         <app-category-multiselect formControlName="categoriesDropdown" [options]="allCategories"
-          placeholder="Tagged Categories"></app-category-multiselect>
+          placeholder="Tagged Categories"
+          (shortcutSubmit)="onCategoryShortcut(formDirective)"></app-category-multiselect>
         </div>
       </div>
 

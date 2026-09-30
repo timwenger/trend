@@ -1,4 +1,4 @@
-import { Component, ElementRef, forwardRef, HostListener, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, forwardRef, HostListener, Input, OnChanges, OnDestroy, Output, SimpleChanges, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MultiSelect } from 'primeng/multiselect';
 import { Category } from '../category';
@@ -18,7 +18,7 @@ import { UtilityService } from '../utility.service';
   ],
   standalone: false,
 })
-export class CategoryMultiselectComponent implements ControlValueAccessor, OnChanges {
+export class CategoryMultiselectComponent implements AfterViewInit, ControlValueAccessor, OnChanges, OnDestroy {
   @ViewChild('multiSelect') private multiSelect!: MultiSelect;
 
   @Input() options: Category[] = [];
@@ -26,6 +26,7 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
   @Input() maxSelectedLabels: number = 1000;
   @Input() scrollHeight: string = '24rem';
   @Input() appendTo: 'body' | null = 'body';
+  @Output() shortcutSubmit = new EventEmitter<void>();
 
   value: Category[] = [];
   filteredOptions: Category[] = [];
@@ -35,6 +36,16 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
   mobileFilterReadOnly: boolean = window.matchMedia('(max-width: 768px)').matches;
 
   private readonly categoryPanelClass = 'category-multiselect-panel';
+  private readonly captureCtrlEnter = (event: KeyboardEvent): void => {
+    if (!this.shortcutSubmit.observed || !event.ctrlKey || event.key !== 'Enter') {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    this.shortcutSubmit.emit();
+  };
   private onChange: (value: Category[]) => void = () => {};
   onTouched: () => void = () => {};
 
@@ -42,6 +53,14 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
     private elementRef: ElementRef<HTMLElement>,
     private utilityService: UtilityService
   ) {}
+
+  ngAfterViewInit(): void {
+    this.elementRef.nativeElement.addEventListener('keydown', this.captureCtrlEnter, true);
+  }
+
+  ngOnDestroy(): void {
+    this.elementRef.nativeElement.removeEventListener('keydown', this.captureCtrlEnter, true);
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['options']) {
@@ -88,17 +107,32 @@ export class CategoryMultiselectComponent implements ControlValueAccessor, OnCha
   }
 
   onFilterDelete(event: Event): void {
-    event.preventDefault();
-    this.clearFilter();
+    this.onFilterDismissKey(event);
   }
 
   onFilterEscape(event: Event): void {
+    this.onFilterDismissKey(event);
+  }
+
+  private onFilterDismissKey(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    this.multiSelect.hide(true);
+    if (this.filterText) {
+      this.clearFilter();
+    } else {
+      this.multiSelect.hide(true);
+    }
   }
 
   onFilterKeyDown(event: Event): void {
+    const keyboardEvent = event as KeyboardEvent;
+    if (keyboardEvent.ctrlKey && keyboardEvent.key === 'Enter') {
+      keyboardEvent.preventDefault();
+      keyboardEvent.stopPropagation();
+      this.shortcutSubmit.emit();
+      return;
+    }
+
     this.utilityService.handleCategoryFilterKeyDown(event, this.categoryPanelClass);
   }
 

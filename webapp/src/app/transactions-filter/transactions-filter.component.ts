@@ -72,6 +72,22 @@ export class TransactionsFilterComponent implements OnInit {
     this.refreshTransactions();
   }
 
+  onFormKeyDown(event: KeyboardEvent): void {
+    if (!event.ctrlKey || event.key !== 'Enter') {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.onCategoryShortcut();
+  }
+
+  onCategoryShortcut(): void {
+    if (this.filterForm.valid) {
+      this.onSubmit();
+    }
+  }
+
   setMatch(match: 'All' | 'Any'): void {
     this.filterForm.controls['match'].setValue(match);
   }

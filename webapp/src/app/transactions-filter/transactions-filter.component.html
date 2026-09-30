@@ -18,7 +18,7 @@
 <!-- ngIf used to only display the form once the categories have been fetched -->
 @if (allCategories.length > 0 ) {
   <form #formDirective="ngForm" (ngSubmit)="onSubmit()"
-    [formGroup]="filterForm">
+    [formGroup]="filterForm" (keydown)="onFormKeyDown($event)">
     <div class="find-controls p-fluid">
       <div class="find-filter-row">
         <div class="find-date-range">
@@ -34,7 +34,8 @@
         </div>
         <div class="find-category">
           <app-category-multiselect formControlName="multiSelectDropdown" [options]="allCategories"
-            placeholder="(All Categories)"></app-category-multiselect>
+            placeholder="(All Categories)"
+            (shortcutSubmit)="onCategoryShortcut()"></app-category-multiselect>
         </div>
         <div class="find-match" role="group" aria-label="Match">
           <div class="find-match-options">

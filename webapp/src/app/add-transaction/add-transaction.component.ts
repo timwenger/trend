@@ -57,6 +57,22 @@ export class AddTransactionComponent implements OnInit {
     f.form.controls['descriptionInput'].setValue('');
   }
 
+  onFormKeyDown(event: KeyboardEvent, formDirective: FormGroupDirective): void {
+    if (!event.ctrlKey || event.key !== 'Enter') {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.onCategoryShortcut(formDirective);
+  }
+
+  onCategoryShortcut(formDirective: FormGroupDirective): void {
+    if (formDirective.form.valid) {
+      this.onSubmit(formDirective);
+    }
+  }
+
   onClickPrevDate(f: FormGroupDirective){
     let calendar = f.form.controls['dateOfTransaction'];
     let date = calendar.value as Date;
