@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, forwardRef, HostListener, Input, OnChanges, OnDestroy, Output, SimpleChanges, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, forwardRef, Input, OnChanges, OnDestroy, Output, SimpleChanges, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MultiSelect } from 'primeng/multiselect';
 import { Category } from '../category';
@@ -46,6 +46,40 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
     event.stopImmediatePropagation();
     this.shortcutSubmit.emit();
   };
+  private outsideDismissPointerId: number | null = null;
+  private readonly captureOutsidePointerDown = (event: PointerEvent): void => {
+    if (
+      this.appendTo !== 'body' ||
+      !this.multiSelect?.overlayVisible ||
+      !window.matchMedia('(max-width: 768px)').matches
+    ) {
+      return;
+    }
+
+    const target = event.target as Node | null;
+    const visiblePanel = Array.from(
+      document.querySelectorAll<HTMLElement>(`.${this.categoryPanelClass}`)
+    ).find(panel => panel.offsetParent !== null);
+    if (!target || this.elementRef.nativeElement.contains(target) || visiblePanel?.contains(target)) {
+      return;
+    }
+
+    this.outsideDismissPointerId = event.pointerId;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    this.multiSelect.hide(true);
+  };
+  private readonly captureOutsidePointerUp = (event: PointerEvent): void => {
+    if (event.pointerId !== this.outsideDismissPointerId) {
+      return;
+    }
+
+    this.outsideDismissPointerId = null;
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+  };
   private onChange: (value: Category[]) => void = () => {};
   onTouched: () => void = () => {};
 
@@ -56,10 +90,14 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
 
   ngAfterViewInit(): void {
     this.elementRef.nativeElement.addEventListener('keydown', this.captureCtrlEnter, true);
+    document.addEventListener('pointerdown', this.captureOutsidePointerDown, true);
+    document.addEventListener('pointerup', this.captureOutsidePointerUp, true);
   }
 
   ngOnDestroy(): void {
     this.elementRef.nativeElement.removeEventListener('keydown', this.captureCtrlEnter, true);
+    document.removeEventListener('pointerdown', this.captureOutsidePointerDown, true);
+    document.removeEventListener('pointerup', this.captureOutsidePointerUp, true);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -187,24 +225,6 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
 
   onPanelHide(): void {
     this.mobileFilterReadOnly = window.matchMedia('(max-width: 768px)').matches;
-  }
-
-  @HostListener('document:pointerdown', ['$event'])
-  onDocumentPointerDown(event: PointerEvent): void {
-    if (!this.multiSelect?.overlayVisible || !window.matchMedia('(max-width: 768px)').matches) {
-      return;
-    }
-
-    const target = event.target as Node | null;
-    const panel = document.querySelector(`.${this.categoryPanelClass}`);
-    if (target && !this.elementRef.nativeElement.contains(target) && !panel?.contains(target)) {
-      this.utilityService.markCategoryOverlayDismissal(event.pointerId);
-    }
-  }
-
-  @HostListener('document:pointerup', ['$event'])
-  onDocumentPointerUp(event: PointerEvent): void {
-    this.utilityService.clearCategoryOverlayDismissal(event.pointerId);
   }
 
   private disableMobileTriggerInput(): void {

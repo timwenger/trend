@@ -4,7 +4,6 @@ import { Transaction } from '../transaction';
 import { ConfirmationService, SelectItem } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Category } from '../category';
-import { UtilityService } from '../utility.service';
 
 
 @Component({
@@ -49,8 +48,7 @@ export class TransactionsComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private confirmationService: ConfirmationService,
-    private utilityService: UtilityService) { }
+    private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
   }
@@ -435,14 +433,11 @@ export class TransactionsComponent implements OnInit {
   private consumeDismissedOverlayPointer(event: Event): boolean {
     const pointerEvent = event as PointerEvent;
     const dismissedExplicitOverlay = pointerEvent.pointerId === this.dismissedOverlayPointerId;
-    const dismissedCategoryOverlay = this.utilityService.consumeCategoryOverlayDismissal(pointerEvent.pointerId);
-    if (!dismissedExplicitOverlay && !dismissedCategoryOverlay) {
+    if (!dismissedExplicitOverlay) {
       return false;
     }
 
-    if (dismissedExplicitOverlay) {
-      this.dismissedOverlayPointerId = null;
-    }
+    this.dismissedOverlayPointerId = null;
     event.preventDefault();
     event.stopPropagation();
     return true;
