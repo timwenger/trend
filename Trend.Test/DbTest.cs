@@ -21,27 +21,52 @@ namespace Trend.Test
 
         [Theory]
         [InlineData(SearchMatchMode.All, 1)]
-        [InlineData(SearchMatchMode.Any, 4)]
-        public void BuildPredicate_CombinesActiveConditions(SearchMatchMode match, int expectedCount)
+        [InlineData(SearchMatchMode.Any, 3)]
+        public void BuildPredicate_AppliesMatchModeWithinSelectedCategories(SearchMatchMode match, int expectedCount)
         {
             var filters = new TransactionFilters
             {
                 CategoryFilter = true,
-                SelectedCategoryIds = new List<string> { "transport" },
-                SearchText = "TRANSIT pass",
+                SelectedCategoryIds = new List<string> { "mpp", "rrsp", "paycheck" },
                 Match = match
             };
             Transaction[] transactions =
             {
-                CreateTransaction("Transit pass", "transport", "Commuting"),
-                CreateTransaction("Transit ticket", "travel", "Commuting"),
-                CreateTransaction("Monthly pass", "travel", "Commuting"),
-                CreateTransaction("Coffee", "transport", "Commuting")
+                CreateTransaction("Combined", "mpp", "rrsp", "paycheck"),
+                CreateTransaction("Pension", "mpp"),
+                CreateTransaction("Savings", "rrsp"),
+                CreateTransaction("Other", "unrelated")
             };
 
             Transaction[] matches = transactions.Where(filters.BuildPredicate()!.Compile()).ToArray();
 
             Assert.Equal(expectedCount, matches.Length);
+        }
+
+        [Fact]
+        public void BuildPredicate_AlwaysIntersectsDateCategoryAndSearchGroups()
+        {
+            var filters = new TransactionFilters
+            {
+                DateFilter = true,
+                DateOldest = new DateTime(2026, 1, 1),
+                DateLatest = new DateTime(2026, 1, 31),
+                CategoryFilter = true,
+                SelectedCategoryIds = new List<string> { "income" },
+                SearchText = "paycheck bonus",
+                Match = SearchMatchMode.Any
+            };
+            Transaction[] transactions =
+            {
+                CreateTransaction("Paycheck", new DateTime(2026, 1, 15), "income"),
+                CreateTransaction("Bonus", new DateTime(2025, 12, 15), "income"),
+                CreateTransaction("Paycheck", new DateTime(2026, 1, 15), "expense"),
+                CreateTransaction("Coffee", new DateTime(2026, 1, 15), "income")
+            };
+
+            Transaction[] matches = transactions.Where(filters.BuildPredicate()!.Compile()).ToArray();
+
+            Assert.Single(matches);
         }
 
         [Fact]
@@ -60,15 +85,23 @@ namespace Trend.Test
             Assert.Equal(2, matches.Length);
         }
 
-        private static Transaction CreateTransaction(string description, string categoryId, string categoryName)
+        private static Transaction CreateTransaction(string description, params string[] categoryIds)
+        {
+            return CreateTransaction(description, default, categoryIds);
+        }
+
+        private static Transaction CreateTransaction(
+            string description,
+            DateTime dateOfTransaction,
+            params string[] categoryIds)
         {
             return new Transaction
             {
                 TransactionDescription = description,
-                Categories = new List<Category>
-                {
-                    new() { Id = categoryId, CategoryName = categoryName }
-                }
+                DateOfTransaction = dateOfTransaction,
+                Categories = categoryIds
+                    .Select(categoryId => new Category { Id = categoryId, CategoryName = categoryId })
+                    .ToList()
             };
         }
     }

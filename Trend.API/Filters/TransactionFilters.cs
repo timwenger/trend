@@ -35,26 +35,46 @@ namespace Trend.API.Filters
 
         public Expression<Func<Transaction, bool>>? BuildPredicate()
         {
-            List<Expression<Func<Transaction, bool>>> conditions = new();
+            List<Expression<Func<Transaction, bool>>> filterGroups = new();
 
             // in case the t.DateOfTransaction was recorded with hours and minutes too, it won't compare
             // correctly with the DateLatest, which has no hours, minutes, so it compares it to midnight.
             // instead, we compare less than the next day.
             DateTime dateLatestExclusive = DateLatest.AddDays(1);
             if (DateFilter)
-                conditions.Add(t => t.DateOfTransaction >= DateOldest && t.DateOfTransaction < dateLatestExclusive);
+                filterGroups.Add(t => t.DateOfTransaction >= DateOldest && t.DateOfTransaction < dateLatestExclusive);
 
-            if (CategoryFilter && SelectedCategoryIds != null)
-                conditions.Add(t => t.Categories.Any(c => SelectedCategoryIds.Contains(c.Id)));
+            if (CategoryFilter && SelectedCategoryIds is { Count: > 0 })
+            {
+                List<Expression<Func<Transaction, bool>>> categoryConditions = new();
+                foreach (string categoryId in SelectedCategoryIds.Distinct())
+                {
+                    string selectedCategoryId = categoryId;
+                    categoryConditions.Add(t => t.Categories.Any(c => c.Id == selectedCategoryId));
+                }
 
+                filterGroups.Add(CombineConditions(categoryConditions, Match)!);
+            }
+
+            List<Expression<Func<Transaction, bool>>> searchConditions = new();
             foreach (string searchTerm in ParseSearchTerms(SearchText))
             {
                 string normalizedTerm = searchTerm.ToLowerInvariant();
-                conditions.Add(t =>
+                searchConditions.Add(t =>
                     t.TransactionDescription.ToLower().Contains(normalizedTerm) ||
                     t.Categories.Any(c => c.CategoryName.ToLower().Contains(normalizedTerm)));
             }
 
+            if (searchConditions.Count > 0)
+                filterGroups.Add(CombineConditions(searchConditions, Match)!);
+
+            return CombineConditions(filterGroups, SearchMatchMode.All);
+        }
+
+        private static Expression<Func<Transaction, bool>>? CombineConditions(
+            IReadOnlyList<Expression<Func<Transaction, bool>>> conditions,
+            SearchMatchMode match)
+        {
             if (conditions.Count == 0)
                 return null;
 
@@ -64,7 +84,7 @@ namespace Trend.API.Filters
             foreach (Expression<Func<Transaction, bool>> condition in conditions.Skip(1))
             {
                 Expression nextBody = ReplaceParameter(condition, parameter);
-                body = Match == SearchMatchMode.All
+                body = match == SearchMatchMode.All
                     ? Expression.AndAlso(body, nextBody)
                     : Expression.OrElse(body, nextBody);
             }
