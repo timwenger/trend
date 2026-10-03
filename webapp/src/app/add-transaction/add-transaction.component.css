@@ -145,3 +145,8 @@ form {
     flex: 0 0 4.5rem;
   }
 }
+.category-selection-error {
+	color: var(--p-red-500);
+	display: block;
+	margin-top: 0.25rem;
+}

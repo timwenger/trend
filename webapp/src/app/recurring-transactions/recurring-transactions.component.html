@@ -70,6 +70,14 @@
       @if (ruleForm.controls.hasEndDate.value && !ruleForm.controls.endDate.value) {
         <small class="form-error">Choose an end date.</small>
       }
+      @if (
+        ruleForm.controls.categories.errors?.['categorySelection'] &&
+        (ruleForm.controls.categories.dirty || ruleForm.controls.categories.touched)
+      ) {
+        <small class="form-error">
+          {{ruleForm.controls.categories.errors?.['categorySelection'].message}}
+        </small>
+      }
     </div>
 
     <div class="form-actions">

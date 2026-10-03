@@ -29,6 +29,15 @@
         <app-category-multiselect formControlName="categoriesDropdown" [options]="allCategories"
           placeholder="Tagged Categories"
           (shortcutSubmit)="onCategoryShortcut(formDirective)"></app-category-multiselect>
+        @if (
+          addTransactionForm.controls['categoriesDropdown'].errors?.['categorySelection'] &&
+          (addTransactionForm.controls['categoriesDropdown'].dirty ||
+            addTransactionForm.controls['categoriesDropdown'].touched)
+        ) {
+          <small class="category-selection-error">
+            {{addTransactionForm.controls['categoriesDropdown'].errors?.['categorySelection'].message}}
+          </small>
+        }
         </div>
       </div>
 

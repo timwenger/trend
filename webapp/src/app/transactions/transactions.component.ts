@@ -3,7 +3,7 @@ import { ApiService } from '../api.service';
 import { Transaction } from '../transaction';
 import { ConfirmationService, SelectItem } from 'primeng/api';
 import { Table } from 'primeng/table';
-import { Category } from '../category';
+import { Category, getCategorySelectionError as getSelectionError } from '../category';
 
 
 @Component({
@@ -101,6 +101,10 @@ export class TransactionsComponent implements OnInit {
   }
 
   onRowEditSave(transaction: Transaction) {
+    if (this.getCategorySelectionError(transaction.categories)) {
+      return;
+    }
+
     delete this.transactionEditBackups[transaction.id];
     if (this.pendingMode) {
       this.pendingSave.emit(transaction);
@@ -144,6 +148,10 @@ export class TransactionsComponent implements OnInit {
     }
 
     if (event.key === 'Enter' && event.ctrlKey) {
+      if (this.getCategorySelectionError(transaction.categories)) {
+        return;
+      }
+
       event.preventDefault();
       event.stopPropagation();
       this.transactionTable.saveRowEdit(transaction, rowElement);
@@ -305,6 +313,9 @@ export class TransactionsComponent implements OnInit {
     }
 
     if (this.mobileEditField === 'category') {
+      if (this.getCategorySelectionError(this.mobileEditCategories)) {
+        return;
+      }
       this.mobileEditTarget.categories = [...this.mobileEditCategories];
     }
 
@@ -337,6 +348,10 @@ export class TransactionsComponent implements OnInit {
 
   cancelMobileFieldEdit(): void {
     this.closeMobileEditDialog();
+  }
+
+  getCategorySelectionError(categories: Category[]): string | null {
+    return getSelectionError(categories);
   }
 
   onMobileOverlayPointerDown(

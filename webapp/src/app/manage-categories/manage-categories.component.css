@@ -99,6 +99,15 @@ td {
 }
 
 @media (max-width: 768px) {
+	.add-category-row .category-type-options {
+		flex-wrap: wrap;
+	}
+
+	.add-category-row .category-pinned-option {
+		flex-basis: 100%;
+		margin-top: 0.25rem;
+	}
+
 	:host ::ng-deep .p-datatable-table {
 		width: 100% !important;
 		min-width: 0 !important;

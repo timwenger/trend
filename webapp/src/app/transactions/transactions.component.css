@@ -141,6 +141,12 @@
 	margin-top: 1rem;
 }
 
+.category-selection-error {
+	color: var(--p-red-500);
+	display: block;
+	margin-top: 0.5rem;
+}
+
 :host ::ng-deep .mobile-category-editor app-category-multiselect .p-overlay {
 	position: static !important;
 	inset: auto !important;

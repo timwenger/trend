@@ -2,42 +2,32 @@
 	width: 100%; /* make inputs use the full flex width, like other elements*/
   }
 
-.find-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
+.find-heading {
   margin-bottom: 0.5rem;
-}
-
-.find-header h3 {
-  margin: 0;
   padding-left: 0.35rem;
 }
 
-.find-totals {
+.table-totals {
   display: flex;
+  justify-content: flex-end;
   gap: 1rem;
+  margin-left: auto;
   font-weight: 600;
   white-space: nowrap;
 }
 
-.find-totals > span {
+.table-totals > span {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   color: #d1d5db;
 }
 
-.find-total-income .pi-arrow-up {
+.total-income .pi-arrow-up {
   color: #4caf50;
 }
 
-.find-total-income {
-  padding-right: 0.35rem;
-}
-
-.find-total-expenses .pi-arrow-down {
+.total-expenses .pi-arrow-down {
   color: #f44336;
 }
 
@@ -135,17 +125,9 @@
 }
 
 @media (max-width: 768px) {
-  .find-header {
-    flex-wrap: nowrap;
-    align-items: center;
-  }
-
-  .find-totals {
-    width: auto;
-    margin-left: auto;
+  .table-totals {
     gap: 0.5rem;
     font-size: 0.85rem;
-    white-space: nowrap;
   }
 
   .find-controls {
@@ -196,14 +178,17 @@ form {
   margin-top: 2.5rem;
 }
 
-.section-heading-row {
+.section-heading {
+  margin-bottom: 1rem;
+}
+
+.section-heading h3 {
+  margin: 0 0 0.75rem;
+}
+
+.section-summary-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-}
-
-.section-heading-row h3,
-.transaction-table-section > h3 {
-  margin: 0 0 1rem;
 }

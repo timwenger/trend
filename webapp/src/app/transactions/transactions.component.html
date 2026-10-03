@@ -47,6 +47,9 @@
         <ng-template pTemplate="input">
           <app-category-multiselect [(ngModel)]="transaction.categories" [options]="categories"
             placeholder="Tagged Categories"></app-category-multiselect>
+          @if (getCategorySelectionError(transaction.categories); as selectionError) {
+            <small class="category-selection-error">{{selectionError}}</small>
+          }
         </ng-template>
         <ng-template pTemplate="output">
           <div class="mobile-edit-trigger category-preview"
@@ -110,6 +113,7 @@
       }
       @if (editing) {
         <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+          [disabled]="!!getCategorySelectionError(transaction.categories)"
           (click)="onRowEditSave(transaction)" class="p-button-rounded p-button-text p-button-success mr-2">
         </button>
       }
@@ -178,9 +182,13 @@
       <h3>Edit Categories</h3>
       <app-category-multiselect [(ngModel)]="mobileEditCategories" [options]="categories"
         [appendTo]="null" placeholder="Tagged Categories"></app-category-multiselect>
+      @if (getCategorySelectionError(mobileEditCategories); as selectionError) {
+        <small class="category-selection-error">{{selectionError}}</small>
+      }
       <div class="mobile-category-editor-actions">
         <p-button label="Cancel" severity="secondary" (onClick)="cancelMobileFieldEdit()"></p-button>
-        <p-button label="Save" (onClick)="saveMobileFieldEdit()"></p-button>
+        <p-button label="Save" [disabled]="!!getCategorySelectionError(mobileEditCategories)"
+          (onClick)="saveMobileFieldEdit()"></p-button>
       </div>
     </div>
   </div>

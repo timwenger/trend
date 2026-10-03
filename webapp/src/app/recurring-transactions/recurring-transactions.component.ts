@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ConfirmationService, MessageService, SortEvent } from 'primeng/api';
 import { forkJoin, switchMap } from 'rxjs';
 import { ApiService } from '../api.service';
-import { Category } from '../category';
+import { Category, categorySelectionValidator } from '../category';
 import { Transaction } from '../transaction';
 import { TransactionRule, TransactionRuleConfig } from '../transaction-rule';
 
@@ -20,7 +20,10 @@ export class RecurringTransactionsComponent implements OnInit {
   ruleForm = new FormGroup({
     startDate: new FormControl<Date>(this.today(), { nonNullable: true, validators: Validators.required }),
     amount: new FormControl<number | null>(null, Validators.required),
-    categories: new FormControl<Category[]>([], { nonNullable: true, validators: Validators.required }),
+    categories: new FormControl<Category[]>([], {
+      nonNullable: true,
+      validators: [Validators.required, categorySelectionValidator()],
+    }),
     description: new FormControl<string>('', { nonNullable: true }),
     recurrenceInterval: new FormControl<number>(1, { nonNullable: true, validators: [Validators.required, Validators.min(1)] }),
     recurrenceUnit: new FormControl<RecurrenceUnit>('months', { nonNullable: true, validators: Validators.required }),
@@ -233,7 +236,7 @@ export class RecurringTransactionsComponent implements OnInit {
     if (this.pendingTransactions.length === 0) return;
     this.confirmChange(
       'Accept all pending transactions?',
-      `${this.pendingTransactions.length} transactions will become real transactions.`,
+      `${this.pendingTransactions.length} pending transactions will be posted.`,
       'Accept All',
       () => {
         const pending = [...this.pendingTransactions];

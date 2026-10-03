@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ChartData, ChartDataset } from 'chart.js';
 import { Transaction } from './transaction';
-import { Category } from './category';
+import { Category, getCategoryTransactionType } from './category';
 
 export interface SeriesSelection {
   customCategoryIds: string[];
@@ -133,6 +133,27 @@ export class TrendAggregationService {
     });
   }
 
+  private computeTrailingByTransactionType(
+    transactions: Transaction[],
+    points: Date[],
+    windowDays: number,
+    transactionType: boolean,
+  ): number[] {
+    return points.map(pointDate => {
+      const windowStart = new Date(pointDate);
+      windowStart.setDate(pointDate.getDate() - windowDays + 1);
+      return transactions
+        .filter(transaction => {
+          const transactionDate = new Date(transaction.dateOfTransaction);
+          transactionDate.setHours(0, 0, 0, 0);
+          return transactionDate >= windowStart &&
+            transactionDate <= pointDate &&
+            getCategoryTransactionType(transaction.categories) === transactionType;
+        })
+        .reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0);
+    });
+  }
+
   computeTotals(
     startDate: Date,
     endDate: Date,
@@ -144,8 +165,12 @@ export class TrendAggregationService {
     for (const t of transactions) {
       const d = new Date(t.dateOfTransaction);
       if (d < start || d > end) continue;
-      if (t.categories.some(c => c.isIncome)) income += Math.abs(t.amount);
-      else expenses += Math.abs(t.amount);
+      const transactionType = getCategoryTransactionType(t.categories);
+      if (transactionType === true) {
+        income += Math.abs(t.amount);
+      } else if (transactionType === false) {
+        expenses += Math.abs(t.amount);
+      }
     }
     return { income, expenses };
   }
@@ -179,10 +204,13 @@ export class TrendAggregationService {
       filter: (c: Category) => boolean,
       lookupPoints: Date[],
       dashed: boolean,
+      transactionType?: boolean,
     ) => {
       datasets.push({
         label,
-        data: this.computeTrailing(transactions, lookupPoints, windowDays, filter),
+        data: transactionType === undefined
+          ? this.computeTrailing(transactions, lookupPoints, windowDays, filter)
+          : this.computeTrailingByTransactionType(transactions, lookupPoints, windowDays, transactionType),
         borderColor: color,
         backgroundColor: this.hexToRgba(color, 0.08),
         tension: 0.3,
@@ -195,11 +223,11 @@ export class TrendAggregationService {
 
     selection.customCategoryIds.forEach((catId, i) => {
       if (catId === '__income__') {
-        addSeries('Income', INCOME_COLOR, c => c.isIncome, datePoints, false);
-        if (showPriorYear) addSeries('Income (prior year)', INCOME_COLOR, c => c.isIncome, priorYearPoints, true);
+        addSeries('Income', INCOME_COLOR, () => false, datePoints, false, true);
+        if (showPriorYear) addSeries('Income (prior year)', INCOME_COLOR, () => false, priorYearPoints, true, true);
       } else if (catId === '__expenses__') {
-        addSeries('Expenses', EXPENSE_COLOR, c => !c.isIncome, datePoints, false);
-        if (showPriorYear) addSeries('Expenses (prior year)', EXPENSE_COLOR, c => !c.isIncome, priorYearPoints, true);
+        addSeries('Expenses', EXPENSE_COLOR, () => false, datePoints, false, false);
+        if (showPriorYear) addSeries('Expenses (prior year)', EXPENSE_COLOR, () => false, priorYearPoints, true, false);
       } else {
         const cat = allCategories.find(c => c.id === catId);
         if (!cat) return;
@@ -219,10 +247,10 @@ export class TrendAggregationService {
 
         if (catId === '__income__') {
           color = INCOME_COLOR;
-          seriesFilter = t => t.categories.some(c => c.isIncome);
+          seriesFilter = t => getCategoryTransactionType(t.categories) === true;
         } else if (catId === '__expenses__') {
           color = EXPENSE_COLOR;
-          seriesFilter = t => t.categories.every(c => !c.isIncome);
+          seriesFilter = t => getCategoryTransactionType(t.categories) === false;
         } else {
           color = CUSTOM_COLORS[i % CUSTOM_COLORS.length];
           seriesFilter = t => t.categories.some(c => c.id === catId);

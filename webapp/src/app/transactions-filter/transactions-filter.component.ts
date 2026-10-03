@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { ApiService } from '../api.service';
-import { Category } from '../category';
+import { Category, getCategoryTransactionType } from '../category';
 import { Transaction } from '../transaction';
 import { TransactionFilters } from '../transactionfilters';
 import { UtilityService } from '../utility.service';
@@ -22,8 +22,10 @@ export class TransactionsFilterComponent implements OnInit {
   allCategories: Category[] = [];
   pendingTransactions: Transaction[] = [];
   transactionsFromFilter: Transaction[] = [];
-  totalExpensesAmount: number = 0;
-  totalIncomeAmount: number = 0;
+  pendingExpensesAmount: number = 0;
+  pendingIncomeAmount: number = 0;
+  postedExpensesAmount: number = 0;
+  postedIncomeAmount: number = 0;
   noCategories: boolean = false;
 
   constructor(
@@ -144,7 +146,12 @@ export class TransactionsFilterComponent implements OnInit {
         next: ({ pending, posted }) => {
           this.pendingTransactions = this.normalizePendingTransactions(pending);
           this.transactionsFromFilter = posted;
-          this.updateTotals(posted);
+          const pendingTotals = this.calculateTotals(pending);
+          this.pendingExpensesAmount = pendingTotals.expenses;
+          this.pendingIncomeAmount = pendingTotals.income;
+          const postedTotals = this.calculateTotals(posted);
+          this.postedExpensesAmount = postedTotals.expenses;
+          this.postedIncomeAmount = postedTotals.income;
 
           if (addedTransaction && !posted.some((transaction) => transaction.id === addedTransaction.id)) {
             this.toastService.add({
@@ -209,30 +216,20 @@ export class TransactionsFilterComponent implements OnInit {
     }));
   }
 
-  private updateTotals(transactions: Transaction[]): void {
-    this.totalExpensesAmount = 0;
-    this.totalIncomeAmount = 0;
+  private calculateTotals(transactions: Transaction[]): { expenses: number; income: number } {
+    let expenses = 0;
+    let income = 0;
 
     for (const transaction of transactions) {
-      let hasIncome = false;
-      let hasExpense = false;
-
-      for (const category of transaction.categories) {
-        if (category.isIncome) {
-          hasIncome = true;
-        } else {
-          hasExpense = true;
-        }
-      }
-
-      if (hasIncome) {
-        this.totalIncomeAmount += transaction.amount;
-      }
-
-      if (hasExpense) {
-        this.totalExpensesAmount += transaction.amount;
+      const transactionType = getCategoryTransactionType(transaction.categories);
+      if (transactionType === true) {
+        income += transaction.amount;
+      } else if (transactionType === false) {
+        expenses += transaction.amount;
       }
     }
+
+    return { expenses, income };
   }
 
 }

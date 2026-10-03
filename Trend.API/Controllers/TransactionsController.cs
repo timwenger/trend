@@ -61,6 +61,9 @@ namespace Trend.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
+            string? categoryError = Category.GetSelectionError(transaction.Categories);
+            if (categoryError != null)
+                return BadRequest(categoryError);
 
             transaction.Id = Guid.NewGuid().ToString();
             transaction.UserId = uid;
@@ -99,6 +102,10 @@ namespace Trend.API.Controllers
 
             if (id != transaction.Id)
                 return BadRequest();
+
+            string? categoryError = Category.GetSelectionError(transaction.Categories);
+            if (categoryError != null)
+                return BadRequest(categoryError);
 
             Transaction existingTransaction;
             try

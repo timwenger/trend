@@ -103,6 +103,63 @@ html, body {
   color: var(--p-text-muted-color);
 }
 
+.category-multiselect-panel .category-option-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.category-multiselect-panel .category-option-divider {
+  border-top: 1px solid var(--p-content-border-color, #3f3f46);
+  padding-top: 0.5rem;
+  margin-top: -0.25rem;
+}
+
+.category-multiselect-panel .category-option-name {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.category-multiselect-panel .category-pin-toggle {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  margin: -0.5rem -0.5rem -0.5rem 0.5rem;
+  padding: 0.4rem;
+  border: 0;
+  border-radius: 50%;
+  color: var(--p-text-muted-color);
+  background: transparent;
+  cursor: pointer;
+}
+
+.category-multiselect-panel .category-pin-toggle:hover,
+.category-multiselect-panel .category-pin-toggle:focus-visible {
+  color: var(--p-primary-color);
+  background: var(--p-content-hover-background);
+  outline: none;
+}
+
+.category-multiselect-panel .category-pin-toggle svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.75;
+  stroke-linejoin: round;
+}
+
+.category-multiselect-panel .category-pin-toggle-pinned {
+  color: var(--p-primary-color);
+}
+
+.category-multiselect-panel .category-pin-toggle-pinned svg {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
 @media (max-width: 768px) {
   .mobile-date-overlay-calendar .p-datepicker {
     transform: scale(0.75);

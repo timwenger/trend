@@ -23,13 +23,14 @@ export class ManageCategoriesComponent implements OnInit {
   existingCategories: ManagedCategory[] = [];
   categoryEditBackups: { [id: string]: ManagedCategory; } = {};
   mobileEditVisible: boolean = false;
-  mobileEditField: 'name' | 'type' | null = null;
+  mobileEditField: 'name' | 'type' | 'pinned' | null = null;
   mobileEditTarget: ManagedCategory | null = null;
   mobileEditName: string = '';
-  mobileEditIsIncome: boolean = false;
+  mobileEditIsIncome: boolean | null = false;
+  mobileEditIsPinned: boolean = false;
   mobileActionsVisible: boolean = false;
   mobileActionTarget: ManagedCategory | null = null;
-  mobileActionField: 'name' | 'type' | null = null;
+  mobileActionField: 'name' | 'type' | 'pinned' | null = null;
   categoryNamePreviewVisible: boolean = false;
   categoryNamePreview: string = '';
   private holdTimer: ReturnType<typeof setTimeout> | null = null;
@@ -64,21 +65,32 @@ export class ManageCategoriesComponent implements OnInit {
     this.addCategoryForm = new UntypedFormGroup({
       categoryName: new UntypedFormControl('', Validators.required),
       isIncome: new UntypedFormControl('Expense'),
+      isPinned: new UntypedFormControl(false),
     });
   }
 
 
   onSubmit(f: FormGroupDirective) {
     this.addCategoryToDb(f.form);
-    f.resetForm();
+    f.resetForm({
+      categoryName: '',
+      isIncome: 'Expense',
+      isPinned: false,
+    });
   }
 
   addCategoryToDb(f: UntypedFormGroup) {
-    let isIncome = f.controls['isIncome'].value == 'Income';
+    const categoryType = f.controls['isIncome'].value;
+    const isIncome = categoryType === 'Income'
+      ? true
+      : categoryType === 'Expense'
+        ? false
+        : null;
     let name = (String)(f.controls['categoryName'].value).trim();
     let newCategory: NewCategory = {
       categoryName: name,
       isIncome: isIncome,
+      isPinned: f.controls['isPinned'].value,
     }
     this.apiService.addCategory(newCategory)
       .subscribe((categoryReturned) => {
@@ -91,8 +103,12 @@ export class ManageCategoriesComponent implements OnInit {
       });
   }
 
-  getIsIncomeText(isIncome: boolean):String {
-    return isIncome? 'Income' : 'Expense';
+  getIsIncomeText(isIncome: boolean | null): string {
+    return isIncome === true ? 'Income' : isIncome === false ? 'Expense' : 'Either';
+  }
+
+  getYesNoText(value: boolean): string {
+    return value ? 'Yes' : 'No';
   }
 
   get activeCategories(): ManagedCategory[] {
@@ -159,7 +175,7 @@ export class ManageCategoriesComponent implements OnInit {
     return window.matchMedia('(max-width: 768px)').matches;
   }
 
-  startMobileActionHold(category: ManagedCategory, field: 'name' | 'type' | null = null): void {
+  startMobileActionHold(category: ManagedCategory, field: 'name' | 'type' | 'pinned' | null = null): void {
     if (!this.isMobile()) {
       return;
     }
@@ -186,7 +202,7 @@ export class ManageCategoriesComponent implements OnInit {
     this.holdTriggered = false;
   }
 
-  onMobileFieldPointerUp(category: ManagedCategory, field: 'name' | 'type', event: Event): void {
+  onMobileFieldPointerUp(category: ManagedCategory, field: 'name' | 'type' | 'pinned', event: Event): void {
     if (!this.isMobile()) {
       return;
     }
@@ -292,11 +308,12 @@ export class ManageCategoriesComponent implements OnInit {
     }
   }
 
-  openMobileFieldEditor(category: ManagedCategory, field: 'name' | 'type'): void {
+  openMobileFieldEditor(category: ManagedCategory, field: 'name' | 'type' | 'pinned'): void {
     this.mobileEditTarget = category;
     this.mobileEditField = field;
     this.mobileEditName = category.categoryName;
     this.mobileEditIsIncome = category.isIncome;
+    this.mobileEditIsPinned = category.isPinned;
     this.mobileEditVisible = true;
   }
 
@@ -307,8 +324,10 @@ export class ManageCategoriesComponent implements OnInit {
 
     if (this.mobileEditField === 'name') {
       this.mobileEditTarget.categoryName = this.mobileEditName.trim();
-    } else {
+    } else if (this.mobileEditField === 'type') {
       this.mobileEditTarget.isIncome = this.mobileEditIsIncome;
+    } else {
+      this.mobileEditTarget.isPinned = this.mobileEditIsPinned;
     }
 
     this.apiService.updateCategory(this.mobileEditTarget).subscribe();

@@ -154,6 +154,9 @@ namespace Trend.API.Controllers
                 return BadRequest("Month end can only be used with monthly rules.");
             if (rule.EndDate.HasValue && rule.EndDate.Value.Date < rule.StartDate.Date)
                 return BadRequest("End date cannot be before the start date.");
+            string? categoryError = Category.GetSelectionError(rule.Categories);
+            if (categoryError != null)
+                return BadRequest(categoryError);
             return null;
         }
 

@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of, tap, catchError, map } from 'rxjs';
+import { Observable, of, tap, catchError, map, throwError } from 'rxjs';
 import { MessageService } from './message.service';
 import { NewTransaction, Transaction } from './transaction';
-import { Category, NewCategory } from './category';
+import { Category, compareCategories, NewCategory } from './category';
 import { TransactionFilters } from './transactionfilters';
 import { apiBaseUrl } from 'src/environments/environment';
 import { TransactionRule, TransactionRuleConfig } from './transaction-rule';
@@ -101,8 +101,7 @@ export class ApiService {
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(this.apiBaseUrl + this.categoriesApiUrl)
       .pipe(
-        // sort categories by their name
-        map(categories => categories.sort(this.categoryCompareFn)),
+        map(categories => categories.sort(compareCategories)),
         catchError(this.handleError<Category[]>('getCategories', []))
       );
   }
@@ -114,10 +113,6 @@ export class ApiService {
       catchError(this.handleError<Record<string, string>>('getCategoryLastUsedDates', {}))
     );
   }
-
-  categoryCompareFn = (c1: Category, c2: Category) => {
-    return c1.categoryName.localeCompare(c2.categoryName);
-  };
 
   addCategory(newCategory: NewCategory): Observable<any> {
     let url = this.apiBaseUrl + this.categoriesApiUrl;
@@ -137,6 +132,18 @@ export class ApiService {
 
   setCategoryInactive(category: Category, isInactive: boolean): Observable<Category> {
     return this.updateCategory({ ...category, isInactive });
+  }
+
+  setCategoryPinned(category: Category, isPinned: boolean): Observable<Category> {
+    const updatedCategory = { ...category, isPinned };
+    const url = this.apiBaseUrl + this.categoriesApiUrl + '/' + category.id;
+    return this.http.put<Category>(url, updatedCategory).pipe(
+      catchError(error => {
+        console.error(error);
+        this.logMsg(`setCategoryPinned failed: ${error.message}`);
+        return throwError(() => error);
+      })
+    );
   }
 
   deleteCategory(toBeDeleted: Category): Observable<Category> {

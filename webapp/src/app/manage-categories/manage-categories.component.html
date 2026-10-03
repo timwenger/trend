@@ -15,6 +15,14 @@
           <p-radioButton inputId="new-category-income" value="Income" formControlName="isIncome"></p-radioButton>
           <label for="new-category-income">Income</label>
         </span>
+        <span class="category-type-option">
+          <p-radioButton inputId="new-category-either" value="Either" formControlName="isIncome"></p-radioButton>
+          <label for="new-category-either">Either</label>
+        </span>
+        <span class="category-type-option category-pinned-option">
+          <p-checkbox inputId="new-category-pinned" formControlName="isPinned" [binary]="true"></p-checkbox>
+          <label for="new-category-pinned">Pinned</label>
+        </span>
       </div>
     </div>
     <div class="col-12 md:col-4">
@@ -35,7 +43,9 @@
         </th>
         <th pSortableColumn="isIncome">Type <p-sortIcon field="isIncome"></p-sortIcon>
       </th>
-      <th pSortableColumn="dateLastUsed">Last used <p-sortIcon field="dateLastUsed"></p-sortIcon>
+        <th pSortableColumn="isPinned">Pinned <p-sortIcon field="isPinned"></p-sortIcon>
+        </th>
+        <th pSortableColumn="dateLastUsed">Last used <p-sortIcon field="dateLastUsed"></p-sortIcon>
       </th>
       <th class="mobile-action-column"></th>
       <th class="mobile-action-column"></th>
@@ -75,6 +85,11 @@
                 [(ngModel)]="category.isIncome"></p-radioButton>
                 <label [for]="'category-' + category.id + '-income'">Income</label>
               </span>
+              <span class="category-type-option">
+                <p-radioButton name="isIncome" [inputId]="'category-' + category.id + '-either'" [value]="null"
+                [(ngModel)]="category.isIncome"></p-radioButton>
+                <label [for]="'category-' + category.id + '-either'">Either</label>
+              </span>
             </div>
           </ng-template>
           <ng-template pTemplate="output">
@@ -84,6 +99,26 @@
               (pointerleave)="cancelMobileActionHold()"
               (pointercancel)="cancelMobileActionHold()">
               {{getIsIncomeText(category.isIncome)}}
+            </div>
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td>
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <span class="category-type-option">
+              <p-checkbox [inputId]="'category-' + category.id + '-pinned'" [(ngModel)]="category.isPinned"
+                [binary]="true"></p-checkbox>
+              <label [for]="'category-' + category.id + '-pinned'">Pinned</label>
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            <div class="mobile-edit-trigger"
+              (pointerdown)="startMobileActionHold(category, 'pinned')"
+              (pointerup)="onMobileFieldPointerUp(category, 'pinned', $event)"
+              (pointerleave)="cancelMobileActionHold()"
+              (pointercancel)="cancelMobileActionHold()">
+              {{getYesNoText(category.isPinned)}}
             </div>
           </ng-template>
         </p-cellEditor>
@@ -143,7 +178,7 @@
   </ng-template>
   <ng-template pTemplate="emptymessage">
     <tr>
-      <td colspan="6">No categories</td>
+      <td colspan="7">No categories</td>
     </tr>
   </ng-template>
 </p-table>
@@ -154,7 +189,9 @@
 @if (mobileEditVisible) {
   <div class="mobile-overlay" (pointerdown)="onMobileOverlayPointerDown($event, 'edit')">
     <div class="mobile-editor" (click)="$event.stopPropagation()">
-      <h3>{{mobileEditField === 'name' ? 'Edit Category' : 'Edit Type'}}</h3>
+      <h3>
+        {{mobileEditField === 'name' ? 'Edit Category' : mobileEditField === 'type' ? 'Edit Type' : 'Edit Pinned'}}
+      </h3>
       @if (mobileEditField === 'name') {
         <input [(ngModel)]="mobileEditName" type="text" pInputText class="w-full">
       }
@@ -170,7 +207,19 @@
               [(ngModel)]="mobileEditIsIncome"></p-radioButton>
             <label for="mobile-category-income">Income</label>
           </span>
+          <span class="category-type-option">
+            <p-radioButton inputId="mobile-category-either" [value]="null"
+              [(ngModel)]="mobileEditIsIncome"></p-radioButton>
+            <label for="mobile-category-either">Either</label>
+          </span>
         </div>
+      }
+      @if (mobileEditField === 'pinned') {
+        <span class="category-type-option">
+          <p-checkbox inputId="mobile-category-pinned" [(ngModel)]="mobileEditIsPinned"
+            [binary]="true"></p-checkbox>
+          <label for="mobile-category-pinned">Pinned</label>
+        </span>
       }
       <div class="mobile-editor-actions">
         <p-button label="Cancel" severity="secondary" (onClick)="closeMobileEdit()"></p-button>

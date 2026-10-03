@@ -3,19 +3,7 @@
 <p-confirmDialog></p-confirmDialog>
 <app-add-edit (transactionAdded)="onTransactionAdded($event)"></app-add-edit>
 
-<div class="find-header">
-  <h3>Find</h3>
-  <div class="find-totals">
-    <span class="find-total-expenses" aria-label="Expenses">
-      <i class="pi pi-arrow-down" aria-hidden="true"></i>
-      {{ totalExpensesAmount | currency }}
-    </span>
-    <span class="find-total-income" aria-label="Income">
-      <i class="pi pi-arrow-up" aria-hidden="true"></i>
-      {{ totalIncomeAmount | currency }}
-    </span>
-  </div>
-</div>
+<h3 class="find-heading">Find</h3>
 <!-- ngIf used to only display the form once the categories have been fetched -->
 @if (allCategories.length > 0 ) {
   <form #formDirective="ngForm" (ngSubmit)="onSubmit()"
@@ -71,10 +59,22 @@
 <app-no-categories [visible]="noCategories"></app-no-categories>
 
 <section class="transaction-table-section">
-  <div class="section-heading-row">
+  <div class="section-heading">
     <h3>Pending Transactions</h3>
-    <p-button label="Accept All" icon="pi pi-check" [disabled]="pendingTransactions.length === 0"
-      (onClick)="acceptAllPending()"></p-button>
+    <div class="section-summary-row">
+      <p-button label="Accept All" icon="pi pi-check" [disabled]="pendingTransactions.length === 0"
+        (onClick)="acceptAllPending()"></p-button>
+      <div class="table-totals">
+        <span class="total-expenses" aria-label="Pending expenses">
+          <i class="pi pi-arrow-down" aria-hidden="true"></i>
+          {{ pendingExpensesAmount | currency }}
+        </span>
+        <span class="total-income" aria-label="Pending income">
+          <i class="pi pi-arrow-up" aria-hidden="true"></i>
+          {{ pendingIncomeAmount | currency }}
+        </span>
+      </div>
+    </div>
   </div>
   <app-transactions [transactions]="pendingTransactions" [categories]="allCategories"
     [pendingMode]="true" [sortOrder]="1" confirmationKey="pending-transactions"
@@ -84,7 +84,21 @@
 </section>
 
 <section class="transaction-table-section">
-  <h3>Posted Transactions</h3>
-<app-transactions [transactions]="transactionsFromFilter" [categories]="allCategories"
-  confirmationKey="posted-transactions"></app-transactions>
+  <div class="section-heading">
+    <h3>Posted Transactions</h3>
+    <div class="section-summary-row">
+      <div class="table-totals">
+        <span class="total-expenses" aria-label="Posted expenses">
+          <i class="pi pi-arrow-down" aria-hidden="true"></i>
+          {{ postedExpensesAmount | currency }}
+        </span>
+        <span class="total-income" aria-label="Posted income">
+          <i class="pi pi-arrow-up" aria-hidden="true"></i>
+          {{ postedIncomeAmount | currency }}
+        </span>
+      </div>
+    </div>
+  </div>
+  <app-transactions [transactions]="transactionsFromFilter" [categories]="allCategories"
+    confirmationKey="posted-transactions"></app-transactions>
 </section>

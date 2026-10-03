@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, Validators, FormGroupDirective, FormControl } from '@angular/forms';
 import { ApiService } from '../api.service';
-import { Category } from '../category';
+import { Category, categorySelectionValidator } from '../category';
 import { NewTransaction, Transaction } from '../transaction';
 
 @Component({
@@ -37,7 +37,10 @@ export class AddTransactionComponent implements OnInit {
     // new Date().toDateString() just keeps the date, so hours and minutes are removed
     this.addTransactionForm = new UntypedFormGroup({
       dateOfTransaction: new FormControl<Date>({ value: new Date(new Date().toDateString()), disabled: false }, Validators.required,),
-      categoriesDropdown: new FormControl<Category[] | null>(null, Validators.required),
+      categoriesDropdown: new FormControl<Category[] | null>(
+        null,
+        [Validators.required, categorySelectionValidator()]
+      ),
       amountInput: new FormControl<number | null>(null, Validators.required),
       descriptionInput: new FormControl<string>(''),
     });

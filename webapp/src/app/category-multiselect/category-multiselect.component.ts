@@ -1,8 +1,9 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, forwardRef, Input, OnChanges, OnDestroy, Output, SimpleChanges, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MultiSelect } from 'primeng/multiselect';
-import { Category } from '../category';
+import { Category, compareCategories } from '../category';
 import { UtilityService } from '../utility.service';
+import { ApiService } from '../api.service';
 
 @Component({
   selector: 'app-category-multiselect',
@@ -85,7 +86,8 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
 
   constructor(
     private elementRef: ElementRef<HTMLElement>,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private apiService: ApiService
   ) {}
 
   ngAfterViewInit(): void {
@@ -142,6 +144,31 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
     event.stopPropagation();
     this.showInactive = !this.showInactive;
     this.applyFilter();
+  }
+
+  togglePinned(event: Event, category: Category): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const wasPinned = category.isPinned;
+    category.isPinned = !wasPinned;
+    this.applyFilter();
+
+    this.apiService.setCategoryPinned(category, category.isPinned).subscribe({
+      error: () => {
+        category.isPinned = wasPinned;
+        this.applyFilter();
+      },
+    });
+  }
+
+  stopPinPointer(event: Event): void {
+    event.stopPropagation();
+  }
+
+  hasPinnedDivider(category: Category): boolean {
+    const index = this.filteredOptions.findIndex(option => option.id === category.id);
+    return !category.isPinned && index > 0 && this.filteredOptions[index - 1].isPinned;
   }
 
   onFilterDelete(event: Event): void {
@@ -240,10 +267,8 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
 
   private applyFilter(): void {
     const matchingOptions = this.utilityService.filterCategoriesByName(this.options ?? [], this.filterText);
-    const activeOptions = matchingOptions.filter(category => !category.isInactive);
-    const inactiveOptions = matchingOptions.filter(category => category.isInactive);
-    this.filteredOptions = this.showInactive
-      ? [...activeOptions, ...inactiveOptions]
-      : activeOptions;
+    this.filteredOptions = matchingOptions
+      .filter(category => this.showInactive || !category.isInactive)
+      .sort(compareCategories);
   }
 }
