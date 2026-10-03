@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { UntypedFormControl, UntypedFormGroup, FormGroupDirective, Validators } from '@angular/forms';
 import { ApiService } from '../api.service';
-import { Category, NewCategory } from '../category';
+import { Category, compareManagedCategories, NewCategory } from '../category';
 import { ConfirmationService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { forkJoin } from 'rxjs';
@@ -112,11 +112,15 @@ export class ManageCategoriesComponent implements OnInit {
   }
 
   get activeCategories(): ManagedCategory[] {
-    return this.existingCategories.filter(category => !category.isInactive);
+    return this.existingCategories
+      .filter(category => !category.isInactive)
+      .sort(compareManagedCategories);
   }
 
   get inactiveCategories(): ManagedCategory[] {
-    return this.existingCategories.filter(category => category.isInactive);
+    return this.existingCategories
+      .filter(category => category.isInactive)
+      .sort(compareManagedCategories);
   }
 
 

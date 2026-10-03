@@ -35,7 +35,7 @@
 
 
 <ng-template #categoryTableTemplate let-categories="categories" let-isInactive="isInactive">
-  <p-table #categoryTable [value]="categories" dataKey="id" responsiveLayout="scroll" sortField="isIncome" [sortOrder]="-1" editMode="row"
+  <p-table #categoryTable [value]="categories" dataKey="id" responsiveLayout="scroll" editMode="row"
       styleClass="p-datatable-striped">
       <ng-template pTemplate="header">
         <tr>

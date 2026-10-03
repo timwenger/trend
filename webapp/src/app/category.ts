@@ -19,6 +19,24 @@ export function compareCategories(c1: Category, c2: Category): number {
 	return c1.categoryName.localeCompare(c2.categoryName);
 }
 
+export function compareManagedCategories(c1: Category, c2: Category): number {
+	const pinnedComparison = Number(c2.isPinned) - Number(c1.isPinned);
+	if (pinnedComparison !== 0) {
+		return pinnedComparison;
+	}
+
+	const typeComparison = getCategoryTypeSortOrder(c1) - getCategoryTypeSortOrder(c2);
+	if (typeComparison !== 0) {
+		return typeComparison;
+	}
+
+	return c1.categoryName.localeCompare(c2.categoryName);
+}
+
+function getCategoryTypeSortOrder(category: Category): number {
+	return category.isIncome === null ? 0 : category.isIncome ? 1 : 2;
+}
+
 export function getCategorySelectionError(categories: Category[] | null | undefined): string | null {
 	if (!categories?.length) {
 		return 'Select at least one category.';

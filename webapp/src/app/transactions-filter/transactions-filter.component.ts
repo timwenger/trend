@@ -187,7 +187,7 @@ export class TransactionsFilterComponent implements OnInit {
     const pending = [...this.pendingTransactions];
     this.confirmationService.confirm({
       header: 'Accept all pending transactions?',
-      message: `${pending.length} transactions will become real transactions.`,
+      message: `${pending.length} pending transactions will be posted.`,
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Accept All',
       accept: () => {
