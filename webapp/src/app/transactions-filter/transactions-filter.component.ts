@@ -88,7 +88,7 @@ export class TransactionsFilterComponent implements OnInit {
   }
 
   onCategoryShortcut(): void {
-    if (this.filterForm.valid) {
+    if (this.hasValidDateRange()) {
       this.onSubmit();
     }
   }
@@ -102,12 +102,16 @@ export class TransactionsFilterComponent implements OnInit {
   }
 
   private refreshTransactions(addedTransaction?: Transaction): void {
-    if (!this.filterForm || !this.filterForm.valid) {
+    if (!this.filterForm || !this.hasValidDateRange()) {
       return;
     }
 
     let filter = this.buildFilter(this.filterForm, 'Posted');
     this.getTransactions(filter, addedTransaction);
+  }
+
+  hasValidDateRange(): boolean {
+    return !this.filterForm?.hasError('datesError');
   }
 
   buildFilter(form: UntypedFormGroup, recurringStatus: 'Posted' | 'Pending'): TransactionFilters {

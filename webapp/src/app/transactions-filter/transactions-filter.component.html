@@ -41,14 +41,14 @@
             placeholder="Description">
         </div>
         <div class="find-submit">
-          <p-button label="Go" type="submit" [disabled]="!filterForm.valid"></p-button>
+          <p-button label="Go" type="submit" [disabled]="!hasValidDateRange()"></p-button>
         </div>
       </div>
-      @if ( !filterForm.valid && filterForm.errors != null) {
+      @if (filterForm.hasError('datesError')) {
         <div class="find-error">
           <div class="p-inputgroup">
             <span class="p-inputgroup-addon">Error</span>
-            <input placeholder="{{ filterForm.errors['datesError']['message']}}" [disabled]="true">
+            <input [placeholder]="filterForm.getError('datesError')?.message" [disabled]="true">
           </div>
         </div>
       }
