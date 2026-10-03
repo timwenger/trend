@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy, HostListener, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy, HostListener, ViewChild } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Transaction } from '../transaction';
 import { ConfirmationService, SelectItem } from 'primeng/api';
@@ -18,6 +18,12 @@ export class TransactionsComponent implements OnInit {
 
   @Input() transactions!: Transaction[];
   @Input() categories: Category[] = [];
+  @Input() pendingMode: boolean = false;
+  @Input() sortOrder: number = -1;
+  @Input() confirmationKey: string = 'transactions';
+  @Output() pendingSave = new EventEmitter<Transaction>();
+  @Output() pendingAccept = new EventEmitter<Transaction>();
+  @Output() pendingSkip = new EventEmitter<Transaction>();
 
   transactionEditBackups: { [id: string]: Transaction; } = {};
   mobileEditDialogVisible: boolean = false;
@@ -56,8 +62,9 @@ export class TransactionsComponent implements OnInit {
 
   confirmDelete(event: Event, transaction: Transaction) {
     this.confirmationService.confirm({
+      key: this.confirmationKey,
       target: event.target as EventTarget,
-      message: 'Delete?',
+      message: this.pendingMode ? 'Skip pending transaction?' : 'Delete?',
       icon: 'pi pi-trash',
       accept: () => {
         this.deleteTransaction(transaction);
@@ -69,6 +76,11 @@ export class TransactionsComponent implements OnInit {
   }
 
   deleteTransaction(transaction: Transaction) {
+    if (this.pendingMode) {
+      this.pendingSkip.emit(transaction);
+      return;
+    }
+
     // confirmation is checked first in confirmDelete(). Then:
     // update the internal transactions list, assuming the dB is successful.
     // this way we don't have to wait for the transaction to complete.
@@ -90,9 +102,17 @@ export class TransactionsComponent implements OnInit {
 
   onRowEditSave(transaction: Transaction) {
     delete this.transactionEditBackups[transaction.id];
-    // edit trans in db
+    if (this.pendingMode) {
+      this.pendingSave.emit(transaction);
+      return;
+    }
+
     this.apiService.updateTransaction(transaction)
       .subscribe(/* I'm not using the returned deleted transaction */);
+  }
+
+  acceptPendingTransaction(transaction: Transaction): void {
+    this.pendingAccept.emit(transaction);
   }
 
   onRowEditCancel(transaction: Transaction, rowIndex: number) {
@@ -296,8 +316,12 @@ export class TransactionsComponent implements OnInit {
       this.mobileEditTarget.transactionDescription = this.mobileEditDescription;
     }
 
-    this.apiService.updateTransaction(this.mobileEditTarget)
-      .subscribe();
+    if (this.pendingMode) {
+      this.pendingSave.emit(this.mobileEditTarget);
+    } else {
+      this.apiService.updateTransaction(this.mobileEditTarget)
+        .subscribe();
+    }
 
     this.transactions = [...this.transactions];
     this.closeMobileEditDialog();

@@ -1,0 +1,175 @@
+<p-confirmDialog></p-confirmDialog>
+
+<section class="recurring-config">
+  <h2>Rule Configuration</h2>
+  <form [formGroup]="ruleForm" (ngSubmit)="saveRule()" (keydown)="onFormKeyDown($event)"
+    class="recurring-form p-fluid">
+    <div class="rule-date-row">
+      <div class="rule-date-range">
+        <div class="date-field">
+          <label for="rule-start-date" class="rule-date-label">Active From</label>
+          <p-datepicker inputId="rule-start-date" formControlName="startDate" [showIcon]="true"
+            [selectOtherMonths]="true" dateFormat="M d, yy" placeholder="Active From"
+            ariaLabel="Active From" appendTo="body"></p-datepicker>
+        </div>
+        <span class="rule-date-arrow" aria-hidden="true">→</span>
+        <div class="date-field">
+          <label for="rule-end-date" class="rule-date-label">Active Until</label>
+          <p-datepicker inputId="rule-end-date" formControlName="endDate" [showIcon]="true"
+            [selectOtherMonths]="true" dateFormat="M d, yy" placeholder="Active Until"
+            ariaLabel="Active Until" appendTo="body"></p-datepicker>
+        </div>
+      </div>
+    </div>
+
+    <div class="rule-options-row">
+      <div class="checkbox-line">
+        <p-checkbox inputId="rule-has-end" formControlName="hasEndDate" [binary]="true"></p-checkbox>
+        <label for="rule-has-end">Has end date</label>
+      </div>
+      <div class="checkbox-line" [class.option-disabled]="ruleForm.controls.recurrenceUnit.value !== 'months'">
+        <p-checkbox inputId="rule-month-end" formControlName="useMonthEnd" [binary]="true"></p-checkbox>
+        <label for="rule-month-end">Last day of month</label>
+      </div>
+    </div>
+
+    <div class="recurring-value-row">
+      <div class="field interval-field">
+        <label for="rule-interval" class="rule-date-label">Repeats every...</label>
+        <input id="rule-interval" formControlName="recurrenceInterval" type="number" min="1" pInputText
+          placeholder="Repeat every" aria-label="Repeat every">
+      </div>
+      <div class="field unit-field">
+        <p-select inputId="rule-unit" formControlName="recurrenceUnit" [options]="recurrenceUnits"
+          optionLabel="label" optionValue="value" ariaLabel="Period"></p-select>
+      </div>
+      <div class="field amount-field">
+        <div class="p-inputgroup currency-inputgroup">
+          <span class="p-inputgroup-addon">$</span>
+          <input id="rule-amount" formControlName="amount" type="number" pInputText
+            placeholder="Amount" aria-label="Amount">
+        </div>
+      </div>
+    </div>
+
+    <div class="recurring-details-row">
+      <div class="field category-field">
+        <app-category-multiselect formControlName="categories" [options]="allCategories"
+          placeholder="Tagged Categories"
+          (shortcutSubmit)="onCategoryShortcut()"></app-category-multiselect>
+      </div>
+      <div class="field description-field">
+        <input id="rule-description" formControlName="description" type="text" pInputText
+          placeholder="Description" aria-label="Description">
+      </div>
+    </div>
+
+    <div class="form-feedback">
+      <small class="recurrence-summary">{{ recurrenceSummary }}</small>
+
+      @if (ruleForm.controls.hasEndDate.value && !ruleForm.controls.endDate.value) {
+        <small class="form-error">Choose an end date.</small>
+      }
+    </div>
+
+    <div class="form-actions">
+      <p-button [label]="isEditingRule ? 'Update Rule' : 'Add Rule'" icon="pi pi-check"
+        type="submit" [disabled]="ruleForm.invalid"></p-button>
+      @if (isEditingRule) {
+        <p-button label="Cancel" icon="pi pi-times" severity="secondary" type="button"
+          (onClick)="cancelRuleEdit()"></p-button>
+      }
+    </div>
+  </form>
+</section>
+
+<ng-template #ruleTable let-rules="rules" let-isInactive="isInactive">
+  <p-table [value]="rules" dataKey="id" responsiveLayout="scroll" sortField="startDate" [sortOrder]="1"
+    [customSort]="true" (sortFunction)="sortRules($event)" styleClass="p-datatable-striped">
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="startDate">Active From <p-sortIcon field="startDate"></p-sortIcon></th>
+        <th pSortableColumn="schedule">Schedule <p-sortIcon field="schedule"></p-sortIcon></th>
+        <th pSortableColumn="categories">Categories <p-sortIcon field="categories"></p-sortIcon></th>
+        <th pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon></th>
+        <th>Description</th>
+        <th pSortableColumn="endDate">Active Until <p-sortIcon field="endDate"></p-sortIcon></th>
+        <th class="action-column"></th>
+        <th class="action-column"></th>
+        <th class="action-column"></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rule>
+      <tr>
+        <td>{{ rule.startDate | date }}</td>
+        <td>{{ describeSchedule(rule) }}</td>
+        <td>
+          @for (category of rule.categories; track category.id; let last = $last) {
+            <span>{{ category.categoryName }}{{ last ? '' : ', ' }}</span>
+          }
+        </td>
+        <td>{{ rule.amount | currency }}</td>
+        <td>{{ rule.transactionDescription || 'none' }}</td>
+        <td>{{ rule.endDate ? (rule.endDate | date) : 'Indefinite' }}</td>
+        <td class="action-column">
+          <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text"
+            aria-label="Edit rule" title="Edit rule" (click)="editRule(rule)"></button>
+        </td>
+        <td class="action-column">
+          <button pButton pRipple type="button"
+            [icon]="isInactive ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
+            [class.recurring-make-active]="isInactive" [class.recurring-make-inactive]="!isInactive"
+            [attr.aria-label]="isInactive ? 'Reactivate rule' : 'Pause rule'"
+            [title]="isInactive ? 'Reactivate rule' : 'Pause rule'"
+            class="p-button-rounded p-button-text"
+            (click)="isInactive ? beginReactivation(rule) : pauseRule(rule)"></button>
+        </td>
+        <td class="action-column">
+          <button pButton pRipple type="button" icon="pi pi-trash"
+            class="p-button-rounded p-button-text p-button-danger"
+            aria-label="Delete rule" title="Delete rule" (click)="deleteRule(rule)"></button>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="9">No rules</td></tr>
+    </ng-template>
+  </p-table>
+</ng-template>
+
+<section class="recurring-table-section">
+  <h3>Active Rules</h3>
+  <ng-container *ngTemplateOutlet="ruleTable; context: { rules: activeRules, isInactive: false }"></ng-container>
+</section>
+
+<section class="recurring-table-section">
+  <h3>Inactive Rules</h3>
+  <ng-container *ngTemplateOutlet="ruleTable; context: { rules: inactiveRules, isInactive: true }"></ng-container>
+</section>
+
+<section class="recurring-table-section pending-section">
+  <div class="section-heading-row">
+    <h3>Pending Transactions</h3>
+    <div class="pending-actions">
+      <p-button label="Accept All" icon="pi pi-check" [disabled]="pendingTransactions.length === 0"
+        (onClick)="acceptAllPending()"></p-button>
+    </div>
+  </div>
+
+  <app-transactions [transactions]="pendingTransactions" [categories]="allCategories"
+    [pendingMode]="true" [sortOrder]="1" confirmationKey="recurring-pending-transactions"
+    (pendingSave)="savePending($event)"
+    (pendingAccept)="acceptPending($event)"
+    (pendingSkip)="skipPending($event)"></app-transactions>
+</section>
+
+<p-dialog header="Reactivate rule" [(visible)]="reactivationDialogVisible" [modal]="true"
+  [draggable]="false" [resizable]="false" [closable]="false"
+  [style]="{ width: '32rem' }" [breakpoints]="{ '640px': '95vw' }">
+  <p>Catch up transactions missed while paused, or resume with the next scheduled occurrence on or after today?</p>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" (onClick)="cancelReactivation()"></p-button>
+    <p-button label="Resume Today" severity="secondary" (onClick)="reactivate(false)"></p-button>
+    <p-button label="Catch Up" (onClick)="reactivate(true)"></p-button>
+  </ng-template>
+</p-dialog>

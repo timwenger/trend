@@ -6,6 +6,7 @@ import { NewTransaction, Transaction } from './transaction';
 import { Category, NewCategory } from './category';
 import { TransactionFilters } from './transactionfilters';
 import { apiBaseUrl } from 'src/environments/environment';
+import { TransactionRule, TransactionRuleConfig } from './transaction-rule';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class ApiService {
   private apiBaseUrl = apiBaseUrl + 'api/';
   private transactionsApiUrl = 'transactions';
   private categoriesApiUrl = 'categories';
+  private transactionRulesApiUrl = 'transactionrules';
 
   constructor(
     private http: HttpClient,
@@ -53,6 +55,47 @@ export class ApiService {
       .pipe(
         catchError(this.handleError<any>('deleteTransaction', toBeDeleted))
       );
+  }
+
+  getTransactionRules(): Observable<TransactionRule[]> {
+    return this.http.get<TransactionRule[]>(this.apiBaseUrl + this.transactionRulesApiUrl)
+      .pipe(catchError(this.handleError<TransactionRule[]>('getTransactionRules', [])));
+  }
+
+  generatePendingTransactions(): Observable<void> {
+    return this.http.post<void>(
+      this.apiBaseUrl + this.transactionRulesApiUrl + '/generate-pending',
+      null
+    ).pipe(catchError(this.handleError<void>('generatePendingTransactions')));
+  }
+
+  addTransactionRule(config: TransactionRuleConfig): Observable<TransactionRule> {
+    return this.http.post<TransactionRule>(this.apiBaseUrl + this.transactionRulesApiUrl, config)
+      .pipe(catchError(this.handleError<TransactionRule>('addTransactionRule')));
+  }
+
+  updateTransactionRule(rule: TransactionRule): Observable<void> {
+    return this.http.put<void>(this.apiBaseUrl + this.transactionRulesApiUrl + '/' + rule.id, rule)
+      .pipe(catchError(this.handleError<void>('updateTransactionRule')));
+  }
+
+  setTransactionRuleStatus(rule: TransactionRule, isInactive: boolean, catchUpMissed: boolean): Observable<void> {
+    return this.http.post<void>(
+      this.apiBaseUrl + this.transactionRulesApiUrl + '/' + rule.id + '/status',
+      { isInactive, catchUpMissed }
+    ).pipe(catchError(this.handleError<void>('setTransactionRuleStatus')));
+  }
+
+  deleteTransactionRule(rule: TransactionRule): Observable<void> {
+    return this.http.delete<void>(this.apiBaseUrl + this.transactionRulesApiUrl + '/' + rule.id)
+      .pipe(catchError(this.handleError<void>('deleteTransactionRule')));
+  }
+
+  getPendingTransactions(): Observable<Transaction[]> {
+    return this.http.get<Transaction[]>(this.apiBaseUrl + this.transactionsApiUrl, {
+      params: { recurringStatus: 'Pending' }
+    })
+      .pipe(catchError(this.handleError<Transaction[]>('getPendingTransactions', [])));
   }
 
   getCategories(): Observable<Category[]> {
@@ -98,10 +141,7 @@ export class ApiService {
 
   deleteCategory(toBeDeleted: Category): Observable<Category> {
     let url = this.apiBaseUrl + this.categoriesApiUrl + '/' + toBeDeleted.id;
-    return this.http.delete<Category>(url)
-      .pipe(
-        catchError(this.handleError<any>('deleteCategory', toBeDeleted))
-      );
+    return this.http.delete<Category>(url);
   }
 
   private logMsg(message: string) {

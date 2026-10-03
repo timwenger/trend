@@ -85,6 +85,31 @@ namespace Trend.Test
             Assert.Equal(2, matches.Length);
         }
 
+        [Fact]
+        public void MatchesRecurringStatus_DefaultsToPostedTransactions()
+        {
+            var filters = new TransactionFilters();
+
+            Assert.True(filters.HasValidRecurringStatus());
+            Assert.Equal(RecurringStatuses.Posted, filters.RecurringStatus);
+            Assert.False(RecurringStatuses.IsValid(null));
+            Assert.False(RecurringStatuses.IsPosted(null));
+            Assert.True(filters.MatchesRecurringStatus(new Transaction()));
+            Assert.True(filters.MatchesRecurringStatus(new Transaction { RecurringStatus = RecurringStatuses.Accepted }));
+            Assert.False(filters.MatchesRecurringStatus(new Transaction { RecurringStatus = RecurringStatuses.Pending }));
+            Assert.False(filters.MatchesRecurringStatus(new Transaction { RecurringStatus = RecurringStatuses.Skipped }));
+        }
+
+        [Fact]
+        public void MatchesRecurringStatus_UsesRequestedStatus()
+        {
+            var filters = new TransactionFilters { RecurringStatus = RecurringStatuses.Pending };
+
+            Assert.True(filters.HasValidRecurringStatus());
+            Assert.True(filters.MatchesRecurringStatus(new Transaction { RecurringStatus = RecurringStatuses.Pending }));
+            Assert.False(filters.MatchesRecurringStatus(new Transaction { RecurringStatus = RecurringStatuses.Accepted }));
+        }
+
         private static Transaction CreateTransaction(string description, params string[] categoryIds)
         {
             return CreateTransaction(description, default, categoryIds);

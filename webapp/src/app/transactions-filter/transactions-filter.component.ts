@@ -5,7 +5,8 @@ import { Category } from '../category';
 import { Transaction } from '../transaction';
 import { TransactionFilters } from '../transactionfilters';
 import { UtilityService } from '../utility.service';
-import { MessageService as PrimeMessageService } from 'primeng/api';
+import { ConfirmationService, MessageService as PrimeMessageService } from 'primeng/api';
+import { forkJoin, switchMap } from 'rxjs';
 
 @Component({
     selector: 'app-transactions-filter',
@@ -19,6 +20,7 @@ export class TransactionsFilterComponent implements OnInit {
   configuredFilter!: TransactionFilters;
 
   allCategories: Category[] = [];
+  pendingTransactions: Transaction[] = [];
   transactionsFromFilter: Transaction[] = [];
   totalExpensesAmount: number = 0;
   totalIncomeAmount: number = 0;
@@ -27,19 +29,20 @@ export class TransactionsFilterComponent implements OnInit {
   constructor(
     private apiService: ApiService,
     private utilityService: UtilityService,
+    private confirmationService: ConfirmationService,
     private toastService: PrimeMessageService,
   ) { }
 
   ngOnInit(): void {
-    this.apiService.getCategories()
+    this.createForm();
+    this.apiService.generatePendingTransactions()
+      .pipe(switchMap(() => this.apiService.getCategories()))
       .subscribe(categoriesReturned => {
         this.allCategories = categoriesReturned;
         this.refreshTransactions();
         if(categoriesReturned.length == 0)
           this.noCategories = true;
       });
-    this.createForm();
-
   }
 
   createForm() {
@@ -101,11 +104,11 @@ export class TransactionsFilterComponent implements OnInit {
       return;
     }
 
-    let filter = this.buildFilter(this.filterForm);
+    let filter = this.buildFilter(this.filterForm, 'Posted');
     this.getTransactions(filter, addedTransaction);
   }
 
-  buildFilter(form: UntypedFormGroup): TransactionFilters {
+  buildFilter(form: UntypedFormGroup, recurringStatus: 'Posted' | 'Pending'): TransactionFilters {
     let ids: string[] = [];
     let categories: Category[] = form.controls['multiSelectDropdown'].value;
     if (categories != null) {
@@ -124,6 +127,7 @@ export class TransactionsFilterComponent implements OnInit {
       selectedCategoryIds: ids,
       searchText: form.controls['searchText'].value.trim(),
       match: form.controls['match'].value,
+      recurringStatus,
     }
   }
 
@@ -131,13 +135,18 @@ export class TransactionsFilterComponent implements OnInit {
     // don't get transactions without a valid filter. (gets ALL transactions)
     if (filter == null)
       return;
-    this.apiService.getTransactions(filter)
+    const pendingFilter = { ...filter, recurringStatus: 'Pending' as const };
+    forkJoin({
+      pending: this.apiService.getTransactions(pendingFilter),
+      posted: this.apiService.getTransactions(filter),
+    })
       .subscribe({
-        next: transactionsReturned => {
-          this.transactionsFromFilter = transactionsReturned;
-          this.updateTotals(transactionsReturned);
+        next: ({ pending, posted }) => {
+          this.pendingTransactions = this.normalizePendingTransactions(pending);
+          this.transactionsFromFilter = posted;
+          this.updateTotals(posted);
 
-          if (addedTransaction && !transactionsReturned.some((transaction) => transaction.id === addedTransaction.id)) {
+          if (addedTransaction && !posted.some((transaction) => transaction.id === addedTransaction.id)) {
             this.toastService.add({
               severity: 'info',
               summary: 'Added',
@@ -147,6 +156,57 @@ export class TransactionsFilterComponent implements OnInit {
           }
         }
       });
+  }
+
+  savePending(transaction: Transaction): void {
+    this.apiService.updateTransaction({ ...transaction, recurringStatus: 'Pending' }).subscribe();
+  }
+
+  acceptPending(transaction: Transaction): void {
+    this.apiService.updateTransaction({ ...transaction, recurringStatus: 'Accepted' })
+      .subscribe(() => this.refreshTransactions());
+  }
+
+  skipPending(transaction: Transaction): void {
+    this.apiService.updateTransaction({ ...transaction, recurringStatus: 'Skipped' })
+      .subscribe(() => this.refreshTransactions());
+  }
+
+  acceptAllPending(): void {
+    if (this.pendingTransactions.length === 0) {
+      return;
+    }
+
+    const pending = [...this.pendingTransactions];
+    this.confirmationService.confirm({
+      header: 'Accept all pending transactions?',
+      message: `${pending.length} transactions will become real transactions.`,
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Accept All',
+      accept: () => {
+        forkJoin(pending.map(transaction => this.apiService.updateTransaction({
+          ...transaction,
+          recurringStatus: 'Accepted',
+        }))).subscribe(() => {
+          this.refreshTransactions();
+          this.toastService.add({
+            severity: 'success',
+            summary: 'Transactions accepted',
+            detail: `${pending.length} transaction${pending.length === 1 ? '' : 's'} accepted.`,
+          });
+        });
+      },
+    });
+  }
+
+  private normalizePendingTransactions(transactions: Transaction[]): Transaction[] {
+    return transactions.map(transaction => ({
+      ...transaction,
+      dateOfTransaction: new Date(transaction.dateOfTransaction),
+      scheduledOccurrenceDate: transaction.scheduledOccurrenceDate
+        ? new Date(transaction.scheduledOccurrenceDate)
+        : undefined,
+    }));
   }
 
   private updateTotals(transactions: Transaction[]): void {

@@ -6,6 +6,7 @@ using Trend.API.Filters;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
+using Trend.API.Services;
 
 namespace Trend.API.Controllers
 {
@@ -17,12 +18,14 @@ namespace Trend.API.Controllers
     {
         private readonly Container CategoriesContainer;
         private readonly Container TransactionsContainer;
+        private readonly TransactionRuleService transactionRuleService;
 
 
-        public CategoriesController(TrendDbContext dbContext)
+        public CategoriesController(TrendDbContext dbContext, TransactionRuleService transactionRuleService)
         {
             CategoriesContainer = dbContext.GetContainer("Categories");
             TransactionsContainer = dbContext.GetContainer("Transactions");
+            this.transactionRuleService = transactionRuleService;
         }
 
         [HttpGet]
@@ -60,6 +63,8 @@ namespace Trend.API.Controllers
                 "SELECT category.id AS categoryId, MAX(transaction.DateOfTransaction) AS dateLastUsed " +
                 "FROM transaction JOIN category IN transaction.Categories " +
                 "WHERE transaction.UserId = @uid " +
+                "AND (NOT IS_DEFINED(transaction.RecurringStatus) " + // support legacy transactions without a RecurringStatus
+                "OR transaction.RecurringStatus IN ('NonRecurring', 'Accepted')) " +
                 "GROUP BY category.id")
                 .WithParameter("@uid", uid);
 
@@ -235,6 +240,22 @@ namespace Trend.API.Controllers
                 }
             }
 
+            foreach (TransactionRule rule in await transactionRuleService.GetRulesAsync(uid))
+            {
+                bool ruleChanged = false;
+                for (int i = 0; i < rule.Categories.Count; i++)
+                {
+                    if (rule.Categories[i].Id == replacedCategory.Id)
+                    {
+                        rule.Categories[i] = replacedCategory;
+                        ruleChanged = true;
+                    }
+                }
+
+                if (ruleChanged)
+                    await transactionRuleService.ReplaceRuleAsync(rule);
+            }
+
             return NoContent();
         }
 
@@ -263,17 +284,23 @@ namespace Trend.API.Controllers
             { CategoryFilter = true, SelectedCategoryIds = new List<string> { id } };
 
             FeedIterator<Transaction> transactionsFeed = filter.GetFeedIterator(TransactionsContainer, uid);
-            List<Transaction> existingTransactions = new();
+            int transactionCount = 0;
 
             while (transactionsFeed.HasMoreResults)
             {
                 var response = await transactionsFeed.ReadNextAsync();
                 foreach (Transaction item in response)
-                    existingTransactions.Add(item);
+                {
+                    if (RecurringStatuses.IsPosted(item.RecurringStatus))
+                        transactionCount++;
+                }
             }
 
-            if (existingTransactions.Count > 0)
-                return BadRequest();
+            int ruleCount = (await transactionRuleService.GetRulesAsync(uid))
+                .Count(rule => rule.Categories.Any(ruleCategory => ruleCategory.Id == id));
+
+            if (transactionCount > 0 || ruleCount > 0)
+                return Conflict(new { transactionCount, ruleCount });
 
             try
             {

@@ -1,3 +1,9 @@
+.recurring-transaction-icon {
+	margin-left: 0.35rem;
+	color: #52525b;
+	font-size: 0.78rem;
+	opacity: 0.7;
+}
 .currency-inputgroup {
 	display: flex;
 	align-items: stretch;
@@ -169,6 +175,7 @@
 
 
 .col-edit,
+.col-accept,
 .col-delete {
 	width: 2.75rem;
 	min-width: 2.75rem;

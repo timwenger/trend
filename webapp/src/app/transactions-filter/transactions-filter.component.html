@@ -1,5 +1,6 @@
 <h2>Transactions</h2>
 <p-toast position="top-right"></p-toast>
+<p-confirmDialog></p-confirmDialog>
 <app-add-edit (transactionAdded)="onTransactionAdded($event)"></app-add-edit>
 
 <div class="find-header">
@@ -69,4 +70,21 @@
 
 <app-no-categories [visible]="noCategories"></app-no-categories>
 
-<app-transactions [transactions]="transactionsFromFilter" [categories]="allCategories"></app-transactions>
+<section class="transaction-table-section">
+  <div class="section-heading-row">
+    <h3>Pending Transactions</h3>
+    <p-button label="Accept All" icon="pi pi-check" [disabled]="pendingTransactions.length === 0"
+      (onClick)="acceptAllPending()"></p-button>
+  </div>
+  <app-transactions [transactions]="pendingTransactions" [categories]="allCategories"
+    [pendingMode]="true" [sortOrder]="1" confirmationKey="pending-transactions"
+    (pendingSave)="savePending($event)"
+    (pendingAccept)="acceptPending($event)"
+    (pendingSkip)="skipPending($event)"></app-transactions>
+</section>
+
+<section class="transaction-table-section">
+  <h3>Posted Transactions</h3>
+<app-transactions [transactions]="transactionsFromFilter" [categories]="allCategories"
+  confirmationKey="posted-transactions"></app-transactions>
+</section>

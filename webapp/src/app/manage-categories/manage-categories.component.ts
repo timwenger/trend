@@ -3,9 +3,9 @@ import { UntypedFormControl, UntypedFormGroup, FormGroupDirective, Validators } 
 import { ApiService } from '../api.service';
 import { Category, NewCategory } from '../category';
 import { ConfirmationService } from 'primeng/api';
-import { TransactionFilters } from '../transactionfilters';
 import { Table } from 'primeng/table';
 import { forkJoin } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 
 interface ManagedCategory extends Category {
   dateLastUsed: Date | null;
@@ -376,31 +376,17 @@ export class ManageCategoriesComponent implements OnInit {
   }
 
   deleteCategory(category: Category) {
-    // confirmation is checked first in confirmDelete(). Then:
-
-    // first check that there are no transactions using that category
-    let filter: TransactionFilters = {
-      categoryFilter: true,
-      selectedCategoryIds: [category.id],
-      dateFilter: false,
-      dateLatest: '2000/1/1', // dates are not used but must be valid for the filter
-      dateOldest: '2000/1/1',
-    };
-
-    this.apiService.getTransactions(filter).
-      subscribe(transactions => {
-        if (transactions.length > 0) {
-          // show a popup error, that you can't delete this category
-          // because there are dependent transactions
-          this.showDeleteCategoryErrorPopup(transactions.length);
+    this.apiService.deleteCategory(category).subscribe({
+      next: returnedCategory => this.onSuccessfulDelete(returnedCategory),
+      error: (error: HttpErrorResponse) => {
+        if (error.status === 409) {
+          this.showDeleteCategoryErrorPopup(
+            error.error.transactionCount,
+            error.error.ruleCount,
+          );
         }
-        else {
-          // request a delete from database.
-          this.apiService.deleteCategory(category)
-            .subscribe(returnedCategory => this.onSuccessfulDelete(returnedCategory));
-        }
-      });
-
+      },
+    });
   }
 
   deleteCategoryErrorPopup = {
@@ -408,11 +394,19 @@ export class ManageCategoriesComponent implements OnInit {
     errorString: '',
   }
 
-  showDeleteCategoryErrorPopup(numTrans: number) {
-    if(numTrans == 1)
-      this.deleteCategoryErrorPopup.errorString = 'There is 1 transaction that depends on this category.'
-      else
-      this.deleteCategoryErrorPopup.errorString = 'There are '+numTrans+' transactions that depend on this category.'
+  showDeleteCategoryErrorPopup(transactionCount: number, ruleCount: number) {
+    const dependencies: string[] = [];
+    if (transactionCount > 0) {
+      dependencies.push(`${transactionCount} transaction${transactionCount === 1 ? '' : 's'}`);
+    }
+    if (ruleCount > 0) {
+      dependencies.push(`${ruleCount} recurring rule${ruleCount === 1 ? '' : 's'}`);
+    }
+
+    const dependencyCount = transactionCount + ruleCount;
+    this.deleteCategoryErrorPopup.errorString =
+      `There ${dependencyCount === 1 ? 'is' : 'are'} ${dependencies.join(' and ')} ` +
+      `that ${dependencyCount === 1 ? 'depends' : 'depend'} on this category.`;
     this.deleteCategoryErrorPopup.visible = true;
   }
 

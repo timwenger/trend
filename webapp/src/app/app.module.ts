@@ -24,6 +24,7 @@ import { CardModule } from 'primeng/card';
 import { MenubarModule } from 'primeng/menubar';
 import { RippleModule } from 'primeng/ripple';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService, MessageService as PrimeMessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { RadioButtonModule } from 'primeng/radiobutton';
@@ -38,6 +39,7 @@ import { NoCategoriesComponent } from './no-categories/no-categories.component';
 import { TrendsComponent } from './trends/trends.component';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { CategoryMultiselectComponent } from './category-multiselect/category-multiselect.component';
+import { RecurringTransactionsComponent } from './recurring-transactions/recurring-transactions.component';
 
 @NgModule({
   declarations: [
@@ -51,6 +53,7 @@ import { CategoryMultiselectComponent } from './category-multiselect/category-mu
     NoCategoriesComponent,
     TrendsComponent,
     CategoryMultiselectComponent,
+    RecurringTransactionsComponent,
   ],
   imports: [
     BrowserModule,
@@ -70,6 +73,7 @@ import { CategoryMultiselectComponent } from './category-multiselect/category-mu
     MenubarModule,
     RippleModule,
     ConfirmPopupModule,
+    ConfirmDialogModule,
     DialogModule,
     RadioButtonModule,
     CheckboxModule,

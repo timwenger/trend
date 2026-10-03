@@ -43,6 +43,11 @@ export class TopBarComponent implements OnInit {
         routerLink: "/transactions",
       },
       {
+        label: 'Recurring Transactions',
+        icon: 'pi pi-fw pi-replay',
+        routerLink: "/recurring-transactions",
+      },
+      {
         label: 'Manage Categories',
         icon: 'pi pi-fw pi-pencil',
         routerLink: "/manage-categories",

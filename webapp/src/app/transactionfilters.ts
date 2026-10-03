@@ -1,3 +1,5 @@
+export type RecurringStatusFilter = 'Posted' | 'NonRecurring' | 'Pending' | 'Accepted' | 'Skipped';
+
 export interface TransactionFilters {
 	dateFilter: boolean;
 	dateOldest: string;
@@ -6,4 +8,5 @@ export interface TransactionFilters {
 	selectedCategoryIds: string[];
 	searchText?: string;
 	match?: 'All' | 'Any';
+	recurringStatus: RecurringStatusFilter;
 }

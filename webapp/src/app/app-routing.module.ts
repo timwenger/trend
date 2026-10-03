@@ -4,11 +4,13 @@ import { TransactionsFilterComponent } from './transactions-filter/transactions-
 import { AuthGuard } from '@auth0/auth0-angular'
 import { ManageCategoriesComponent } from './manage-categories/manage-categories.component';
 import { TrendsComponent } from './trends/trends.component';
+import { RecurringTransactionsComponent } from './recurring-transactions/recurring-transactions.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'trends', pathMatch: 'full' },
   { path: 'trends', component: TrendsComponent, canActivate: [AuthGuard] },
   { path: 'transactions', component: TransactionsFilterComponent, canActivate: [AuthGuard] },
+  { path: 'recurring-transactions', component: RecurringTransactionsComponent, canActivate: [AuthGuard] },
   { path: 'add-transaction', redirectTo: 'transactions', pathMatch: 'full' },
   { path: 'manage-categories', component: ManageCategoriesComponent, canActivate: [AuthGuard] },
 ];

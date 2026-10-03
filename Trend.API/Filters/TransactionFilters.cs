@@ -20,6 +20,17 @@ namespace Trend.API.Filters
         public List<string>? SelectedCategoryIds { get; set; }
         public string? SearchText { get; set; }
         public SearchMatchMode Match { get; set; } = SearchMatchMode.All;
+        public string? RecurringStatus { get; set; } = RecurringStatuses.Posted;
+
+        public bool HasValidRecurringStatus() => RecurringStatuses.IsValid(RecurringStatus);
+
+        public bool MatchesRecurringStatus(Transaction transaction)
+        {
+            if (RecurringStatus == RecurringStatuses.Posted)
+                return RecurringStatuses.IsPosted(transaction.RecurringStatus);
+
+            return transaction.RecurringStatus == RecurringStatus;
+        }
 
         public FeedIterator<Transaction> GetFeedIterator(Container TransactionsContainer, string userId)
         {

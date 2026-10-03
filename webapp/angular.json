@@ -105,9 +105,6 @@
               "html",
               "text-summary"
             ],
-            "setupFiles": [
-              "src/test.ts"
-            ],
             "buildTarget": ":build:testing",
             "runner": "vitest"
           }

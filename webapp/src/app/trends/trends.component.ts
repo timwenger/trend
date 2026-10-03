@@ -260,6 +260,7 @@ export class TrendsComponent implements OnInit {
       dateLatest: today.toISOString().split('T')[0],
       categoryFilter: false,
       selectedCategoryIds: [],
+      recurringStatus: 'Posted' as const,
     };
 
     this.apiService.getTransactions(filter).subscribe({

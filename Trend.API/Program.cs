@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Trend.API.Models;
+using Trend.API.Services;
 
 /*
  * Note: Commits made to this production branch will trigger the following github action
@@ -20,6 +21,7 @@ string endpoint = builder.Configuration["DbContext:COSMOS_ENDPOINT"] ?? string.E
 string accountKey = builder.Configuration["DbContext:COSMOS_KEY"] ?? string.Empty;
 TrendDbContext dbContext = new TrendDbContext(endpoint, accountKey);
 builder.Services.AddSingleton<TrendDbContext>(dbContext);
+builder.Services.AddSingleton<TransactionRuleService>();
 
 //https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0#attr
 builder.Services.AddCors(options =>
@@ -59,7 +61,7 @@ builder.Services.AddSingleton<IAuthorizationHandler, ScopeHandler>();
 // the Policies below are added onto the respective Controller class (ex, CategoriesController).
 // if someone wants access to an api endpoint on that controller, they will need to:
 //      - Interact with an application that has that scope (The Angular Trend App requests all the scopes
-//        it needs in the environment.ts file at user authentication time). Those scope requests will be 
+//        it needs in the environment.ts file at user authentication time). Those scope requests will be
 //        be granted because it is configured to use the Auth0 Trend API which grants all scopes listed here.
 //
 //      - A user must also have these permissions configured in the Auth0 dashboard. The final permissions
@@ -70,9 +72,9 @@ builder.Services.AddSingleton<IAuthorizationHandler, ScopeHandler>();
 // https://auth0.com/blog/permissions-privileges-and-scopes/
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("CanWriteToTransactions", policy => 
+    options.AddPolicy("CanWriteToTransactions", policy =>
         policy.Requirements.Add(new ScopeRequirement("write:transactions", domain)));
-    options.AddPolicy("CanWriteToCategories", policy => 
+    options.AddPolicy("CanWriteToCategories", policy =>
         policy.Requirements.Add(new ScopeRequirement("write:categories", domain)));
 });
 
