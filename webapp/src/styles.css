@@ -121,7 +121,7 @@ html, body {
   min-width: 0;
 }
 
-.category-multiselect-panel .category-pin-toggle {
+.category-multiselect-panel .category-option-toggle {
   flex: 0 0 auto;
   width: 2rem;
   height: 2rem;
@@ -134,11 +134,19 @@ html, body {
   cursor: pointer;
 }
 
-.category-multiselect-panel .category-pin-toggle:hover,
-.category-multiselect-panel .category-pin-toggle:focus-visible {
+.category-multiselect-panel .category-option-toggle:hover,
+.category-multiselect-panel .category-option-toggle:focus-visible {
   color: var(--p-primary-color);
   background: var(--p-content-hover-background);
   outline: none;
+}
+
+.category-multiselect-panel .category-visibility-toggle i {
+  font-size: 1rem;
+}
+
+.category-multiselect-panel .category-visibility-toggle-active {
+  color: var(--p-primary-color);
 }
 
 .category-multiselect-panel .category-pin-toggle svg {

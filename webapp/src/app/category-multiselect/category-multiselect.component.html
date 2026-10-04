@@ -46,11 +46,20 @@
       [class.category-option-inactive]="category.isInactive">
       <span class="category-option-name">{{category.categoryName}}</span>
       @if (!isAdditionalOption(category)) {
-        <button type="button" class="category-pin-toggle"
+        <button type="button" class="category-option-toggle category-visibility-toggle"
+          [class.category-visibility-toggle-active]="!category.isInactive"
+          [attr.aria-label]="category.isInactive ? 'Make ' + category.categoryName + ' active' : 'Make ' + category.categoryName + ' inactive'"
+          [attr.title]="category.isInactive ? 'Make category active' : 'Make category inactive'"
+          [attr.aria-pressed]="!category.isInactive"
+          (pointerdown)="stopOptionActionPointer($event)"
+          (click)="toggleCategoryInactive($event, category)">
+          <i [class]="category.isInactive ? 'pi pi-eye-slash' : 'pi pi-eye'" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="category-option-toggle category-pin-toggle"
           [class.category-pin-toggle-pinned]="category.isPinned"
           [attr.aria-label]="category.isPinned ? 'Unpin ' + category.categoryName : 'Pin ' + category.categoryName"
           [attr.aria-pressed]="category.isPinned"
-          (pointerdown)="stopPinPointer($event)"
+          (pointerdown)="stopOptionActionPointer($event)"
           (click)="togglePinned($event, category)">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M8 3h8l-1.5 5 3.5 3v2h-5v7l-1 1-1-1v-7H6v-2l3.5-3L8 3z"></path>

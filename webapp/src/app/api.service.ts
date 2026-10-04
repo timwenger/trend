@@ -131,7 +131,15 @@ export class ApiService {
   }
 
   setCategoryInactive(category: Category, isInactive: boolean): Observable<Category> {
-    return this.updateCategory({ ...category, isInactive });
+    const updatedCategory = { ...category, isInactive };
+    const url = this.apiBaseUrl + this.categoriesApiUrl + '/' + category.id;
+    return this.http.put<Category>(url, updatedCategory).pipe(
+      catchError(error => {
+        console.error(error);
+        this.logMsg(`setCategoryInactive failed: ${error.message}`);
+        return throwError(() => error);
+      })
+    );
   }
 
   setCategoryPinned(category: Category, isPinned: boolean): Observable<Category> {

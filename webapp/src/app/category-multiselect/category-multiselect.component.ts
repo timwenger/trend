@@ -166,7 +166,26 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
     });
   }
 
-  stopPinPointer(event: Event): void {
+  toggleCategoryInactive(event: Event, category: Category): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (this.isAdditionalOption(category)) {
+      return;
+    }
+
+    const wasInactive = category.isInactive;
+    category.isInactive = !wasInactive;
+    this.applyFilter();
+
+    this.apiService.setCategoryInactive(category, category.isInactive).subscribe({
+      error: () => {
+        category.isInactive = wasInactive;
+        this.applyFilter();
+      },
+    });
+  }
+
+  stopOptionActionPointer(event: Event): void {
     event.stopPropagation();
   }
 
