@@ -16,19 +16,13 @@
     <p-card styleClass="p-mb-4">
       <div class="series-controls">
         <div class="categories-row">
-          <p-multiSelect
-            [options]="categoryGroupOptions"
-            [(ngModel)]="selection.customCategoryIds"
-            optionLabel="categoryName"
-            optionValue="id"
-            optionGroupLabel="label"
-            optionGroupChildren="items"
-            [group]="true"
+          <app-category-multiselect
+            [options]="allCategories"
+            [additionalOptions]="totalOptions"
+            [ngModel]="selectedSeriesOptions"
             placeholder="Add series…"
-            (onChange)="onSelectionChange()"
-            display="chip"
-            appendTo="body">
-          </p-multiSelect>
+            (ngModelChange)="onSeriesSelectionChange($event)">
+          </app-category-multiselect>
         </div>
         <div class="button-row">
           <p-button
@@ -38,6 +32,10 @@
             size="small"
             (onClick)="saveAsDefault()">
           </p-button>
+          <div class="line-style-key" aria-label="Trend line styles">
+            <span>Prior year &rarr; <i class="line-style-sample prior-year-line" aria-hidden="true"></i> (thin stroke)</span>
+            <span>Target &rarr; <i class="line-style-sample target-line" aria-hidden="true"></i> (dashed stroke)</span>
+          </div>
         </div>
       </div>
     </p-card>
@@ -52,7 +50,7 @@
         </div>
         <label class="series-toggle">
           <p-checkbox [(ngModel)]="chart1ShowPriorYear" [binary]="true" (onChange)="onPriorYearChange(1)"></p-checkbox>
-          <span class="swatch-dashed">- - -</span>Overlay Prior Year
+          <span class="swatch-thin">&mdash;</span>Overlay Prior Year
         </label>
         <label class="series-toggle">
           <p-checkbox [(ngModel)]="chart1ShowScatter" [binary]="true" (onChange)="onChart1ScatterChange()"></p-checkbox>
@@ -78,7 +76,7 @@
         </div>
         <label class="series-toggle">
           <p-checkbox [(ngModel)]="chart2ShowPriorYear" [binary]="true" (onChange)="onPriorYearChange(2)"></p-checkbox>
-          <span class="swatch-dashed">- - -</span>Overlay Prior Year
+          <span class="swatch-thin">&mdash;</span>Overlay Prior Year
         </label>
         <label class="series-toggle">
           <p-checkbox [(ngModel)]="chart2ShowScatter" [binary]="true" (onChange)="onChart2ScatterChange()"></p-checkbox>

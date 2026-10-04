@@ -44,6 +44,38 @@ describe('TransactionsFilterComponent', () => {
 
     expect(totals).toEqual({ expenses: 25, income: 100 });
   });
+
+  it('prorates each selected category target over the inclusive filter range', () => {
+    const component = createComponent();
+    component.createForm();
+    const food = {
+      ...createCategory('food', 'Food', false),
+      thirtyDayTarget: 1000,
+    };
+    const pay = {
+      ...createCategory('pay', 'Pay', true),
+      thirtyDayTarget: 3000,
+    };
+    component.filterForm.controls['multiSelectDropdown'].setValue([food, pay]);
+    component.filterForm.controls['dateOfOldestTransaction'].setValue(new Date(2026, 9, 1));
+    component.filterForm.controls['dateOfLatestTransaction'].setValue(new Date(2026, 9, 10));
+    component.allCategories = [food, pay];
+    component.configuredFilter = component.buildFilter(component.filterForm, 'Posted');
+
+    expect(component.selectedCategoryTargets).toEqual([
+      { category: food, amount: 1000 / 3 },
+      { category: pay, amount: 1000 },
+    ]);
+  });
+
+  it('does not show targets when all categories are selected implicitly', () => {
+    const component = createComponent();
+    component.createForm();
+    component.filterForm.controls['multiSelectDropdown'].setValue(null);
+    component.configuredFilter = component.buildFilter(component.filterForm, 'Posted');
+
+    expect(component.selectedCategoryTargets).toEqual([]);
+  });
 });
 
 function createComponent(): TransactionsFilterComponent {

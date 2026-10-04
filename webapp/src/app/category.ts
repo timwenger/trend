@@ -9,6 +9,7 @@ export interface NewCategory {
 	categoryName: string;
 	isIncome: boolean | null;
 	isPinned: boolean;
+	thirtyDayTarget?: number | null;
 }
 
 export function compareCategories(c1: Category, c2: Category): number {

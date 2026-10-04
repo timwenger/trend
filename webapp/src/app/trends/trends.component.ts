@@ -33,6 +33,23 @@ export class TrendsComponent implements OnInit {
   selection: SeriesSelection = {
     customCategoryIds: ['__income__', '__expenses__'],
   };
+  readonly totalOptions: Category[] = [
+    {
+      id: '__income__',
+      categoryName: 'Total Income',
+      isIncome: true,
+      isInactive: false,
+      isPinned: false,
+    },
+    {
+      id: '__expenses__',
+      categoryName: 'Total Expenses',
+      isIncome: false,
+      isInactive: false,
+      isPinned: false,
+    },
+  ];
+  selectedSeriesOptions: Category[] = [];
 
   chart1ShowPriorYear = true;
   chart2ShowPriorYear = false;
@@ -81,10 +98,7 @@ export class TrendsComponent implements OnInit {
             return defaultLabels
               .filter(item => !item.text?.startsWith('__scatter__'))
               .filter(item => !item.text?.endsWith(' (prior year)'))
-              .map(item => ({
-                ...item,
-                text: showPriorYear ? `${item.text} (prior year dashed)` : item.text,
-              }));
+              .filter(item => !item.text?.endsWith(' target'));
           },
         },
       },
@@ -149,22 +163,6 @@ export class TrendsComponent implements OnInit {
     };
   }
 
-  get categoryGroupOptions() {
-    return [
-      {
-        label: 'Totals',
-        items: [
-          { id: '__income__', categoryName: 'Total Income' },
-          { id: '__expenses__', categoryName: 'Total Expenses' },
-        ],
-      },
-      {
-        label: 'Categories',
-        items: this.allCategories,
-      },
-    ];
-  }
-
   constructor(
     private apiService: ApiService,
     private aggregation: TrendAggregationService,
@@ -178,6 +176,7 @@ export class TrendsComponent implements OnInit {
     this.apiService.getCategories().subscribe({
       next: categories => {
         this.allCategories = categories;
+        this.syncSelectedSeriesOptions();
         this.fetchTransactions();
       },
       error: () => {
@@ -192,6 +191,7 @@ export class TrendsComponent implements OnInit {
     this.selection = {
       customCategoryIds: [...defaults.customCategoryIds],
     };
+    this.syncSelectedSeriesOptions();
     this.chart1ShowPriorYear = defaults.chart1ShowPriorYear;
     this.chart2ShowPriorYear = defaults.chart2ShowPriorYear;
     this.chart1ShowScatter = defaults.chart1ShowScatter ?? true;
@@ -283,6 +283,19 @@ export class TrendsComponent implements OnInit {
     this.refreshChart1();
     this.refreshChart2();
     this.cdr.markForCheck();
+  }
+
+  onSeriesSelectionChange(options: Category[]): void {
+    this.selectedSeriesOptions = options ?? [];
+    this.selection.customCategoryIds = this.selectedSeriesOptions.map(option => option.id);
+    this.onSelectionChange();
+  }
+
+  private syncSelectedSeriesOptions(): void {
+    const options = [...this.totalOptions, ...this.allCategories];
+    this.selectedSeriesOptions = this.selection.customCategoryIds
+      .map(id => options.find(option => option.id === id))
+      .filter((option): option is Category => option !== undefined);
   }
 
   onPriorYearChange(chartNum: 1 | 2): void {
@@ -635,4 +648,3 @@ export class TrendsComponent implements OnInit {
     return labels;
   }
 }
-

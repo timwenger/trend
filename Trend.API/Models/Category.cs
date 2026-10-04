@@ -11,7 +11,18 @@ namespace Trend.API.Models
         public bool? IsIncome { get; set; }
         public bool IsInactive { get; set; }
         public bool IsPinned { get; set; }
+        public decimal? ThirtyDayTarget { get; set; }
         public int Weighting { get; set; }
+
+        public string? GetTargetError()
+        {
+            if (ThirtyDayTarget < 0)
+                return "30 day target cannot be negative.";
+            if (IsIncome == null && ThirtyDayTarget != null)
+                return "30 day target is only available for Income or Expense categories.";
+
+            return null;
+        }
 
         public static string? GetSelectionError(IReadOnlyCollection<Category>? categories)
         {

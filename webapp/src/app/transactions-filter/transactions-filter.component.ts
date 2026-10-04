@@ -17,7 +17,7 @@ import { forkJoin, switchMap } from 'rxjs';
 })
 export class TransactionsFilterComponent implements OnInit {
   filterForm!: UntypedFormGroup;
-  configuredFilter!: TransactionFilters;
+  configuredFilter?: TransactionFilters;
 
   allCategories: Category[] = [];
   pendingTransactions: Transaction[] = [];
@@ -27,6 +27,26 @@ export class TransactionsFilterComponent implements OnInit {
   postedExpensesAmount: number = 0;
   postedIncomeAmount: number = 0;
   noCategories: boolean = false;
+
+  get selectedCategoryTargets(): { category: Category; amount: number }[] {
+    if (!this.configuredFilter?.categoryFilter ||
+        this.configuredFilter.selectedCategoryIds.length === 0) {
+      return [];
+    }
+
+    const selectedIds = new Set(this.configuredFilter.selectedCategoryIds);
+    const days = this.getInclusiveCalendarDays(
+      this.configuredFilter.dateOldest,
+      this.configuredFilter.dateLatest,
+    );
+
+    return this.allCategories
+      .filter(category => selectedIds.has(category.id) && category.thirtyDayTarget != null)
+      .map(category => ({
+        category,
+        amount: category.thirtyDayTarget! * days / 30,
+      }));
+  }
 
   constructor(
     private apiService: ApiService,
@@ -148,6 +168,10 @@ export class TransactionsFilterComponent implements OnInit {
     })
       .subscribe({
         next: ({ pending, posted }) => {
+          this.configuredFilter = {
+            ...filter,
+            selectedCategoryIds: [...filter.selectedCategoryIds],
+          };
           this.pendingTransactions = this.normalizePendingTransactions(pending);
           this.transactionsFromFilter = posted;
           const pendingTotals = this.calculateTotals(pending);
@@ -234,6 +258,14 @@ export class TransactionsFilterComponent implements OnInit {
     }
 
     return { expenses, income };
+  }
+
+  private getInclusiveCalendarDays(start: string, end: string): number {
+    const [startYear, startMonth, startDay] = start.split(/[-/]/).map(Number);
+    const [endYear, endMonth, endDay] = end.split(/[-/]/).map(Number);
+    const startUtc = Date.UTC(startYear, startMonth - 1, startDay);
+    const endUtc = Date.UTC(endYear, endMonth - 1, endDay);
+    return Math.floor((endUtc - startUtc) / 86_400_000) + 1;
   }
 
 }

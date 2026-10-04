@@ -23,14 +23,15 @@ export class ManageCategoriesComponent implements OnInit {
   existingCategories: ManagedCategory[] = [];
   categoryEditBackups: { [id: string]: ManagedCategory; } = {};
   mobileEditVisible: boolean = false;
-  mobileEditField: 'name' | 'type' | 'pinned' | null = null;
+  mobileEditField: 'name' | 'type' | 'pinned' | 'target' | null = null;
   mobileEditTarget: ManagedCategory | null = null;
   mobileEditName: string = '';
   mobileEditIsIncome: boolean | null = false;
   mobileEditIsPinned: boolean = false;
+  mobileEditThirtyDayTarget: number | null = null;
   mobileActionsVisible: boolean = false;
   mobileActionTarget: ManagedCategory | null = null;
-  mobileActionField: 'name' | 'type' | 'pinned' | null = null;
+  mobileActionField: 'name' | 'type' | 'pinned' | 'target' | null = null;
   categoryNamePreviewVisible: boolean = false;
   categoryNamePreview: string = '';
   private holdTimer: ReturnType<typeof setTimeout> | null = null;
@@ -66,6 +67,7 @@ export class ManageCategoriesComponent implements OnInit {
       categoryName: new UntypedFormControl('', Validators.required),
       isIncome: new UntypedFormControl('Expense'),
       isPinned: new UntypedFormControl(false),
+      thirtyDayTarget: new UntypedFormControl(null, Validators.min(0)),
     });
   }
 
@@ -76,6 +78,7 @@ export class ManageCategoriesComponent implements OnInit {
       categoryName: '',
       isIncome: 'Expense',
       isPinned: false,
+      thirtyDayTarget: null,
     });
   }
 
@@ -91,6 +94,9 @@ export class ManageCategoriesComponent implements OnInit {
       categoryName: name,
       isIncome: isIncome,
       isPinned: f.controls['isPinned'].value,
+      thirtyDayTarget: isIncome === null
+        ? null
+        : this.normalizeTarget(f.controls['thirtyDayTarget'].value),
     }
     this.apiService.addCategory(newCategory)
       .subscribe((categoryReturned) => {
@@ -131,6 +137,9 @@ export class ManageCategoriesComponent implements OnInit {
   }
 
   onRowEditSave(category: ManagedCategory) {
+    category.thirtyDayTarget = category.isIncome === null
+      ? null
+      : this.normalizeTarget(category.thirtyDayTarget);
     delete this.categoryEditBackups[category.id];
     // edit the category in the database
     this.apiService.updateCategory(category)
@@ -179,7 +188,7 @@ export class ManageCategoriesComponent implements OnInit {
     return window.matchMedia('(max-width: 768px)').matches;
   }
 
-  startMobileActionHold(category: ManagedCategory, field: 'name' | 'type' | 'pinned' | null = null): void {
+  startMobileActionHold(category: ManagedCategory, field: 'name' | 'type' | 'pinned' | 'target' | null = null): void {
     if (!this.isMobile()) {
       return;
     }
@@ -206,7 +215,7 @@ export class ManageCategoriesComponent implements OnInit {
     this.holdTriggered = false;
   }
 
-  onMobileFieldPointerUp(category: ManagedCategory, field: 'name' | 'type' | 'pinned', event: Event): void {
+  onMobileFieldPointerUp(category: ManagedCategory, field: 'name' | 'type' | 'pinned' | 'target', event: Event): void {
     if (!this.isMobile()) {
       return;
     }
@@ -312,12 +321,17 @@ export class ManageCategoriesComponent implements OnInit {
     }
   }
 
-  openMobileFieldEditor(category: ManagedCategory, field: 'name' | 'type' | 'pinned'): void {
+  openMobileFieldEditor(category: ManagedCategory, field: 'name' | 'type' | 'pinned' | 'target'): void {
+    if (field === 'target' && category.isIncome === null) {
+      return;
+    }
+
     this.mobileEditTarget = category;
     this.mobileEditField = field;
     this.mobileEditName = category.categoryName;
     this.mobileEditIsIncome = category.isIncome;
     this.mobileEditIsPinned = category.isPinned;
+    this.mobileEditThirtyDayTarget = category.thirtyDayTarget ?? null;
     this.mobileEditVisible = true;
   }
 
@@ -330,8 +344,13 @@ export class ManageCategoriesComponent implements OnInit {
       this.mobileEditTarget.categoryName = this.mobileEditName.trim();
     } else if (this.mobileEditField === 'type') {
       this.mobileEditTarget.isIncome = this.mobileEditIsIncome;
-    } else {
+      if (this.mobileEditIsIncome === null) {
+        this.mobileEditTarget.thirtyDayTarget = null;
+      }
+    } else if (this.mobileEditField === 'pinned') {
       this.mobileEditTarget.isPinned = this.mobileEditIsPinned;
+    } else {
+      this.mobileEditTarget.thirtyDayTarget = this.normalizeTarget(this.mobileEditThirtyDayTarget);
     }
 
     this.apiService.updateCategory(this.mobileEditTarget).subscribe();
@@ -435,6 +454,14 @@ export class ManageCategoriesComponent implements OnInit {
 
   onSuccessfulDelete(category: Category) {
     this.existingCategories = this.existingCategories.filter((curCategory) => curCategory.id !== category.id);
+  }
+
+  private normalizeTarget(value: number | string | null | undefined): number | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+
+    return Number(value);
   }
 
 }

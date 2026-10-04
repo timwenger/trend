@@ -17,6 +17,34 @@ td {
 	align-items: center;
 }
 
+.add-category-row .target-control {
+	align-items: flex-start;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+
+.currency-inputgroup {
+	display: flex;
+	align-items: stretch;
+}
+
+.currency-inputgroup .p-inputgroup-addon {
+	display: flex;
+	align-items: center;
+	padding: 0 0.75rem;
+	border: 1px solid var(--p-content-border-color, #3f3f46);
+	border-right: 0;
+	border-radius: 0.5rem 0 0 0.5rem;
+}
+
+.currency-inputgroup input[pInputText] {
+	flex: 1 1 auto;
+	width: 1%;
+	min-width: 0;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+}
+
 .category-type-options,
 .category-type-option {
 	display: flex;

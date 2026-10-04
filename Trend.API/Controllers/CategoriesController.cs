@@ -122,6 +122,9 @@ namespace Trend.API.Controllers
 
             if (!ModelState.IsValid)
                 return BadRequest();
+            string? targetError = category.GetTargetError();
+            if (targetError != null)
+                return BadRequest(targetError);
 
             category.Id = Guid.NewGuid().ToString();
             category.UserId = uid;
@@ -157,6 +160,9 @@ namespace Trend.API.Controllers
 
             if (id != category.Id.ToString())
                 return BadRequest();
+            string? targetError = category.GetTargetError();
+            if (targetError != null)
+                return BadRequest(targetError);
 
             Category existingCategory;
             try

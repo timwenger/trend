@@ -203,7 +203,7 @@ export class TrendAggregationService {
       color: string,
       filter: (c: Category) => boolean,
       lookupPoints: Date[],
-      dashed: boolean,
+      priorYear: boolean,
       transactionType?: boolean,
     ) => {
       datasets.push({
@@ -215,9 +215,30 @@ export class TrendAggregationService {
         backgroundColor: this.hexToRgba(color, 0.08),
         tension: 0.3,
         fill: false,
-        borderDash: dashed ? [5, 5] : [],
+        borderDash: [],
+        borderWidth: priorYear ? 1 : 3,
         pointRadius: 0,
         pointHoverRadius: 4,
+      });
+    };
+
+    const addTarget = (category: Category, color: string) => {
+      if (category.thirtyDayTarget == null) {
+        return;
+      }
+
+      const target = category.thirtyDayTarget * windowDays / 30;
+      datasets.push({
+        label: `${category.categoryName} target`,
+        data: datePoints.map(() => target),
+        borderColor: color,
+        backgroundColor: this.hexToRgba(color, 0.08),
+        tension: 0,
+        fill: false,
+        borderDash: [7, 5],
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 0,
       });
     };
 
@@ -234,6 +255,7 @@ export class TrendAggregationService {
         const color = CUSTOM_COLORS[i % CUSTOM_COLORS.length];
         addSeries(cat.categoryName, color, c => c.id === catId, datePoints, false);
         if (showPriorYear) addSeries(`${cat.categoryName} (prior year)`, color, c => c.id === catId, priorYearPoints, true);
+        addTarget(cat, color);
       }
     });
 

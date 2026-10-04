@@ -42,6 +42,24 @@ namespace Trend.Test
                 Category.GetSelectionError(categories));
         }
 
+        [Fact]
+        public void GetTargetError_RejectsTargetForEitherCategory()
+        {
+            Category category = new() { IsIncome = null, ThirtyDayTarget = 1000 };
+
+            Assert.Equal(
+                "30 day target is only available for Income or Expense categories.",
+                category.GetTargetError());
+        }
+
+        [Fact]
+        public void GetTargetError_RejectsNegativeTarget()
+        {
+            Category category = new() { IsIncome = false, ThirtyDayTarget = -1 };
+
+            Assert.Equal("30 day target cannot be negative.", category.GetTargetError());
+        }
+
         private static Category CreateCategory(bool? isIncome)
         {
             return new Category { IsIncome = isIncome };

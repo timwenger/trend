@@ -16,6 +16,34 @@
   white-space: nowrap;
 }
 
+.posted-summary {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 0.5rem;
+	margin-left: auto;
+}
+
+.category-targets {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 0.4rem 1rem;
+	font-size: 0.9rem;
+}
+
+.category-targets span {
+	color: #d1d5db;
+}
+
+.category-targets .target-income {
+	border-bottom: 2px dashed #4caf50;
+}
+
+.category-targets .target-expense {
+	border-bottom: 2px dashed #f44336;
+}
+
 .table-totals > span {
   display: inline-flex;
   align-items: center;

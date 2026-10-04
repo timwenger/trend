@@ -45,16 +45,18 @@
       [class.category-option-divider]="hasPinnedDivider(category)"
       [class.category-option-inactive]="category.isInactive">
       <span class="category-option-name">{{category.categoryName}}</span>
-      <button type="button" class="category-pin-toggle"
-        [class.category-pin-toggle-pinned]="category.isPinned"
-        [attr.aria-label]="category.isPinned ? 'Unpin ' + category.categoryName : 'Pin ' + category.categoryName"
-        [attr.aria-pressed]="category.isPinned"
-        (pointerdown)="stopPinPointer($event)"
-        (click)="togglePinned($event, category)">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M8 3h8l-1.5 5 3.5 3v2h-5v7l-1 1-1-1v-7H6v-2l3.5-3L8 3z"></path>
-        </svg>
-      </button>
+      @if (!isAdditionalOption(category)) {
+        <button type="button" class="category-pin-toggle"
+          [class.category-pin-toggle-pinned]="category.isPinned"
+          [attr.aria-label]="category.isPinned ? 'Unpin ' + category.categoryName : 'Pin ' + category.categoryName"
+          [attr.aria-pressed]="category.isPinned"
+          (pointerdown)="stopPinPointer($event)"
+          (click)="togglePinned($event, category)">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 3h8l-1.5 5 3.5 3v2h-5v7l-1 1-1-1v-7H6v-2l3.5-3L8 3z"></path>
+          </svg>
+        </button>
+      }
     </div>
   </ng-template>
   <ng-template pTemplate="footer">

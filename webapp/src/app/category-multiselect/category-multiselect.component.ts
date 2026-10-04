@@ -23,6 +23,7 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
   @ViewChild('multiSelect') private multiSelect!: MultiSelect;
 
   @Input() options: Category[] = [];
+  @Input() additionalOptions: Category[] = [];
   @Input() placeholder: string = 'Tagged Categories';
   @Input() maxSelectedLabels: number = 1000;
   @Input() scrollHeight: string = '24rem';
@@ -103,7 +104,7 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['options']) {
+    if (changes['options'] || changes['additionalOptions']) {
       this.applyFilter();
     }
   }
@@ -149,6 +150,9 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
   togglePinned(event: Event, category: Category): void {
     event.preventDefault();
     event.stopPropagation();
+    if (this.isAdditionalOption(category)) {
+      return;
+    }
 
     const wasPinned = category.isPinned;
     category.isPinned = !wasPinned;
@@ -167,8 +171,13 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
   }
 
   hasPinnedDivider(category: Category): boolean {
-    const index = this.filteredOptions.findIndex(option => option.id === category.id);
-    return !category.isPinned && index > 0 && this.filteredOptions[index - 1].isPinned;
+    const categoryOptions = this.filteredOptions.filter(option => !this.isAdditionalOption(option));
+    const index = categoryOptions.findIndex(option => option.id === category.id);
+    return !category.isPinned && index > 0 && categoryOptions[index - 1].isPinned;
+  }
+
+  isAdditionalOption(category: Category): boolean {
+    return this.additionalOptions.some(option => option.id === category.id);
   }
 
   onFilterDelete(event: Event): void {
@@ -266,9 +275,16 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
   }
 
   private applyFilter(): void {
+    const matchingAdditionalOptions = this.utilityService.filterCategoriesByName(
+      this.additionalOptions ?? [],
+      this.filterText,
+    );
     const matchingOptions = this.utilityService.filterCategoriesByName(this.options ?? [], this.filterText);
-    this.filteredOptions = matchingOptions
-      .filter(category => this.showInactive || !category.isInactive)
-      .sort(compareCategories);
+    this.filteredOptions = [
+      ...matchingAdditionalOptions,
+      ...matchingOptions
+        .filter(category => this.showInactive || !category.isInactive)
+        .sort(compareCategories),
+    ];
   }
 }

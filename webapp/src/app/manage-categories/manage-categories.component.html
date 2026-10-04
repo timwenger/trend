@@ -1,7 +1,7 @@
 <h2>Add a new category</h2>
 <form #formDirective="ngForm" (ngSubmit)="onSubmit(formDirective)" [formGroup]="addCategoryForm">
   <div class="grid p-fluid add-category-row">
-    <div class="col-12 md:col-4">
+    <div class="col-12 md:col-3">
       <input formControlName="categoryName" type="text" pInputText
         placeholder="New Category Name" aria-label="New Category Name">
     </div>
@@ -25,7 +25,15 @@
         </span>
       </div>
     </div>
-    <div class="col-12 md:col-4">
+    <div class="col-12 md:col-3 target-control">
+      <label for="new-category-target">30 day target</label>
+      <div class="p-inputgroup currency-inputgroup">
+        <span class="p-inputgroup-addon">$</span>
+        <input id="new-category-target" formControlName="thirtyDayTarget" type="number" min="0" pInputText
+          [readOnly]="addCategoryForm.controls['isIncome'].value === 'Either'">
+      </div>
+    </div>
+    <div class="col-12 md:col-2">
       <p-button label="Add Category" [disabled]="!addCategoryForm.valid" (onClick)="onSubmit(formDirective)">
       </p-button>
     </div>
@@ -44,6 +52,8 @@
         <th pSortableColumn="isIncome">Type <p-sortIcon field="isIncome"></p-sortIcon>
       </th>
         <th pSortableColumn="isPinned">Pinned <p-sortIcon field="isPinned"></p-sortIcon>
+        </th>
+        <th pSortableColumn="thirtyDayTarget">30 day target <p-sortIcon field="thirtyDayTarget"></p-sortIcon>
         </th>
         <th pSortableColumn="dateLastUsed">Last used <p-sortIcon field="dateLastUsed"></p-sortIcon>
       </th>
@@ -124,6 +134,26 @@
         </p-cellEditor>
       </td>
       <td>
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <div class="p-inputgroup currency-inputgroup">
+              <span class="p-inputgroup-addon">$</span>
+              <input [(ngModel)]="category.thirtyDayTarget" type="number" min="0" pInputText
+                [disabled]="category.isIncome === null">
+            </div>
+          </ng-template>
+          <ng-template pTemplate="output">
+            <div class="mobile-edit-trigger"
+              (pointerdown)="startMobileActionHold(category, 'target')"
+              (pointerup)="onMobileFieldPointerUp(category, 'target', $event)"
+              (pointerleave)="cancelMobileActionHold()"
+              (pointercancel)="cancelMobileActionHold()">
+              {{category.thirtyDayTarget == null ? '—' : (category.thirtyDayTarget | currency)}}
+            </div>
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td>
         <div class="mobile-edit-trigger"
           (pointerdown)="startMobileActionHold(category)"
           (pointerup)="finishMobileActionHold()"
@@ -178,7 +208,7 @@
   </ng-template>
   <ng-template pTemplate="emptymessage">
     <tr>
-      <td colspan="7">No categories</td>
+      <td colspan="8">No categories</td>
     </tr>
   </ng-template>
 </p-table>
@@ -190,7 +220,7 @@
   <div class="mobile-overlay" (pointerdown)="onMobileOverlayPointerDown($event, 'edit')">
     <div class="mobile-editor" (click)="$event.stopPropagation()">
       <h3>
-        {{mobileEditField === 'name' ? 'Edit Category' : mobileEditField === 'type' ? 'Edit Type' : 'Edit Pinned'}}
+        {{mobileEditField === 'name' ? 'Edit Category' : mobileEditField === 'type' ? 'Edit Type' : mobileEditField === 'target' ? 'Edit 30 Day Target' : 'Edit Pinned'}}
       </h3>
       @if (mobileEditField === 'name') {
         <input [(ngModel)]="mobileEditName" type="text" pInputText class="w-full">
@@ -220,6 +250,12 @@
             [binary]="true"></p-checkbox>
           <label for="mobile-category-pinned">Pinned</label>
         </span>
+      }
+      @if (mobileEditField === 'target') {
+        <div class="p-inputgroup currency-inputgroup">
+          <span class="p-inputgroup-addon">$</span>
+          <input [(ngModel)]="mobileEditThirtyDayTarget" type="number" min="0" pInputText>
+        </div>
       }
       <div class="mobile-editor-actions">
         <p-button label="Cancel" severity="secondary" (onClick)="closeMobileEdit()"></p-button>

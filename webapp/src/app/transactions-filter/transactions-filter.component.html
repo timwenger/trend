@@ -87,15 +87,26 @@
   <div class="section-heading">
     <h3>Posted Transactions</h3>
     <div class="section-summary-row">
-      <div class="table-totals">
-        <span class="total-expenses" aria-label="Posted expenses">
-          <i class="pi pi-arrow-down" aria-hidden="true"></i>
-          {{ postedExpensesAmount | currency }}
-        </span>
-        <span class="total-income" aria-label="Posted income">
-          <i class="pi pi-arrow-up" aria-hidden="true"></i>
-          {{ postedIncomeAmount | currency }}
-        </span>
+      <div class="posted-summary">
+        <div class="table-totals">
+          <span class="total-expenses" aria-label="Posted expenses">
+            <i class="pi pi-arrow-down" aria-hidden="true"></i>
+            {{ postedExpensesAmount | currency }}
+          </span>
+          <span class="total-income" aria-label="Posted income">
+            <i class="pi pi-arrow-up" aria-hidden="true"></i>
+            {{ postedIncomeAmount | currency }}
+          </span>
+        </div>
+        @if (selectedCategoryTargets.length > 0) {
+          <div class="category-targets" aria-label="Targets for selected dates">
+            @for (target of selectedCategoryTargets; track target.category.id) {
+              <span [class.target-income]="target.category.isIncome" [class.target-expense]="target.category.isIncome === false">
+                {{ target.category.categoryName }} target: {{ target.amount | currency }}
+              </span>
+            }
+          </div>
+        }
       </div>
     </div>
   </div>
