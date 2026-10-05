@@ -1,23 +1,40 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, forwardRef, Input, OnChanges, OnDestroy, Output, SimpleChanges, ChangeDetectionStrategy, ViewChild } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { MultiSelect } from 'primeng/multiselect';
 import { Category, compareCategories } from '../category';
 import { UtilityService } from '../utility.service';
 import { ApiService } from '../api.service';
+import { Bind } from 'primeng/bind';
+import { PrimeTemplate } from 'primeng/api';
+import { Chip } from 'primeng/chip';
+import { InputText } from 'primeng/inputtext';
+import { Ripple } from 'primeng/ripple';
+import { ButtonDirective, ButtonIcon, ButtonLabel } from 'primeng/button';
 
 @Component({
-  selector: 'app-category-multiselect',
-  templateUrl: './category-multiselect.component.html',
-  styleUrls: ['./category-multiselect.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => CategoryMultiselectComponent),
-      multi: true,
-    },
-  ],
-  standalone: false,
+    selector: 'app-category-multiselect',
+    templateUrl: './category-multiselect.component.html',
+    styleUrls: ['./category-multiselect.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    providers: [
+        {
+            provide: NG_VALUE_ACCESSOR,
+            useExisting: forwardRef(() => CategoryMultiselectComponent),
+            multi: true,
+        },
+    ],
+    imports: [
+        Bind,
+        MultiSelect,
+        FormsModule,
+        PrimeTemplate,
+        Chip,
+        InputText,
+        Ripple,
+        ButtonDirective,
+        ButtonIcon,
+        ButtonLabel,
+    ],
 })
 export class CategoryMultiselectComponent implements AfterViewInit, ControlValueAccessor, OnChanges, OnDestroy {
   @ViewChild('multiSelect') private multiSelect!: MultiSelect;

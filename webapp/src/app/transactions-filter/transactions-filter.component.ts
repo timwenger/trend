@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { AbstractControl, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
+import { AbstractControl, UntypedFormControl, UntypedFormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category, getCategoryTransactionType } from '../category';
 import { Transaction } from '../transaction';
@@ -7,13 +7,24 @@ import { TransactionFilters } from '../transactionfilters';
 import { UtilityService } from '../utility.service';
 import { ConfirmationService, MessageService as PrimeMessageService } from 'primeng/api';
 import { forkJoin, switchMap } from 'rxjs';
+import { Bind } from 'primeng/bind';
+import { Toast } from 'primeng/toast';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { AddTransactionComponent } from '../add-transaction/add-transaction.component';
+import { DatePicker } from 'primeng/datepicker';
+import { CategoryMultiselectComponent } from '../category-multiselect/category-multiselect.component';
+import { InputText } from 'primeng/inputtext';
+import { Button } from 'primeng/button';
+import { NoCategoriesComponent } from '../no-categories/no-categories.component';
+import { TransactionsComponent } from '../transactions/transactions.component';
+import { CurrencyPipe } from '@angular/common';
 
 @Component({
     selector: 'app-transactions-filter',
     templateUrl: './transactions-filter.component.html',
     styleUrls: ['./transactions-filter.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    imports: [Bind, Toast, ConfirmDialog, AddTransactionComponent, FormsModule, ReactiveFormsModule, DatePicker, CategoryMultiselectComponent, InputText, Button, NoCategoriesComponent, TransactionsComponent, CurrencyPipe]
 })
 export class TransactionsFilterComponent implements OnInit {
   filterForm!: UntypedFormGroup;

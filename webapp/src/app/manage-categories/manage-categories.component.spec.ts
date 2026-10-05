@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { ConfirmationService } from 'primeng/api';
 
-import { AppModule } from '../app.module';
+import { ApiService } from '../api.service';
 import { ManageCategoriesComponent } from './manage-categories.component';
 
 describe('ManageCategoriesComponent', () => {
@@ -9,7 +11,17 @@ describe('ManageCategoriesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ AppModule ]
+      imports: [ManageCategoriesComponent],
+      providers: [
+        ConfirmationService,
+        {
+          provide: ApiService,
+          useValue: {
+            getCategories: () => of([]),
+            getCategoryLastUsedDates: () => of({}),
+          },
+        },
+      ]
     })
     .compileComponents();
 

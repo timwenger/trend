@@ -1,13 +1,17 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, PrimeTemplate } from 'primeng/api';
 import { AuthService } from '@auth0/auth0-angular';
+import { Bind } from 'primeng/bind';
+import { Menubar } from 'primeng/menubar';
+import { Ripple } from 'primeng/ripple';
+import { ButtonDirective, ButtonIcon, ButtonLabel } from 'primeng/button';
 
 @Component({
     selector: 'app-top-bar',
     templateUrl: './top-bar.component.html',
     styleUrls: ['./top-bar.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    imports: [Bind, Menubar, PrimeTemplate, Ripple, ButtonDirective, ButtonIcon, ButtonLabel]
 })
 export class TopBarComponent implements OnInit {
   isLoggedIn!: boolean;

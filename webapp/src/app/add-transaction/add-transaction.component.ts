@@ -1,15 +1,22 @@
 import { Component, OnInit, ChangeDetectionStrategy, EventEmitter, Output } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, Validators, FormGroupDirective, FormControl } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, Validators, FormGroupDirective, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category, categorySelectionValidator } from '../category';
 import { NewTransaction, Transaction } from '../transaction';
+import { Bind } from 'primeng/bind';
+import { DatePicker } from 'primeng/datepicker';
+import { Ripple } from 'primeng/ripple';
+import { ButtonDirective, ButtonIcon, Button } from 'primeng/button';
+import { InputText } from 'primeng/inputtext';
+import { CategoryMultiselectComponent } from '../category-multiselect/category-multiselect.component';
+import { NoCategoriesComponent } from '../no-categories/no-categories.component';
 
 @Component({
     selector: 'app-add-edit',
     templateUrl: './add-transaction.component.html',
     styleUrls: ['./add-transaction.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    imports: [FormsModule, ReactiveFormsModule, Bind, DatePicker, Ripple, ButtonDirective, ButtonIcon, InputText, CategoryMultiselectComponent, Button, NoCategoriesComponent]
 })
 export class AddTransactionComponent implements OnInit {
   addTransactionForm!: UntypedFormGroup;

@@ -1,11 +1,20 @@
 import { Component, OnInit, ChangeDetectionStrategy, HostListener } from '@angular/core';
-import { UntypedFormControl, UntypedFormGroup, FormGroupDirective, Validators } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup, FormGroupDirective, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category, compareManagedCategories, NewCategory } from '../category';
-import { ConfirmationService } from 'primeng/api';
-import { Table } from 'primeng/table';
+import { ConfirmationService, PrimeTemplate } from 'primeng/api';
+import { Table, SortableColumn, SortIcon, EditableRow, CellEditor, InitEditableRow, SaveEditableRow, CancelEditableRow } from 'primeng/table';
 import { forkJoin } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Bind } from 'primeng/bind';
+import { InputText } from 'primeng/inputtext';
+import { RadioButton } from 'primeng/radiobutton';
+import { Checkbox } from 'primeng/checkbox';
+import { Button, ButtonDirective, ButtonIcon, ButtonLabel } from 'primeng/button';
+import { Ripple } from 'primeng/ripple';
+import { ConfirmPopup } from 'primeng/confirmpopup';
+import { NgTemplateOutlet, CurrencyPipe, DatePipe } from '@angular/common';
+import { Dialog } from 'primeng/dialog';
 
 interface ManagedCategory extends Category {
   dateLastUsed: Date | null;
@@ -16,7 +25,7 @@ interface ManagedCategory extends Category {
     templateUrl: './manage-categories.component.html',
     styleUrls: ['./manage-categories.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    imports: [FormsModule, ReactiveFormsModule, Bind, InputText, RadioButton, Checkbox, Button, Table, PrimeTemplate, SortableColumn, SortIcon, EditableRow, CellEditor, ButtonDirective, Ripple, InitEditableRow, ButtonIcon, SaveEditableRow, CancelEditableRow, ConfirmPopup, ButtonLabel, NgTemplateOutlet, Dialog, CurrencyPipe, DatePipe]
 })
 export class ManageCategoriesComponent implements OnInit {
   addCategoryForm!: UntypedFormGroup;

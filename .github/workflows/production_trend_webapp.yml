@@ -22,6 +22,8 @@ jobs:
           node-version: '24.x'
 
       - name: npm install, build
+        env:
+          PRIMEUI_LICENSE: ${{ secrets.PRIMEUI_LICENSE }}
         run: |
           npm ci
           npm run build -- --configuration production

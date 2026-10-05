@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AuthService } from '@auth0/auth0-angular';
+import { of } from 'rxjs';
 
-import { AppModule } from '../app.module';
 import { TopBarComponent } from './top-bar.component';
 
 describe('TopBarComponent', () => {
@@ -9,7 +10,10 @@ describe('TopBarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ AppModule ]
+      imports: [TopBarComponent],
+      providers: [
+        { provide: AuthService, useValue: { isAuthenticated$: of(false) } }
+      ]
     })
     .compileComponents();
   });

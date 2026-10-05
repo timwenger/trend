@@ -4,6 +4,15 @@ import { ApiService } from '../api.service';
 import { Category } from '../category';
 import { Transaction } from '../transaction';
 import { TrendAggregationService, SeriesSelection, StoredDefaults } from '../trend-aggregation.service';
+import { NgIf, NgFor } from '@angular/common';
+import { Bind } from 'primeng/bind';
+import { Card } from 'primeng/card';
+import { CategoryMultiselectComponent } from '../category-multiselect/category-multiselect.component';
+import { FormsModule } from '@angular/forms';
+import { Button } from 'primeng/button';
+import { DatePicker } from 'primeng/datepicker';
+import { Checkbox } from 'primeng/checkbox';
+import { BaseChartDirective } from 'ng2-charts';
 
 interface AxisBounds {
   yMin?: number;
@@ -13,11 +22,22 @@ interface AxisBounds {
 }
 
 @Component({
-  selector: 'app-trends',
-  templateUrl: './trends.component.html',
-  styleUrls: ['./trends.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+    selector: 'app-trends',
+    templateUrl: './trends.component.html',
+    styleUrls: ['./trends.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [
+        NgIf,
+        Bind,
+        Card,
+        CategoryMultiselectComponent,
+        FormsModule,
+        Button,
+        DatePicker,
+        Checkbox,
+        BaseChartDirective,
+        NgFor,
+    ],
 })
 export class TrendsComponent implements OnInit {
 

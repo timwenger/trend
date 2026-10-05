@@ -1,20 +1,56 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ConfirmationService, MessageService, SortEvent } from 'primeng/api';
+import { FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ConfirmationService, MessageService, SortEvent, PrimeTemplate } from 'primeng/api';
 import { forkJoin, switchMap } from 'rxjs';
 import { ApiService } from '../api.service';
 import { Category, categorySelectionValidator } from '../category';
 import { Transaction } from '../transaction';
 import { TransactionRule, TransactionRuleConfig } from '../transaction-rule';
+import { Bind } from 'primeng/bind';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { DatePicker } from 'primeng/datepicker';
+import { Checkbox } from 'primeng/checkbox';
+import { InputText } from 'primeng/inputtext';
+import { Select } from 'primeng/select';
+import { CategoryMultiselectComponent } from '../category-multiselect/category-multiselect.component';
+import { Button, ButtonDirective, ButtonIcon } from 'primeng/button';
+import { Table, SortableColumn, SortIcon } from 'primeng/table';
+import { Ripple } from 'primeng/ripple';
+import { NgTemplateOutlet, CurrencyPipe, DatePipe } from '@angular/common';
+import { TransactionsComponent } from '../transactions/transactions.component';
+import { Dialog } from 'primeng/dialog';
 
 type RecurrenceUnit = 'days' | 'weeks' | 'months';
 
 @Component({
-  selector: 'app-recurring-transactions',
-  templateUrl: './recurring-transactions.component.html',
-  styleUrls: ['./recurring-transactions.component.css'],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  standalone: false,
+    selector: 'app-recurring-transactions',
+    templateUrl: './recurring-transactions.component.html',
+    styleUrls: ['./recurring-transactions.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    imports: [
+        Bind,
+        ConfirmDialog,
+        FormsModule,
+        ReactiveFormsModule,
+        DatePicker,
+        Checkbox,
+        InputText,
+        Select,
+        CategoryMultiselectComponent,
+        Button,
+        Table,
+        PrimeTemplate,
+        SortableColumn,
+        SortIcon,
+        ButtonDirective,
+        Ripple,
+        ButtonIcon,
+        NgTemplateOutlet,
+        TransactionsComponent,
+        Dialog,
+        CurrencyPipe,
+        DatePipe,
+    ],
 })
 export class RecurringTransactionsComponent implements OnInit {
   ruleForm = new FormGroup({

@@ -10,10 +10,10 @@ describe('TransactionsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TransactionsComponent ],
-      providers: [ ConfirmationService ],
-      schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
-    })
+    imports: [TransactionsComponent],
+    providers: [ConfirmationService],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
     .compileComponents();
   });
 

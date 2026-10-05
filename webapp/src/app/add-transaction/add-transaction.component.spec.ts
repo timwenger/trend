@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { AppModule } from '../app.module';
 import { AddTransactionComponent } from './add-transaction.component';
 
 describe('AddTransactionComponent', () => {
@@ -9,7 +8,7 @@ describe('AddTransactionComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ AppModule ]
+      imports: [AddTransactionComponent]
     })
     .compileComponents();
   });

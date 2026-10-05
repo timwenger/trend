@@ -1,9 +1,18 @@
 import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy, HostListener, ViewChild } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Transaction } from '../transaction';
-import { ConfirmationService, SelectItem } from 'primeng/api';
-import { Table } from 'primeng/table';
+import { ConfirmationService, SelectItem, PrimeTemplate } from 'primeng/api';
+import { Table, SortableColumn, SortIcon, EditableRow, CellEditor, InitEditableRow, SaveEditableRow, CancelEditableRow } from 'primeng/table';
 import { Category, getCategorySelectionError as getSelectionError } from '../category';
+import { Bind } from 'primeng/bind';
+import { DatePicker } from 'primeng/datepicker';
+import { FormsModule } from '@angular/forms';
+import { CategoryMultiselectComponent } from '../category-multiselect/category-multiselect.component';
+import { InputText } from 'primeng/inputtext';
+import { ButtonDirective, ButtonIcon, ButtonLabel, Button } from 'primeng/button';
+import { Ripple } from 'primeng/ripple';
+import { ConfirmPopup } from 'primeng/confirmpopup';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 
 
 @Component({
@@ -11,7 +20,7 @@ import { Category, getCategorySelectionError as getSelectionError } from '../cat
     templateUrl: './transactions.component.html',
     styleUrls: ['./transactions.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    standalone: false
+    imports: [Bind, Table, PrimeTemplate, SortableColumn, SortIcon, EditableRow, CellEditor, DatePicker, FormsModule, CategoryMultiselectComponent, InputText, ButtonDirective, Ripple, InitEditableRow, ButtonIcon, SaveEditableRow, CancelEditableRow, ConfirmPopup, ButtonLabel, Button, CurrencyPipe, DatePipe]
 })
 export class TransactionsComponent implements OnInit {
   @ViewChild('transactionTable') private transactionTable!: Table;
