@@ -5,7 +5,6 @@ import { Category, compareCategories } from '../category';
 import { UtilityService } from '../utility.service';
 import { ApiService } from '../api.service';
 import { Bind } from 'primeng/bind';
-import { PrimeTemplate } from 'primeng/api';
 import { Chip } from 'primeng/chip';
 import { InputText } from 'primeng/inputtext';
 import { Ripple } from 'primeng/ripple';
@@ -27,7 +26,6 @@ import { ButtonDirective, ButtonIcon, ButtonLabel } from 'primeng/button';
         Bind,
         MultiSelect,
         FormsModule,
-        PrimeTemplate,
         Chip,
         InputText,
         Ripple,

@@ -1,6 +1,6 @@
 <p-table #transactionTable [value]="transactions" dataKey="id" responsiveLayout="scroll" sortField="dateOfTransaction" [sortOrder]="sortOrder"
   editMode="row" styleClass="p-datatable-striped">
-  <ng-template pTemplate="header">
+  <ng-template #header>
     <tr>
       <th class="col-date" pSortableColumn="dateOfTransaction">Date <p-sort-icon field="dateOfTransaction"></p-sort-icon>
     </th>
@@ -16,17 +16,17 @@
   <th class="col-delete mobile-action-column"></th>
 </tr>
 </ng-template>
-<ng-template pTemplate="body" let-transaction let-editing="editing" let-rowIndex="rowIndex">
+<ng-template #body let-transaction let-editing="editing" let-rowIndex="rowIndex">
   <tr [pEditableRow]="transaction"
     (keydown)="onRowEditKeyDown($event, transaction, rowIndex, editing)">
     <td class="col-date">
       <p-cell-editor>
-        <ng-template pTemplate="input">
+        <ng-template #input>
           <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
           <p-datepicker [(ngModel)]="transaction.dateOfTransaction" value="transaction.dateOfTransaction" appendTo="body" [selectOtherMonths]="true"
           dateFormat="M d, yy"></p-datepicker>
         </ng-template>
-        <ng-template pTemplate="output">
+        <ng-template #output>
           <div class="mobile-edit-trigger"
             (pointerdown)="startMobileEditHold(transaction, 'date')"
             (pointerup)="onMobileEditPointerUp(transaction, 'date', $event)"
@@ -44,14 +44,14 @@
 
     <td class="col-category">
       <p-cell-editor>
-        <ng-template pTemplate="input">
+        <ng-template #input>
           <app-category-multiselect [(ngModel)]="transaction.categories" [options]="categories"
             placeholder="Tagged Categories"></app-category-multiselect>
           @if (getCategorySelectionError(transaction.categories); as selectionError) {
             <small class="category-selection-error">{{selectionError}}</small>
           }
         </ng-template>
-        <ng-template pTemplate="output">
+        <ng-template #output>
           <div class="mobile-edit-trigger category-preview"
             (pointerdown)="startMobileEditHold(transaction, 'category')"
             (pointerup)="onMobileEditPointerUp(transaction, 'category', $event)"
@@ -66,13 +66,13 @@
     </td>
     <td class="col-amount">
       <p-cell-editor>
-        <ng-template pTemplate="input">
+        <ng-template #input>
           <div class="p-inputgroup currency-inputgroup">
             <span class="p-inputgroup-addon">$</span>
             <input [(ngModel)]="transaction.amount" type="number" pInputText>
           </div>
         </ng-template>
-        <ng-template pTemplate="output">
+        <ng-template #output>
           <div class="mobile-edit-trigger"
             (pointerdown)="startMobileEditHold(transaction, 'amount')"
             (pointerup)="onMobileEditPointerUp(transaction, 'amount', $event)"
@@ -85,11 +85,11 @@
     </td>
     <td class="col-description">
       <p-cell-editor>
-        <ng-template pTemplate="input">
+        <ng-template #input>
           <textarea [(ngModel)]="transaction.transactionDescription" rows="1"
             class="desktop-description-input"></textarea>
         </ng-template>
-        <ng-template pTemplate="output">
+        <ng-template #output>
           <div class="description-preview"
             (pointerdown)="startMobileEditHold(transaction, 'description')"
             (pointerup)="onDescriptionPointerUp(transaction, $event, transaction.transactionDescription)"
@@ -151,7 +151,7 @@
     </td>
   </tr>
 </ng-template>
-<ng-template pTemplate="emptymessage">
+<ng-template #emptymessage>
   <tr><td [attr.colspan]="pendingMode ? 7 : 6">{{ pendingMode ? 'No pending transactions' : 'No transactions' }}</td></tr>
 </ng-template>
 </p-table>

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ConfirmationService, MessageService, SortEvent, PrimeTemplate } from 'primeng/api';
+import { ConfirmationService, MessageService, SortEvent } from 'primeng/api';
 import { forkJoin, switchMap } from 'rxjs';
 import { ApiService } from '../api.service';
 import { Category, categorySelectionValidator } from '../category';
@@ -39,7 +39,6 @@ type RecurrenceUnit = 'days' | 'weeks' | 'months';
         CategoryMultiselectComponent,
         Button,
         Table,
-        PrimeTemplate,
         SortableColumn,
         SortIcon,
         ButtonDirective,

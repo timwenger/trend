@@ -45,7 +45,7 @@
 <ng-template #categoryTableTemplate let-categories="categories" let-isInactive="isInactive">
   <p-table #categoryTable [value]="categories" dataKey="id" responsiveLayout="scroll" editMode="row"
       styleClass="p-datatable-striped">
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th class="col-category-name" pSortableColumn="categoryName">Category <p-sort-icon field="categoryName"></p-sort-icon>
         </th>
@@ -62,15 +62,15 @@
       <th class="mobile-action-column"></th>
     </tr>
   </ng-template>
-  <ng-template pTemplate="body" let-category let-editing="editing" let-rowIndex="rowIndex">
+  <ng-template #body let-category let-editing="editing" let-rowIndex="rowIndex">
     <tr [pEditableRow]="category"
       (keydown)="onRowEditKeyDown($event, category, rowIndex, editing, categoryTable)">
       <td class="col-category-name">
         <p-cell-editor>
-          <ng-template pTemplate="input">
+          <ng-template #input>
             <input [(ngModel)]="category.categoryName" type="text" pInputText>
           </ng-template>
-          <ng-template pTemplate="output">
+          <ng-template #output>
             <div class="mobile-edit-trigger category-name-preview"
               (pointerdown)="startMobileActionHold(category, 'name')"
               (pointerup)="onMobileFieldPointerUp(category, 'name', $event)"
@@ -83,7 +83,7 @@
       </td>
       <td>
         <p-cell-editor>
-          <ng-template pTemplate="input">
+          <ng-template #input>
             <div class="category-type-options">
               <span class="category-type-option">
                 <p-radiobutton name="isIncome" [inputId]="'category-' + category.id + '-expense'" [value]="false"
@@ -102,7 +102,7 @@
               </span>
             </div>
           </ng-template>
-          <ng-template pTemplate="output">
+          <ng-template #output>
             <div class="mobile-edit-trigger"
               (pointerdown)="startMobileActionHold(category, 'type')"
               (pointerup)="onMobileFieldPointerUp(category, 'type', $event)"
@@ -115,14 +115,14 @@
       </td>
       <td>
         <p-cell-editor>
-          <ng-template pTemplate="input">
+          <ng-template #input>
             <span class="category-type-option">
               <p-checkbox [inputId]="'category-' + category.id + '-pinned'" [(ngModel)]="category.isPinned"
                 [binary]="true"></p-checkbox>
               <label [for]="'category-' + category.id + '-pinned'">Pinned</label>
             </span>
           </ng-template>
-          <ng-template pTemplate="output">
+          <ng-template #output>
             <div class="mobile-edit-trigger"
               (pointerdown)="startMobileActionHold(category, 'pinned')"
               (pointerup)="onMobileFieldPointerUp(category, 'pinned', $event)"
@@ -135,14 +135,14 @@
       </td>
       <td>
         <p-cell-editor>
-          <ng-template pTemplate="input">
+          <ng-template #input>
             <div class="p-inputgroup currency-inputgroup">
               <span class="p-inputgroup-addon">$</span>
               <input [(ngModel)]="category.thirtyDayTarget" type="number" min="0" pInputText
                 [disabled]="category.isIncome === null">
             </div>
           </ng-template>
-          <ng-template pTemplate="output">
+          <ng-template #output>
             <div class="mobile-edit-trigger"
               (pointerdown)="startMobileActionHold(category, 'target')"
               (pointerup)="onMobileFieldPointerUp(category, 'target', $event)"
@@ -210,7 +210,7 @@
       </td>
     </tr>
   </ng-template>
-  <ng-template pTemplate="emptymessage">
+  <ng-template #emptymessage>
     <tr>
       <td colspan="8">No categories</td>
     </tr>

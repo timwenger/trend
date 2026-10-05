@@ -3,7 +3,7 @@
     <h1>Trend</h1>
   </div>
   <p-menubar [model]="menuItems">
-    <ng-template pTemplate="end">
+    <ng-template #end>
       @if (!this.isLoggedIn) {
         <button pButton (click)="login()">
           <i class="pi pi-angle-double-right" pButtonIcon></i>

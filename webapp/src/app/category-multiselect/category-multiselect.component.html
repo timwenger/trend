@@ -13,11 +13,12 @@
   panelStyleClass="category-multiselect-panel"
   [disabled]="disabled"
   [ngModel]="value"
+  [ngModelOptions]="{ standalone: true }"
   (ngModelChange)="onValueChange($event)"
   (onPanelShow)="onPanelShow()"
   (onPanelHide)="onPanelHide()"
   (onBlur)="onTouched()">
-  <ng-template pTemplate="selecteditems" let-selectedCategories let-removeChip="removeChip">
+  <ng-template #selecteditems let-selectedCategories let-removeChip="removeChip">
     @for (category of selectedCategories; track category.id) {
       <div class="p-multiselect-chip-item">
         <p-chip [label]="category.categoryName" [removable]="!disabled"
@@ -25,7 +26,7 @@
       </div>
     }
   </ng-template>
-  <ng-template pTemplate="header">
+  <ng-template #header>
     <div class="category-filter-row">
       <div class="category-filter-input-wrap">
         <input pInputText type="text" class="category-filter-input" placeholder="Search"
@@ -43,7 +44,7 @@
       </div>
     </div>
   </ng-template>
-  <ng-template pTemplate="item" let-category>
+  <ng-template #item let-category>
     <div class="category-option-content"
       [class.category-option-divider]="hasPinnedDivider(category)"
       [class.category-option-inactive]="category.isInactive">
@@ -71,7 +72,7 @@
       }
     </div>
   </ng-template>
-  <ng-template pTemplate="footer">
+  <ng-template #footer>
     <div class="category-inactive-footer">
       <button pButton type="button"
         class="p-button-text category-inactive-toggle"

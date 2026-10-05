@@ -94,7 +94,7 @@
 <ng-template #ruleTable let-rules="rules" let-isInactive="isInactive">
   <p-table [value]="rules" dataKey="id" responsiveLayout="scroll" sortField="startDate" [sortOrder]="1"
     [customSort]="true" (sortFunction)="sortRules($event)" styleClass="p-datatable-striped">
-    <ng-template pTemplate="header">
+    <ng-template #header>
       <tr>
         <th pSortableColumn="startDate">Active From <p-sort-icon field="startDate"></p-sort-icon></th>
         <th pSortableColumn="schedule">Schedule <p-sort-icon field="schedule"></p-sort-icon></th>
@@ -107,7 +107,7 @@
         <th class="action-column"></th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-rule>
+    <ng-template #body let-rule>
       <tr>
         <td>{{ rule.startDate | date }}</td>
         <td>{{ describeSchedule(rule) }}</td>
@@ -144,7 +144,7 @@
         </td>
       </tr>
     </ng-template>
-    <ng-template pTemplate="emptymessage">
+    <ng-template #emptymessage>
       <tr><td colspan="9">No rules</td></tr>
     </ng-template>
   </p-table>
@@ -180,7 +180,7 @@
   [draggable]="false" [resizable]="false" [closable]="false"
   [style]="{ width: '32rem' }" [breakpoints]="{ '640px': '95vw' }">
   <p>Catch up transactions missed while paused, or resume with the next scheduled occurrence on or after today?</p>
-  <ng-template pTemplate="footer">
+  <ng-template #footer>
     <p-button label="Cancel" severity="secondary" (onClick)="cancelReactivation()"></p-button>
     <p-button label="Resume Today" severity="secondary" (onClick)="reactivate(false)"></p-button>
     <p-button label="Catch Up" (onClick)="reactivate(true)"></p-button>

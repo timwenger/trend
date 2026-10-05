@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy, HostListener, ViewChild } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Transaction } from '../transaction';
-import { ConfirmationService, SelectItem, PrimeTemplate } from 'primeng/api';
+import { ConfirmationService, SelectItem } from 'primeng/api';
 import { Table, SortableColumn, SortIcon, EditableRow, CellEditor, InitEditableRow, SaveEditableRow, CancelEditableRow } from 'primeng/table';
 import { Category, getCategorySelectionError as getSelectionError } from '../category';
 import { Bind } from 'primeng/bind';
@@ -20,7 +20,7 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
     templateUrl: './transactions.component.html',
     styleUrls: ['./transactions.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [Bind, Table, PrimeTemplate, SortableColumn, SortIcon, EditableRow, CellEditor, DatePicker, FormsModule, CategoryMultiselectComponent, InputText, ButtonDirective, Ripple, InitEditableRow, ButtonIcon, SaveEditableRow, CancelEditableRow, ConfirmPopup, ButtonLabel, Button, CurrencyPipe, DatePipe]
+    imports: [Bind, Table, SortableColumn, SortIcon, EditableRow, CellEditor, DatePicker, FormsModule, CategoryMultiselectComponent, InputText, ButtonDirective, Ripple, InitEditableRow, ButtonIcon, SaveEditableRow, CancelEditableRow, ConfirmPopup, ButtonLabel, Button, CurrencyPipe, DatePipe]
 })
 export class TransactionsComponent implements OnInit {
   @ViewChild('transactionTable') private transactionTable!: Table;

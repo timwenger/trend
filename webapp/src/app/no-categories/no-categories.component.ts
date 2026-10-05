@@ -1,7 +1,6 @@
 import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Bind } from 'primeng/bind';
 import { Card } from 'primeng/card';
-import { PrimeTemplate } from 'primeng/api';
 import { Button } from 'primeng/button';
 import { RouterLink } from '@angular/router';
 
@@ -10,7 +9,7 @@ import { RouterLink } from '@angular/router';
     templateUrl: './no-categories.component.html',
     styleUrls: ['./no-categories.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [Bind, Card, PrimeTemplate, Button, RouterLink]
+    imports: [Bind, Card, Button, RouterLink]
 })
 export class NoCategoriesComponent implements OnInit {
 

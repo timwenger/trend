@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectionStrategy, HostListener } from '@angul
 import { UntypedFormControl, UntypedFormGroup, FormGroupDirective, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category, compareManagedCategories, NewCategory } from '../category';
-import { ConfirmationService, PrimeTemplate } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { Table, SortableColumn, SortIcon, EditableRow, CellEditor, InitEditableRow, SaveEditableRow, CancelEditableRow } from 'primeng/table';
 import { forkJoin } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -25,7 +25,7 @@ interface ManagedCategory extends Category {
     templateUrl: './manage-categories.component.html',
     styleUrls: ['./manage-categories.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [FormsModule, ReactiveFormsModule, Bind, InputText, RadioButton, Checkbox, Button, Table, PrimeTemplate, SortableColumn, SortIcon, EditableRow, CellEditor, ButtonDirective, Ripple, InitEditableRow, ButtonIcon, SaveEditableRow, CancelEditableRow, ConfirmPopup, ButtonLabel, NgTemplateOutlet, Dialog, CurrencyPipe, DatePipe]
+    imports: [FormsModule, ReactiveFormsModule, Bind, InputText, RadioButton, Checkbox, Button, Table, SortableColumn, SortIcon, EditableRow, CellEditor, ButtonDirective, Ripple, InitEditableRow, ButtonIcon, SaveEditableRow, CancelEditableRow, ConfirmPopup, ButtonLabel, NgTemplateOutlet, Dialog, CurrencyPipe, DatePipe]
 })
 export class ManageCategoriesComponent implements OnInit {
   addCategoryForm!: UntypedFormGroup;
