@@ -23,8 +23,8 @@ jobs:
 
       - name: npm install, build
         run: |
-          npm install --legacy-peer-deps
-          npm run build --prod
+          npm ci
+          npm run build -- --configuration production
         working-directory: webapp/
 
       - name: Upload artifact for deployment job

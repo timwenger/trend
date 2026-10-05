@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AuthModule } from '@auth0/auth0-angular';
 
+import { AppModule } from '../app.module';
 import { TopBarComponent } from './top-bar.component';
 
 describe('TopBarComponent', () => {
@@ -9,13 +9,25 @@ describe('TopBarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TopBarComponent ],
-      imports: [ AuthModule.forRoot({ domain: 'test.auth0.com', clientId: 'test' }) ]
+      imports: [ AppModule ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      configurable: true,
+      value: vi.fn().mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
     fixture = TestBed.createComponent(TopBarComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();

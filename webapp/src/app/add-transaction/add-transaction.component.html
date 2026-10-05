@@ -10,12 +10,16 @@
           <p-datepicker formControlName="dateOfTransaction" [numberOfMonths]="1" [showIcon]="false"
           [selectOtherMonths]="true" dateFormat="M d, yy" appendTo="body"></p-datepicker>
           <span class="p-inputgroup-addon date-nav-addon">
-            <button pButton type="button" icon="pi pi-angle-left" class="p-button-text date-nav-btn"
-              (click)="onClickPrevDate(formDirective)"></button>
+            <button pButton type="button" class="p-button-text date-nav-btn"
+              (click)="onClickPrevDate(formDirective)">
+              <i class="pi pi-angle-left" pButtonIcon></i>
+            </button>
           </span>
           <span class="p-inputgroup-addon date-nav-addon">
-            <button pButton type="button" icon="pi pi-angle-right" class="p-button-text date-nav-btn"
-              (click)="onClickNextDate(formDirective)"></button>
+            <button pButton type="button" class="p-button-text date-nav-btn"
+              (click)="onClickNextDate(formDirective)">
+              <i class="pi pi-angle-right" pButtonIcon></i>
+            </button>
           </span>
         </div>
         </div>

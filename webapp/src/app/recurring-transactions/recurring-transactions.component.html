@@ -1,4 +1,4 @@
-<p-confirmDialog></p-confirmDialog>
+<p-confirm-dialog></p-confirm-dialog>
 
 <section class="recurring-config">
   <h2>Rule Configuration</h2>
@@ -96,12 +96,12 @@
     [customSort]="true" (sortFunction)="sortRules($event)" styleClass="p-datatable-striped">
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="startDate">Active From <p-sortIcon field="startDate"></p-sortIcon></th>
-        <th pSortableColumn="schedule">Schedule <p-sortIcon field="schedule"></p-sortIcon></th>
-        <th pSortableColumn="categories">Categories <p-sortIcon field="categories"></p-sortIcon></th>
-        <th pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon></th>
+        <th pSortableColumn="startDate">Active From <p-sort-icon field="startDate"></p-sort-icon></th>
+        <th pSortableColumn="schedule">Schedule <p-sort-icon field="schedule"></p-sort-icon></th>
+        <th pSortableColumn="categories">Categories <p-sort-icon field="categories"></p-sort-icon></th>
+        <th pSortableColumn="amount">Amount <p-sort-icon field="amount"></p-sort-icon></th>
         <th>Description</th>
-        <th pSortableColumn="endDate">Active Until <p-sortIcon field="endDate"></p-sortIcon></th>
+        <th pSortableColumn="endDate">Active Until <p-sort-icon field="endDate"></p-sort-icon></th>
         <th class="action-column"></th>
         <th class="action-column"></th>
         <th class="action-column"></th>
@@ -120,22 +120,27 @@
         <td>{{ rule.transactionDescription || 'none' }}</td>
         <td>{{ rule.endDate ? (rule.endDate | date) : 'Indefinite' }}</td>
         <td class="action-column">
-          <button pButton pRipple type="button" icon="pi pi-pencil" class="p-button-rounded p-button-text"
-            aria-label="Edit rule" title="Edit rule" (click)="editRule(rule)"></button>
+          <button pButton pRipple type="button" class="p-button-rounded p-button-text"
+            aria-label="Edit rule" title="Edit rule" (click)="editRule(rule)">
+            <i class="pi pi-pencil" pButtonIcon></i>
+          </button>
         </td>
         <td class="action-column">
           <button pButton pRipple type="button"
-            [icon]="isInactive ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"
             [class.recurring-make-active]="isInactive" [class.recurring-make-inactive]="!isInactive"
             [attr.aria-label]="isInactive ? 'Reactivate rule' : 'Pause rule'"
             [title]="isInactive ? 'Reactivate rule' : 'Pause rule'"
             class="p-button-rounded p-button-text"
-            (click)="isInactive ? beginReactivation(rule) : pauseRule(rule)"></button>
+            (click)="isInactive ? beginReactivation(rule) : pauseRule(rule)">
+            <i [class]="isInactive ? 'pi pi-chevron-up' : 'pi pi-chevron-down'" pButtonIcon></i>
+          </button>
         </td>
         <td class="action-column">
-          <button pButton pRipple type="button" icon="pi pi-trash"
+          <button pButton pRipple type="button"
             class="p-button-rounded p-button-text p-button-danger"
-            aria-label="Delete rule" title="Delete rule" (click)="deleteRule(rule)"></button>
+            aria-label="Delete rule" title="Delete rule" (click)="deleteRule(rule)">
+            <i class="pi pi-trash" pButtonIcon></i>
+          </button>
         </td>
       </tr>
     </ng-template>

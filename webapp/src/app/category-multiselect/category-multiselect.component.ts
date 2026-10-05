@@ -36,6 +36,7 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
   showInactive: boolean = false;
   disabled: boolean = false;
   mobileFilterReadOnly: boolean = window.matchMedia('(max-width: 768px)').matches;
+  multiSelectReadOnly: boolean = false;
 
   private readonly categoryPanelClass = 'category-multiselect-panel';
   private readonly captureCtrlEnter = (event: KeyboardEvent): void => {
@@ -262,16 +263,16 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
       this.mobileFilterReadOnly = false;
       const input = event.currentTarget as HTMLInputElement | null;
       if (input) {
-        const wasReadOnly = this.multiSelect.readonly;
+        const wasReadOnly = this.multiSelectReadOnly;
         if (event.type === 'click') {
-          this.multiSelect.readonly = true;
+          this.multiSelectReadOnly = true;
         }
         input.readOnly = false;
         input.inputMode = 'search';
         input.focus();
         if (event.type === 'click') {
           setTimeout(() => {
-            this.multiSelect.readonly = wasReadOnly;
+            this.multiSelectReadOnly = wasReadOnly;
           }, 0);
         }
       }

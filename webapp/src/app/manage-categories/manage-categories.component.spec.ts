@@ -1,9 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { ConfirmationService } from 'primeng/api';
-import { RadioButton } from 'primeng/radiobutton';
 
+import { AppModule } from '../app.module';
 import { ManageCategoriesComponent } from './manage-categories.component';
 
 describe('ManageCategoriesComponent', () => {
@@ -12,10 +9,7 @@ describe('ManageCategoriesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ManageCategoriesComponent ],
-      imports: [ ReactiveFormsModule, FormsModule, RadioButton ],
-      providers: [ ConfirmationService ],
-      schemas: [ CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA ]
+      imports: [ AppModule ]
     })
     .compileComponents();
 

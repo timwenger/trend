@@ -5,7 +5,10 @@
   <p-menubar [model]="menuItems">
     <ng-template pTemplate="end">
       @if (!this.isLoggedIn) {
-        <button pButton (click)="login()" label="Login" icon="pi pi-angle-double-right"></button>
+        <button pButton (click)="login()">
+          <i class="pi pi-angle-double-right" pButtonIcon></i>
+          <span pButtonLabel>Login</span>
+        </button>
       }
     </ng-template>
   </p-menubar>

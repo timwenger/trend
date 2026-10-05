@@ -1,4 +1,4 @@
-<p-multiSelect #multiSelect class="w-full"
+<p-multiselect #multiSelect class="w-full"
   (pointerdown)="prepareMobilePanel()"
   [options]="filteredOptions"
   optionLabel="categoryName"
@@ -9,6 +9,7 @@
   [showToggleAll]="false"
   [maxSelectedLabels]="maxSelectedLabels"
   [scrollHeight]="scrollHeight"
+  [readonly]="multiSelectReadOnly"
   panelStyleClass="category-multiselect-panel"
   [disabled]="disabled"
   [ngModel]="value"
@@ -34,9 +35,11 @@
           (keydown)="onFilterKeyDown($event)"
           (keydown.delete)="onFilterDelete($event)"
           (keydown.escape)="onFilterEscape($event)">
-        <button pButton type="button" icon="pi pi-times" aria-label="Clear category filter"
+        <button pButton type="button" aria-label="Clear category filter"
           class="p-button-text p-button-rounded category-filter-clear"
-          [disabled]="!filterText" (click)="clearFilter()"></button>
+          [disabled]="!filterText" (click)="clearFilter()">
+          <i class="pi pi-times" pButtonIcon></i>
+        </button>
       </div>
     </div>
   </ng-template>
@@ -70,10 +73,12 @@
   </ng-template>
   <ng-template pTemplate="footer">
     <div class="category-inactive-footer">
-      <button pButton type="button" [icon]="showInactive ? 'pi pi-eye-slash' : 'pi pi-eye'"
-        [label]="showInactive ? 'Hide inactive' : 'Show inactive'"
+      <button pButton type="button"
         class="p-button-text category-inactive-toggle"
-        [attr.aria-pressed]="showInactive" (click)="toggleInactive($event)"></button>
+        [attr.aria-pressed]="showInactive" (click)="toggleInactive($event)">
+        <i [class]="showInactive ? 'pi pi-eye-slash' : 'pi pi-eye'" pButtonIcon></i>
+        <span pButtonLabel>{{showInactive ? 'Hide inactive' : 'Show inactive'}}</span>
+      </button>
     </div>
   </ng-template>
-</p-multiSelect>
+</p-multiselect>

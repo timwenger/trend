@@ -2,11 +2,11 @@
   editMode="row" styleClass="p-datatable-striped">
   <ng-template pTemplate="header">
     <tr>
-      <th class="col-date" pSortableColumn="dateOfTransaction">Date <p-sortIcon field="dateOfTransaction"></p-sortIcon>
+      <th class="col-date" pSortableColumn="dateOfTransaction">Date <p-sort-icon field="dateOfTransaction"></p-sort-icon>
     </th>
-    <th class="col-category" pSortableColumn="category.categoryName">Category <p-sortIcon field="category.categoryName"></p-sortIcon>
+    <th class="col-category" pSortableColumn="category.categoryName">Category <p-sort-icon field="category.categoryName"></p-sort-icon>
   </th>
-  <th class="col-amount" pSortableColumn="amount">Amount <p-sortIcon field="amount"></p-sortIcon>
+  <th class="col-amount" pSortableColumn="amount">Amount <p-sort-icon field="amount"></p-sort-icon>
 </th>
   <th class="col-description">Descr</th>
   <th class="col-edit mobile-action-column"></th>
@@ -20,7 +20,7 @@
   <tr [pEditableRow]="transaction"
     (keydown)="onRowEditKeyDown($event, transaction, rowIndex, editing)">
     <td class="col-date">
-      <p-cellEditor>
+      <p-cell-editor>
         <ng-template pTemplate="input">
           <!-- appendTo="body" used so that it doesnt get cut off at the edge of the table -->
           <p-datepicker [(ngModel)]="transaction.dateOfTransaction" value="transaction.dateOfTransaction" appendTo="body" [selectOtherMonths]="true"
@@ -39,11 +39,11 @@
             }
           </div>
         </ng-template>
-      </p-cellEditor>
+      </p-cell-editor>
     </td>
 
     <td class="col-category">
-      <p-cellEditor>
+      <p-cell-editor>
         <ng-template pTemplate="input">
           <app-category-multiselect [(ngModel)]="transaction.categories" [options]="categories"
             placeholder="Tagged Categories"></app-category-multiselect>
@@ -62,10 +62,10 @@
             }
           </div>
         </ng-template>
-      </p-cellEditor>
+      </p-cell-editor>
     </td>
     <td class="col-amount">
-      <p-cellEditor>
+      <p-cell-editor>
         <ng-template pTemplate="input">
           <div class="p-inputgroup currency-inputgroup">
             <span class="p-inputgroup-addon">$</span>
@@ -81,10 +81,10 @@
             {{transaction.amount | currency}}
           </div>
         </ng-template>
-      </p-cellEditor>
+      </p-cell-editor>
     </td>
     <td class="col-description">
-      <p-cellEditor>
+      <p-cell-editor>
         <ng-template pTemplate="input">
           <textarea [(ngModel)]="transaction.transactionDescription" rows="1"
             class="desktop-description-input"></textarea>
@@ -103,43 +103,49 @@
             }
           </div>
         </ng-template>
-      </p-cellEditor>
+      </p-cell-editor>
     </td>
     <td class="col-edit mobile-action-column" style="text-align:center">
       @if (!editing) {
-        <button pButton pRipple type="button" pInitEditableRow icon="pi pi-pencil"
+        <button pButton pRipple type="button" pInitEditableRow
           (click)="onRowEditInit(transaction)" class="p-button-rounded p-button-text">
+          <i class="pi pi-pencil" pButtonIcon></i>
         </button>
       }
       @if (editing) {
-        <button pButton pRipple type="button" pSaveEditableRow icon="pi pi-check"
+        <button pButton pRipple type="button" pSaveEditableRow
           [disabled]="!!getCategorySelectionError(transaction.categories)"
           (click)="onRowEditSave(transaction)" class="p-button-rounded p-button-text p-button-success mr-2">
+          <i class="pi pi-check" pButtonIcon></i>
         </button>
       }
     </td>
     @if (pendingMode) {
       <td class="col-accept mobile-action-column" style="text-align:center">
         @if (!editing) {
-          <button pButton pRipple type="button" icon="pi pi-check"
+          <button pButton pRipple type="button"
             class="p-button-rounded p-button-text p-button-success"
             aria-label="Accept transaction" title="Accept transaction"
-            (click)="acceptPendingTransaction(transaction)"></button>
+            (click)="acceptPendingTransaction(transaction)">
+            <i class="pi pi-check" pButtonIcon></i>
+          </button>
         }
       </td>
     }
     <td class="col-delete mobile-action-column" style="text-align:center">
       @if (!editing) {
-        <button pButton pRipple type="button" icon="pi pi-trash"
+        <button pButton pRipple type="button"
           [attr.aria-label]="pendingMode ? 'Skip transaction' : 'Delete transaction'"
           [title]="pendingMode ? 'Skip transaction' : 'Delete transaction'"
           (click)="confirmDelete($event, transaction)" class="p-button-rounded p-button-text p-button-danger">
+          <i class="pi pi-trash" pButtonIcon></i>
         </button>
       }
 
       @if (editing) {
-        <button pButton pRipple type="button" pCancelEditableRow icon="pi pi-times"
+        <button pButton pRipple type="button" pCancelEditableRow
           (click)="onRowEditCancel(transaction, rowIndex)" class="p-button-rounded p-button-text p-button-danger">
+          <i class="pi pi-times" pButtonIcon></i>
         </button>
       }
     </td>
@@ -156,14 +162,18 @@
   <div class="mobile-field-overlay mobile-actions-overlay"
     (pointerdown)="onMobileOverlayPointerDown($event, 'actions')">
     <div class="mobile-field-editor mobile-transaction-actions" (click)="$event.stopPropagation()">
-      <button pButton type="button" label="Edit" class="w-full"
-        (click)="editMobileActionField()"></button>
+      <button pButton type="button" class="w-full"
+        (click)="editMobileActionField()"><span pButtonLabel>Edit</span></button>
       @if (pendingMode) {
-        <button pButton type="button" label="Accept transaction" severity="success"
-          class="w-full" (click)="acceptPendingTransaction(mobileActionTarget!); closeMobileActions()"></button>
+        <button pButton type="button" severity="success"
+          class="w-full" (click)="acceptPendingTransaction(mobileActionTarget!); closeMobileActions()">
+          <span pButtonLabel>Accept transaction</span>
+        </button>
       }
-      <button pButton type="button" [label]="pendingMode ? 'Skip transaction' : 'Delete transaction'" severity="danger"
-        class="w-full" (click)="confirmMobileDelete($event)"></button>
+      <button pButton type="button" severity="danger"
+        class="w-full" (click)="confirmMobileDelete($event)">
+        <span pButtonLabel>{{pendingMode ? 'Skip transaction' : 'Delete transaction'}}</span>
+      </button>
     </div>
   </div>
 }
