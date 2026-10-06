@@ -25,6 +25,8 @@ describe('CategoryMultiselectComponent', () => {
 
     expect(triggerInput.readOnly).toBe(true);
     expect(triggerInput.inputMode).toBe('none');
+    expect(triggerInput.tabIndex).toBe(-1);
+    expect(triggerInput.disabled).toBe(true);
     expect(blur).toHaveBeenCalled();
     vi.unstubAllGlobals();
   });

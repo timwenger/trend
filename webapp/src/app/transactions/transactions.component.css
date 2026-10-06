@@ -235,7 +235,7 @@ td {
 	.description-preview {
 		-webkit-touch-callout: none;
 		user-select: none;
-		touch-action: pan-y;
+		touch-action: none;
 	}
 
 	:host ::ng-deep .mobile-field-dialog,

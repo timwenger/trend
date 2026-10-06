@@ -113,6 +113,10 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
     this.elementRef.nativeElement.addEventListener('keydown', this.captureCtrlEnter, true);
     document.addEventListener('pointerdown', this.captureOutsidePointerDown, true);
     document.addEventListener('pointerup', this.captureOutsidePointerUp, true);
+    if (window.matchMedia('(max-width: 768px)').matches) {
+      this.disableMobileTriggerInput();
+      setTimeout(() => this.disableMobileTriggerInput());
+    }
   }
 
   ngOnDestroy(): void {
@@ -298,6 +302,9 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
 
   onPanelHide(): void {
     this.mobileFilterReadOnly = window.matchMedia('(max-width: 768px)').matches;
+    if (this.mobileFilterReadOnly) {
+      this.disableMobileTriggerInput();
+    }
   }
 
   private disableMobileTriggerInput(): void {
@@ -307,6 +314,8 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
     if (triggerInput) {
       triggerInput.readOnly = true;
       triggerInput.inputMode = 'none';
+      triggerInput.tabIndex = -1;
+      triggerInput.disabled = true;
       triggerInput.blur();
     }
   }

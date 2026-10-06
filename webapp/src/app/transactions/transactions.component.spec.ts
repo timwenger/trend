@@ -21,6 +21,8 @@ describe('TransactionsComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(TransactionsComponent);
     component = fixture.componentInstance;
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    vi.spyOn(window, 'scrollBy').mockImplementation(() => {});
     fixture.detectChanges();
   });
 
@@ -121,6 +123,77 @@ describe('TransactionsComponent', () => {
     expect(component.descriptionDialogVisible).toBe(true);
     vi.useRealTimers();
   });
+
+  it('suppresses the compatibility click after a stationary touch', () => {
+    vi.spyOn(component, 'isMobile').mockReturnValue(true);
+    const transaction = createTransaction();
+    const up = pointerEvent('pointerup', 1, 20, 20);
+
+    component.startMobileEditHold(
+      transaction,
+      'amount',
+      pointerEvent('pointerdown', 1, 20, 20),
+    );
+    component.onMobileEditPointerUp(transaction, 'amount', up, true);
+
+    expect(up.preventDefault).toHaveBeenCalled();
+    expect(up.stopPropagation).toHaveBeenCalled();
+  });
+
+  it('scrolls the page when a touch moves over a transaction cell', () => {
+    vi.spyOn(component, 'isMobile').mockReturnValue(true);
+    const transaction = createTransaction();
+    const start = touchEvent(1, 20, 100);
+    const move = touchEvent(1, 20, 70);
+
+    component.startMobileEditTouchHold(transaction, 'description', start);
+    component.onMobileEditTouchMove(move);
+
+    expect(start.preventDefault).toHaveBeenCalled();
+    expect(move.preventDefault).toHaveBeenCalled();
+    expect(window.scrollBy).toHaveBeenCalledWith(0, 30);
+  });
+
+  it('does not navigate browser history when closing a mobile popup', () => {
+    vi.spyOn(component, 'isMobile').mockReturnValue(true);
+    const pushState = vi.spyOn(window.history, 'pushState');
+    const back = vi.spyOn(window.history, 'back').mockImplementation(() => {});
+
+    component.openDescriptionDialog(new Event('click'), 'Description');
+    component.closeDescriptionDialog();
+
+    expect(pushState).not.toHaveBeenCalled();
+    expect(back).not.toHaveBeenCalled();
+  });
+
+  it('clears input focus when a mobile editor closes', () => {
+    vi.spyOn(component, 'isMobile').mockReturnValue(true);
+    const input = document.createElement('input');
+    document.body.appendChild(input);
+    input.focus();
+    component.mobileEditDialogVisible = true;
+
+    component.cancelMobileFieldEdit();
+
+    expect(document.activeElement).not.toBe(input);
+    input.remove();
+  });
+
+  it('keeps the page at the editor opening position when it closes', () => {
+    vi.spyOn(component, 'isMobile').mockReturnValue(true);
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      callback(0);
+      return 1;
+    });
+    component['mobileEditorScrollPosition'] = { x: 0, y: 640 };
+    component.mobileEditDialogVisible = true;
+
+    component.cancelMobileFieldEdit();
+
+    expect(scrollTo).toHaveBeenCalledWith(0, 640);
+    vi.unstubAllGlobals();
+  });
 });
 
 function pointerEvent(type: string, pointerId: number, clientX: number, clientY: number): PointerEvent {
@@ -133,6 +206,14 @@ function pointerEvent(type: string, pointerId: number, clientX: number, clientY:
     preventDefault: vi.fn(),
     stopPropagation: vi.fn(),
   } as unknown as PointerEvent;
+}
+
+function touchEvent(identifier: number, clientX: number, clientY: number): TouchEvent {
+  return {
+    changedTouches: [{ identifier, clientX, clientY }],
+    preventDefault: vi.fn(),
+    stopPropagation: vi.fn(),
+  } as unknown as TouchEvent;
 }
 
 function createTransaction(): Transaction {

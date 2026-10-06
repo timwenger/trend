@@ -10,6 +10,20 @@ export class DatePickerTouchDismissDirective {
     private readonly elementRef: ElementRef<HTMLElement>,
   ) {}
 
+  @HostListener('touchstart')
+  preventMobileKeyboard(): void {
+    if (!window.matchMedia('(max-width: 768px)').matches) {
+      return;
+    }
+
+    const input = this.getInput();
+    if (input) {
+      input.readOnly = true;
+      input.inputMode = 'none';
+      input.blur();
+    }
+  }
+
   @HostListener('document:touchstart', ['$event'])
   dismissOnOutsideTouch(event: TouchEvent): void {
     if (!this.datePicker.overlayVisible()) {
@@ -26,5 +40,24 @@ export class DatePickerTouchDismissDirective {
     }
 
     this.datePicker.hideOverlay();
+    this.blurInput();
+  }
+
+  @HostListener('document:touchend')
+  blurClosedCalendarInput(): void {
+    if (
+      window.matchMedia('(max-width: 768px)').matches &&
+      !this.datePicker.overlayVisible()
+    ) {
+      this.blurInput();
+    }
+  }
+
+  private blurInput(): void {
+    this.getInput()?.blur();
+  }
+
+  private getInput(): HTMLInputElement | null {
+    return this.elementRef.nativeElement.querySelector('input');
   }
 }

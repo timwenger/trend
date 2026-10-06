@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy, ElementRef, HostListener, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, Input, Output, EventEmitter, OnDestroy, OnInit, ChangeDetectionStrategy, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Transaction } from '../transaction';
 import { ConfirmationService, SelectItem } from 'primeng/api';
@@ -24,7 +24,7 @@ import { DatePickerTouchDismissDirective } from '../datepicker-touch-dismiss.dir
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [Bind, Table, SortableColumn, SortIcon, EditableRow, CellEditor, DatePicker, FormsModule, CategoryMultiselectComponent, InputText, ButtonDirective, Ripple, InitEditableRow, ButtonIcon, SaveEditableRow, CancelEditableRow, ConfirmPopup, ButtonLabel, Button, CurrencyPipe, DatePipe, TouchFocusDirective, DatePickerTouchDismissDirective]
 })
-export class TransactionsComponent implements OnInit {
+export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('transactionTable') private transactionTable!: Table;
   @ViewChild('mobileAmountInput') private mobileAmountInput?: ElementRef<HTMLInputElement>;
   @ViewChild('mobileDescriptionInput') private mobileDescriptionInput?: ElementRef<HTMLTextAreaElement>;
@@ -58,7 +58,9 @@ export class TransactionsComponent implements OnInit {
   private mobilePointerId: number | null = null;
   private mobilePointerStartX = 0;
   private mobilePointerStartY = 0;
+  private mobileTouchLastY = 0;
   private mobilePointerMoved = false;
+  private mobilePointerScrollPosition: { x: number; y: number } | null = null;
   private lastTapAt: number = 0;
   private lastTapKey: string = '';
   private categoryTapTimer: ReturnType<typeof setTimeout> | null = null;
@@ -67,13 +69,33 @@ export class TransactionsComponent implements OnInit {
   private lastDescriptionTapTransactionId: string = '';
   private dismissedOverlayPointerId: number | null = null;
   private dialogHistoryActive: boolean = false;
-  private consumingDialogHistory: boolean = false;
+  private mobileEditorScrollPosition: { x: number; y: number } | null = null;
+  private readonly preventMobileTriggerTouchDefault = (event: TouchEvent): void => {
+    const target = event.target as Element | null;
+    if (target?.closest('.mobile-edit-trigger, .description-preview')) {
+      event.preventDefault();
+    }
+  };
 
   constructor(
+    private elementRef: ElementRef<HTMLElement>,
     private apiService: ApiService,
     private confirmationService: ConfirmationService) { }
 
   ngOnInit(): void {
+  }
+
+  ngAfterViewInit(): void {
+    this.elementRef.nativeElement.addEventListener('touchstart', this.preventMobileTriggerTouchDefault, {
+      capture: true,
+      passive: false
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.elementRef.nativeElement.removeEventListener('touchstart', this.preventMobileTriggerTouchDefault, {
+      capture: true
+    });
   }
 
 
@@ -185,6 +207,16 @@ export class TransactionsComponent implements OnInit {
       return;
     }
 
+    const scrollPosition = { x: window.scrollX, y: window.scrollY };
+    this.mobilePointerScrollPosition = scrollPosition;
+    const activeElement = document.activeElement;
+    if (activeElement instanceof HTMLElement &&
+        activeElement !== document.body) {
+      activeElement.blur();
+      window.scrollTo(scrollPosition.x, scrollPosition.y);
+      requestAnimationFrame(() => window.scrollTo(scrollPosition.x, scrollPosition.y));
+    }
+
     this.dismissedOverlayPointerId = null;
     this.cancelMobileEditHold();
     this.holdTriggered = false;
@@ -214,6 +246,8 @@ export class TransactionsComponent implements OnInit {
       return;
     }
 
+    event.preventDefault();
+    this.mobileTouchLastY = touch.clientY;
     this.startMobileEditHold(transaction, field, this.touchToPointerEvent(event, touch));
   }
 
@@ -235,7 +269,13 @@ export class TransactionsComponent implements OnInit {
   onMobileEditTouchMove(event: TouchEvent): void {
     const touch = event.changedTouches[0];
     if (touch) {
+      event.preventDefault();
+      const scrollDelta = this.mobileTouchLastY - touch.clientY;
+      this.mobileTouchLastY = touch.clientY;
       this.onMobileEditPointerMove(this.touchToPointerEvent(event, touch));
+      if (this.mobilePointerMoved) {
+        window.scrollBy(0, scrollDelta);
+      }
     }
   }
 
@@ -311,6 +351,12 @@ export class TransactionsComponent implements OnInit {
       return;
     }
 
+    if (fromTouchEvent) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.restoreMobilePointerScrollPosition();
+    }
+
     if (this.consumeDismissedOverlayPointer(event)) {
       this.resetMobilePointer();
       return;
@@ -336,7 +382,8 @@ export class TransactionsComponent implements OnInit {
       this.lastTapAt = 0;
       event.preventDefault();
       event.stopPropagation();
-      setTimeout(() => this.openMobileFieldEditor(transaction, field));
+      const scrollPosition = { x: window.scrollX, y: window.scrollY };
+      setTimeout(() => this.openMobileFieldEditor(transaction, field, undefined, scrollPosition));
       this.resetMobilePointer();
       return;
     }
@@ -373,7 +420,8 @@ export class TransactionsComponent implements OnInit {
   openMobileFieldEditor(
     transaction: Transaction,
     field: 'date' | 'category' | 'amount' | 'description',
-    event?: Event
+    event?: Event,
+    scrollPosition = { x: window.scrollX, y: window.scrollY },
   ) {
     if (!this.isMobile()) {
       return;
@@ -388,8 +436,11 @@ export class TransactionsComponent implements OnInit {
     this.mobileEditCategories = [...transaction.categories];
     this.mobileEditAmount = transaction.amount;
     this.mobileEditDescription = transaction.transactionDescription ?? '';
+    this.mobileEditorScrollPosition = scrollPosition;
     this.mobileEditDialogVisible = true;
     this.activateDialogHistory();
+    window.scrollTo(scrollPosition.x, scrollPosition.y);
+    requestAnimationFrame(() => window.scrollTo(scrollPosition.x, scrollPosition.y));
 
     if (field === 'amount' || field === 'description') {
       setTimeout(() => {
@@ -398,6 +449,8 @@ export class TransactionsComponent implements OnInit {
           : this.mobileDescriptionInput?.nativeElement;
         input?.focus({ preventScroll: true });
         input?.select();
+        window.scrollTo(scrollPosition.x, scrollPosition.y);
+        requestAnimationFrame(() => window.scrollTo(scrollPosition.x, scrollPosition.y));
       });
     }
   }
@@ -573,6 +626,12 @@ export class TransactionsComponent implements OnInit {
       return;
     }
 
+    if (fromTouchEvent) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.restoreMobilePointerScrollPosition();
+    }
+
     if (this.consumeDismissedOverlayPointer(event)) {
       this.resetMobilePointer();
       return;
@@ -602,7 +661,13 @@ export class TransactionsComponent implements OnInit {
       this.lastDescriptionTapAt = 0;
       event.preventDefault();
       event.stopPropagation();
-      setTimeout(() => this.openMobileFieldEditor(transaction, 'description'));
+      const scrollPosition = { x: window.scrollX, y: window.scrollY };
+      setTimeout(() => this.openMobileFieldEditor(
+        transaction,
+        'description',
+        undefined,
+        scrollPosition,
+      ));
       this.resetMobilePointer();
       return;
     }
@@ -636,6 +701,15 @@ export class TransactionsComponent implements OnInit {
   private resetMobilePointer(): void {
     this.mobilePointerId = null;
     this.mobilePointerMoved = false;
+    this.mobilePointerScrollPosition = null;
+  }
+
+  private restoreMobilePointerScrollPosition(): void {
+    const position = this.mobilePointerScrollPosition;
+    if (position) {
+      window.scrollTo(position.x, position.y);
+      requestAnimationFrame(() => window.scrollTo(position.x, position.y));
+    }
   }
 
   private touchToPointerEvent(event: TouchEvent, touch: Touch): PointerEvent {
@@ -698,11 +772,6 @@ export class TransactionsComponent implements OnInit {
 
   @HostListener('window:popstate', ['$event'])
   onBrowserPopState(_event: PopStateEvent): void {
-    if (this.consumingDialogHistory) {
-      this.consumingDialogHistory = false;
-      return;
-    }
-
     if (this.mobileEditDialogVisible || this.descriptionDialogVisible || this.categoryDialogVisible || this.mobileActionsVisible) {
       this.mobileEditDialogVisible = false;
       this.descriptionDialogVisible = false;
@@ -721,7 +790,17 @@ export class TransactionsComponent implements OnInit {
   }
 
   private closeMobileEditDialog(): void {
+    const scrollPosition = this.mobileEditorScrollPosition;
+    const activeElement = document.activeElement;
+    if (activeElement instanceof HTMLElement) {
+      activeElement.blur();
+    }
     this.mobileEditDialogVisible = false;
+    this.mobileEditorScrollPosition = null;
+    if (scrollPosition) {
+      window.scrollTo(scrollPosition.x, scrollPosition.y);
+      requestAnimationFrame(() => window.scrollTo(scrollPosition.x, scrollPosition.y));
+    }
     if (!this.descriptionDialogVisible && !this.categoryDialogVisible) {
       this.releaseDialogHistory();
     }
@@ -739,7 +818,6 @@ export class TransactionsComponent implements OnInit {
       return;
     }
 
-    window.history.pushState({ dialog: true }, '', window.location.href);
     this.dialogHistoryActive = true;
   }
 
@@ -749,8 +827,6 @@ export class TransactionsComponent implements OnInit {
     }
 
     this.dialogHistoryActive = false;
-    this.consumingDialogHistory = true;
-    window.history.back();
   }
 
   isMobile(): boolean {
