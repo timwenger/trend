@@ -18,13 +18,14 @@ import { Button } from 'primeng/button';
 import { NoCategoriesComponent } from '../no-categories/no-categories.component';
 import { TransactionsComponent } from '../transactions/transactions.component';
 import { CurrencyPipe } from '@angular/common';
+import { TouchFocusDirective } from '../touch-focus.directive';
 
 @Component({
     selector: 'app-transactions-filter',
     templateUrl: './transactions-filter.component.html',
     styleUrls: ['./transactions-filter.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [Bind, Toast, ConfirmDialog, AddTransactionComponent, FormsModule, ReactiveFormsModule, DatePicker, CategoryMultiselectComponent, InputText, Button, NoCategoriesComponent, TransactionsComponent, CurrencyPipe]
+    imports: [Bind, Toast, ConfirmDialog, AddTransactionComponent, FormsModule, ReactiveFormsModule, DatePicker, CategoryMultiselectComponent, InputText, Button, NoCategoriesComponent, TransactionsComponent, CurrencyPipe, TouchFocusDirective]
 })
 export class TransactionsFilterComponent implements OnInit {
   filterForm!: UntypedFormGroup;

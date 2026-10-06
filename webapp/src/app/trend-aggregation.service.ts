@@ -21,6 +21,7 @@ export interface StoredDefaults extends SeriesSelection {
 const STORAGE_KEY = 'trend-defaults';
 const INCOME_COLOR = '#4caf50';
 const EXPENSE_COLOR = '#f44336';
+const MS_PER_DAY = 86_400_000;
 const CUSTOM_COLORS = [
   '#2196f3', '#ff9800', '#9c27b0', '#00bcd4', '#795548',
   '#e91e63', '#607d8b', '#ffc107',
@@ -114,44 +115,39 @@ export class TrendAggregationService {
     return `${month} ${day} '${yy}`;
   }
 
-  private computeTrailing(
-    transactions: Transaction[],
-    datePoints: Date[],
-    windowDays: number,
-    categoryFilter: (c: Category) => boolean,
-  ): number[] {
-    return datePoints.map(pointDate => {
-      const windowStart = new Date(pointDate);
-      windowStart.setDate(pointDate.getDate() - windowDays + 1);
-      return transactions
-        .filter(t => {
-          const d = new Date(t.dateOfTransaction);
-          d.setHours(0, 0, 0, 0);
-          return d >= windowStart && d <= pointDate && t.categories.some(categoryFilter);
-        })
-        .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-    });
+  private toDayTimestamp(value: Date | string): number {
+    const date = value instanceof Date ? value : new Date(value);
+    return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
   }
 
-  private computeTrailingByTransactionType(
-    transactions: Transaction[],
+  private computeTrailing(
+    dailyTotals: Map<number, number>,
     points: Date[],
     windowDays: number,
-    transactionType: boolean,
   ): number[] {
-    return points.map(pointDate => {
-      const windowStart = new Date(pointDate);
-      windowStart.setDate(pointDate.getDate() - windowDays + 1);
-      return transactions
-        .filter(transaction => {
-          const transactionDate = new Date(transaction.dateOfTransaction);
-          transactionDate.setHours(0, 0, 0, 0);
-          return transactionDate >= windowStart &&
-            transactionDate <= pointDate &&
-            getCategoryTransactionType(transaction.categories) === transactionType;
-        })
-        .reduce((sum, transaction) => sum + Math.abs(transaction.amount), 0);
-    });
+    const entries = [...dailyTotals.entries()].sort(([left], [right]) => left - right);
+    const totals: number[] = [];
+    let startIndex = 0;
+    let endIndex = 0;
+    let runningTotal = 0;
+
+    for (const point of points) {
+      const pointTimestamp = this.toDayTimestamp(point);
+      const windowStart = pointTimestamp - (windowDays - 1) * MS_PER_DAY;
+
+      while (endIndex < entries.length && entries[endIndex][0] <= pointTimestamp) {
+        runningTotal += entries[endIndex][1];
+        endIndex++;
+      }
+      while (startIndex < endIndex && entries[startIndex][0] < windowStart) {
+        runningTotal -= entries[startIndex][1];
+        startIndex++;
+      }
+
+      totals.push(runningTotal);
+    }
+
+    return totals;
   }
 
   computeTotals(
@@ -197,20 +193,51 @@ export class TrendAggregationService {
     });
 
     const datasets: ChartDataset<'line'>[] = [];
+    const selectedCategoryIds = new Set(
+      selection.customCategoryIds.filter(id => id !== '__income__' && id !== '__expenses__'),
+    );
+    const incomeDailyTotals = new Map<number, number>();
+    const expenseDailyTotals = new Map<number, number>();
+    const categoryDailyTotals = new Map<string, Map<number, number>>();
+
+    for (const categoryId of selectedCategoryIds) {
+      categoryDailyTotals.set(categoryId, new Map<number, number>());
+    }
+
+    const addDailyTotal = (totals: Map<number, number>, day: number, amount: number): void => {
+      totals.set(day, (totals.get(day) ?? 0) + amount);
+    };
+
+    for (const transaction of transactions) {
+      const day = this.toDayTimestamp(transaction.dateOfTransaction);
+      const amount = Math.abs(transaction.amount);
+      const transactionType = getCategoryTransactionType(transaction.categories);
+
+      if (transactionType === true) {
+        addDailyTotal(incomeDailyTotals, day, amount);
+      } else if (transactionType === false) {
+        addDailyTotal(expenseDailyTotals, day, amount);
+      }
+
+      const matchedCategoryIds = new Set<string>();
+      for (const category of transaction.categories) {
+        if (selectedCategoryIds.has(category.id) && !matchedCategoryIds.has(category.id)) {
+          addDailyTotal(categoryDailyTotals.get(category.id)!, day, amount);
+          matchedCategoryIds.add(category.id);
+        }
+      }
+    }
 
     const addSeries = (
       label: string,
       color: string,
-      filter: (c: Category) => boolean,
+      dailyTotals: Map<number, number>,
       lookupPoints: Date[],
       priorYear: boolean,
-      transactionType?: boolean,
     ) => {
       datasets.push({
         label,
-        data: transactionType === undefined
-          ? this.computeTrailing(transactions, lookupPoints, windowDays, filter)
-          : this.computeTrailingByTransactionType(transactions, lookupPoints, windowDays, transactionType),
+        data: this.computeTrailing(dailyTotals, lookupPoints, windowDays),
         borderColor: color,
         backgroundColor: this.hexToRgba(color, 0.08),
         tension: 0.3,
@@ -244,17 +271,18 @@ export class TrendAggregationService {
 
     selection.customCategoryIds.forEach((catId, i) => {
       if (catId === '__income__') {
-        addSeries('Income', INCOME_COLOR, () => false, datePoints, false, true);
-        if (showPriorYear) addSeries('Income (prior year)', INCOME_COLOR, () => false, priorYearPoints, true, true);
+        addSeries('Income', INCOME_COLOR, incomeDailyTotals, datePoints, false);
+        if (showPriorYear) addSeries('Income (prior year)', INCOME_COLOR, incomeDailyTotals, priorYearPoints, true);
       } else if (catId === '__expenses__') {
-        addSeries('Expenses', EXPENSE_COLOR, () => false, datePoints, false, false);
-        if (showPriorYear) addSeries('Expenses (prior year)', EXPENSE_COLOR, () => false, priorYearPoints, true, false);
+        addSeries('Expenses', EXPENSE_COLOR, expenseDailyTotals, datePoints, false);
+        if (showPriorYear) addSeries('Expenses (prior year)', EXPENSE_COLOR, expenseDailyTotals, priorYearPoints, true);
       } else {
         const cat = allCategories.find(c => c.id === catId);
         if (!cat) return;
         const color = CUSTOM_COLORS[i % CUSTOM_COLORS.length];
-        addSeries(cat.categoryName, color, c => c.id === catId, datePoints, false);
-        if (showPriorYear) addSeries(`${cat.categoryName} (prior year)`, color, c => c.id === catId, priorYearPoints, true);
+        const dailyTotals = categoryDailyTotals.get(catId)!;
+        addSeries(cat.categoryName, color, dailyTotals, datePoints, false);
+        if (showPriorYear) addSeries(`${cat.categoryName} (prior year)`, color, dailyTotals, priorYearPoints, true);
         addTarget(cat, color);
       }
     });

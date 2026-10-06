@@ -10,13 +10,14 @@ import { ButtonDirective, ButtonIcon, Button } from 'primeng/button';
 import { InputText } from 'primeng/inputtext';
 import { CategoryMultiselectComponent } from '../category-multiselect/category-multiselect.component';
 import { NoCategoriesComponent } from '../no-categories/no-categories.component';
+import { TouchFocusDirective } from '../touch-focus.directive';
 
 @Component({
     selector: 'app-add-edit',
     templateUrl: './add-transaction.component.html',
     styleUrls: ['./add-transaction.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [FormsModule, ReactiveFormsModule, Bind, DatePicker, Ripple, ButtonDirective, ButtonIcon, InputText, CategoryMultiselectComponent, Button, NoCategoriesComponent]
+    imports: [FormsModule, ReactiveFormsModule, Bind, DatePicker, Ripple, ButtonDirective, ButtonIcon, InputText, CategoryMultiselectComponent, Button, NoCategoriesComponent, TouchFocusDirective]
 })
 export class AddTransactionComponent implements OnInit {
   addTransactionForm!: UntypedFormGroup;

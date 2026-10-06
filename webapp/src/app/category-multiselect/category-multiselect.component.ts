@@ -9,6 +9,7 @@ import { Chip } from 'primeng/chip';
 import { InputText } from 'primeng/inputtext';
 import { Ripple } from 'primeng/ripple';
 import { ButtonDirective, ButtonIcon, ButtonLabel } from 'primeng/button';
+import { TouchFocusDirective } from '../touch-focus.directive';
 
 @Component({
     selector: 'app-category-multiselect',
@@ -28,6 +29,7 @@ import { ButtonDirective, ButtonIcon, ButtonLabel } from 'primeng/button';
         FormsModule,
         Chip,
         InputText,
+        TouchFocusDirective,
         Ripple,
         ButtonDirective,
         ButtonIcon,

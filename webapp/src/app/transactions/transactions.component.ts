@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy, HostListener, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, ChangeDetectionStrategy, ElementRef, HostListener, ViewChild } from '@angular/core';
 import { ApiService } from '../api.service';
 import { Transaction } from '../transaction';
 import { ConfirmationService, SelectItem } from 'primeng/api';
@@ -13,6 +13,7 @@ import { ButtonDirective, ButtonIcon, ButtonLabel, Button } from 'primeng/button
 import { Ripple } from 'primeng/ripple';
 import { ConfirmPopup } from 'primeng/confirmpopup';
 import { CurrencyPipe, DatePipe } from '@angular/common';
+import { TouchFocusDirective } from '../touch-focus.directive';
 
 
 @Component({
@@ -20,10 +21,12 @@ import { CurrencyPipe, DatePipe } from '@angular/common';
     templateUrl: './transactions.component.html',
     styleUrls: ['./transactions.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [Bind, Table, SortableColumn, SortIcon, EditableRow, CellEditor, DatePicker, FormsModule, CategoryMultiselectComponent, InputText, ButtonDirective, Ripple, InitEditableRow, ButtonIcon, SaveEditableRow, CancelEditableRow, ConfirmPopup, ButtonLabel, Button, CurrencyPipe, DatePipe]
+    imports: [Bind, Table, SortableColumn, SortIcon, EditableRow, CellEditor, DatePicker, FormsModule, CategoryMultiselectComponent, InputText, ButtonDirective, Ripple, InitEditableRow, ButtonIcon, SaveEditableRow, CancelEditableRow, ConfirmPopup, ButtonLabel, Button, CurrencyPipe, DatePipe, TouchFocusDirective]
 })
 export class TransactionsComponent implements OnInit {
   @ViewChild('transactionTable') private transactionTable!: Table;
+  @ViewChild('mobileAmountInput') private mobileAmountInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('mobileDescriptionInput') private mobileDescriptionInput?: ElementRef<HTMLTextAreaElement>;
 
   @Input() transactions!: Transaction[];
   @Input() categories: Category[] = [];
@@ -51,6 +54,10 @@ export class TransactionsComponent implements OnInit {
   mobileActionField: 'date' | 'category' | 'amount' | 'description' | null = null;
   private holdTimer: ReturnType<typeof setTimeout> | null = null;
   private holdTriggered: boolean = false;
+  private mobilePointerId: number | null = null;
+  private mobilePointerStartX = 0;
+  private mobilePointerStartY = 0;
+  private mobilePointerMoved = false;
   private lastTapAt: number = 0;
   private lastTapKey: string = '';
   private categoryTapTimer: ReturnType<typeof setTimeout> | null = null;
@@ -168,20 +175,66 @@ export class TransactionsComponent implements OnInit {
     }
   }
 
-  startMobileEditHold(transaction: Transaction, field: 'date' | 'category' | 'amount' | 'description') {
+  startMobileEditHold(
+    transaction: Transaction,
+    field: 'date' | 'category' | 'amount' | 'description',
+    event: PointerEvent,
+  ) {
     if (!this.isMobile()) {
       return;
     }
 
     this.cancelMobileEditHold();
     this.holdTriggered = false;
+    this.mobilePointerId = event.pointerId;
+    this.mobilePointerStartX = event.clientX;
+    this.mobilePointerStartY = event.clientY;
+    this.mobilePointerMoved = false;
     this.holdTimer = setTimeout(() => {
+      if (this.mobilePointerMoved) {
+        return;
+      }
       this.holdTriggered = true;
       this.mobileActionTarget = transaction;
       this.mobileActionField = field;
       this.mobileActionsVisible = true;
       this.activateDialogHistory();
     }, 450);
+  }
+
+  startMobileEditTouchHold(
+    transaction: Transaction,
+    field: 'date' | 'category' | 'amount' | 'description',
+    event: TouchEvent,
+  ): void {
+    const touch = event.changedTouches[0];
+    if (!touch) {
+      return;
+    }
+
+    this.startMobileEditHold(transaction, field, this.touchToPointerEvent(event, touch));
+  }
+
+  onMobileEditPointerMove(event: PointerEvent): void {
+    if (event.pointerId !== this.mobilePointerId || this.mobilePointerMoved) {
+      return;
+    }
+
+    const distance = Math.hypot(
+      event.clientX - this.mobilePointerStartX,
+      event.clientY - this.mobilePointerStartY,
+    );
+    if (distance > 10) {
+      this.mobilePointerMoved = true;
+      this.cancelMobileEditHold();
+    }
+  }
+
+  onMobileEditTouchMove(event: TouchEvent): void {
+    const touch = event.changedTouches[0];
+    if (touch) {
+      this.onMobileEditPointerMove(this.touchToPointerEvent(event, touch));
+    }
   }
 
   editMobileActionField(): void {
@@ -225,28 +278,50 @@ export class TransactionsComponent implements OnInit {
     }
   }
 
+  suppressMobileTriggerClick(event: Event): void {
+    if (!this.isMobile()) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
   onMobileEditPointerUp(
     transaction: Transaction,
     field: 'date' | 'category' | 'amount' | 'description',
-    event: Event
+    event: Event,
+    fromTouchEvent = false,
   ): void {
     if (!this.isMobile()) {
       return;
     }
 
+    const pointerEvent = event as PointerEvent;
+    if (pointerEvent.pointerType === 'touch' && !fromTouchEvent) {
+      return;
+    }
+
     this.cancelMobileEditHold();
 
+    if (this.mobilePointerMoved) {
+      this.resetMobilePointer();
+      return;
+    }
+
     if (this.consumeDismissedOverlayPointer(event)) {
+      this.resetMobilePointer();
       return;
     }
 
     if (this.holdTriggered) {
       this.holdTriggered = false;
+      this.resetMobilePointer();
       return;
     }
 
-    const pointerEvent = event as PointerEvent;
     if (pointerEvent.pointerType === 'mouse') {
+      this.resetMobilePointer();
       return;
     }
 
@@ -260,6 +335,7 @@ export class TransactionsComponent implements OnInit {
       event.preventDefault();
       event.stopPropagation();
       setTimeout(() => this.openMobileFieldEditor(transaction, field));
+      this.resetMobilePointer();
       return;
     }
 
@@ -272,6 +348,23 @@ export class TransactionsComponent implements OnInit {
         this.openCategoryDialog(transaction.categories);
         this.categoryTapTimer = null;
       }, 320);
+    }
+    this.resetMobilePointer();
+  }
+
+  onMobileEditTouchEnd(
+    transaction: Transaction,
+    field: 'date' | 'category' | 'amount' | 'description',
+    event: TouchEvent,
+  ): void {
+    const touch = event.changedTouches[0];
+    if (touch) {
+      this.onMobileEditPointerUp(
+        transaction,
+        field,
+        this.touchToPointerEvent(event, touch),
+        true,
+      );
     }
   }
 
@@ -295,6 +388,16 @@ export class TransactionsComponent implements OnInit {
     this.mobileEditDescription = transaction.transactionDescription ?? '';
     this.mobileEditDialogVisible = true;
     this.activateDialogHistory();
+
+    if (field === 'amount' || field === 'description') {
+      setTimeout(() => {
+        const input = field === 'amount'
+          ? this.mobileAmountInput?.nativeElement
+          : this.mobileDescriptionInput?.nativeElement;
+        input?.focus({ preventScroll: true });
+        input?.select();
+      });
+    }
   }
 
   get mobileEditDialogTitle(): string {
@@ -352,6 +455,10 @@ export class TransactionsComponent implements OnInit {
       return;
     }
 
+    const activeElement = document.activeElement;
+    if (activeElement instanceof HTMLElement) {
+      activeElement.blur();
+    }
     this.saveMobileFieldEdit();
   }
 
@@ -371,9 +478,31 @@ export class TransactionsComponent implements OnInit {
       return;
     }
 
+    this.dismissMobileOverlay(event, overlay, event.pointerId);
+  }
+
+  onMobileOverlayTouchStart(
+    event: TouchEvent,
+    overlay: 'actions' | 'edit' | 'description' | 'category'
+  ): void {
+    if (event.target !== event.currentTarget) {
+      return;
+    }
+
+    const touch = event.changedTouches[0];
+    if (touch) {
+      this.dismissMobileOverlay(event, overlay, touch.identifier);
+    }
+  }
+
+  private dismissMobileOverlay(
+    event: Event,
+    overlay: 'actions' | 'edit' | 'description' | 'category',
+    pointerId: number,
+  ): void {
     event.preventDefault();
     event.stopPropagation();
-    this.dismissedOverlayPointerId = event.pointerId;
+    this.dismissedOverlayPointerId = pointerId;
     this.cancelPendingCategoryTap();
     this.cancelPendingDescriptionTap();
 
@@ -423,27 +552,40 @@ export class TransactionsComponent implements OnInit {
   onDescriptionPointerUp(
     transaction: Transaction,
     event: Event,
-    description: string | null | undefined
+    description: string | null | undefined,
+    fromTouchEvent = false,
   ): void {
     if (!this.isMobile()) {
       return;
     }
 
+    const pointerEvent = event as PointerEvent;
+    if (pointerEvent.pointerType === 'touch' && !fromTouchEvent) {
+      return;
+    }
+
     this.cancelMobileEditHold();
 
+    if (this.mobilePointerMoved) {
+      this.resetMobilePointer();
+      return;
+    }
+
     if (this.consumeDismissedOverlayPointer(event)) {
+      this.resetMobilePointer();
       return;
     }
 
     if (this.holdTriggered) {
       this.holdTriggered = false;
       event.preventDefault();
+      this.resetMobilePointer();
       return;
     }
 
-    const pointerEvent = event as PointerEvent;
     if (pointerEvent.pointerType === 'mouse') {
       this.openDescriptionDialog(event, description);
+      this.resetMobilePointer();
       return;
     }
 
@@ -459,6 +601,7 @@ export class TransactionsComponent implements OnInit {
       event.preventDefault();
       event.stopPropagation();
       setTimeout(() => this.openMobileFieldEditor(transaction, 'description'));
+      this.resetMobilePointer();
       return;
     }
 
@@ -469,6 +612,39 @@ export class TransactionsComponent implements OnInit {
       this.openDescriptionDialog(event, description);
       this.descriptionTapTimer = null;
     }, 320);
+    this.resetMobilePointer();
+  }
+
+  onDescriptionTouchEnd(
+    transaction: Transaction,
+    event: TouchEvent,
+    description: string | null | undefined,
+  ): void {
+    const touch = event.changedTouches[0];
+    if (touch) {
+      this.onDescriptionPointerUp(
+        transaction,
+        this.touchToPointerEvent(event, touch),
+        description,
+        true,
+      );
+    }
+  }
+
+  private resetMobilePointer(): void {
+    this.mobilePointerId = null;
+    this.mobilePointerMoved = false;
+  }
+
+  private touchToPointerEvent(event: TouchEvent, touch: Touch): PointerEvent {
+    return {
+      pointerId: touch.identifier,
+      pointerType: 'touch',
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+      preventDefault: () => event.preventDefault(),
+      stopPropagation: () => event.stopPropagation(),
+    } as PointerEvent;
   }
 
   private cancelPendingDescriptionTap(): void {

@@ -61,7 +61,12 @@
           Start Y Axis at 0
         </label>
       </div>
-      <div class="chart-container scrub-enabled" (pointerdown)="onChartScrubStart(1, $event)">
+      <div class="chart-container scrub-enabled"
+        (pointerdown)="onChartScrubStart(1, $event)"
+        (touchstart)="onChartTouchStart(1, $event)"
+        (touchmove)="onChartTouchMove($event)"
+        (touchend)="onChartTouchEnd($event)"
+        (touchcancel)="onChartTouchEnd($event)">
         <canvas baseChart [data]="chart1Data" [options]="chart1Options" type="line"></canvas>
       </div>
     </p-card>
@@ -87,7 +92,12 @@
           Start Y Axis at 0
         </label>
       </div>
-      <div class="chart-container scrub-enabled" (pointerdown)="onChartScrubStart(2, $event)">
+      <div class="chart-container scrub-enabled"
+        (pointerdown)="onChartScrubStart(2, $event)"
+        (touchstart)="onChartTouchStart(2, $event)"
+        (touchmove)="onChartTouchMove($event)"
+        (touchend)="onChartTouchEnd($event)"
+        (touchcancel)="onChartTouchEnd($event)">
         <ng-container *ngIf="!annualDateOnlyScrub; else annualScrubPreview">
           <canvas baseChart [data]="chart2Data" [options]="chart2Options" type="line"></canvas>
         </ng-container>

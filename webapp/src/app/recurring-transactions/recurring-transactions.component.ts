@@ -19,6 +19,7 @@ import { Ripple } from 'primeng/ripple';
 import { NgTemplateOutlet, CurrencyPipe, DatePipe } from '@angular/common';
 import { TransactionsComponent } from '../transactions/transactions.component';
 import { Dialog } from 'primeng/dialog';
+import { TouchFocusDirective } from '../touch-focus.directive';
 
 type RecurrenceUnit = 'days' | 'weeks' | 'months';
 
@@ -35,6 +36,7 @@ type RecurrenceUnit = 'days' | 'weeks' | 'months';
         DatePicker,
         Checkbox,
         InputText,
+        TouchFocusDirective,
         Select,
         CategoryMultiselectComponent,
         Button,

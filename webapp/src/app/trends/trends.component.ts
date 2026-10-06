@@ -497,7 +497,11 @@ export class TrendsComponent implements OnInit {
     };
   }
 
-  onChartScrubStart(chartNum: 1 | 2, event: PointerEvent): void {
+  onChartScrubStart(chartNum: 1 | 2, event: PointerEvent, fromTouchEvent = false): void {
+    if (event.pointerType === 'touch' && !fromTouchEvent) {
+      return;
+    }
+
     this.scrubPendingChart = chartNum;
     this.scrubPointerDownX = event.clientX;
     this.scrubPointerDownY = event.clientY;
@@ -512,6 +516,13 @@ export class TrendsComponent implements OnInit {
     const spanEnd = chartNum === 1 ? this.chart1End : this.chart2End;
     this.activeScrubSpanDays = Math.max(1, Math.round((spanEnd.getTime() - spanStart.getTime()) / msPerDay));
     // Don't activate scrub mode yet — wait until drag threshold is crossed
+  }
+
+  onChartTouchStart(chartNum: 1 | 2, event: TouchEvent): void {
+    const touch = event.changedTouches[0];
+    if (touch) {
+      this.onChartScrubStart(chartNum, this.touchToPointerEvent(event, touch), true);
+    }
   }
 
   private activateScrub(chartNum: 1 | 2): void {
@@ -531,26 +542,30 @@ export class TrendsComponent implements OnInit {
   }
 
   @HostListener('window:pointermove', ['$event'])
-  onGlobalPointerMove(event: PointerEvent): void {
+  onGlobalPointerMove(event: PointerEvent, fromTouchEvent = false): void {
+    if (event.pointerType === 'touch' && !fromTouchEvent) {
+      return;
+    }
+
     // Activate scrub only after drag threshold (prevents tap from entering scrub mode)
     if (this.scrubPendingChart !== null && this.activeScrubChart === null) {
       const dx = Math.abs(event.clientX - this.scrubPointerDownX);
       const dy = Math.abs(event.clientY - this.scrubPointerDownY);
       if (dy > dx) {
-        // Primarily vertical — scroll the page manually and do not scrub
-        window.scrollBy(0, -(event.clientY - this.scrubPointerDownY));
-        this.scrubPointerDownX = event.clientX;
-        this.scrubPointerDownY = event.clientY;
-        this.scrubStartX = event.clientX;
+        // Native vertical scrolling owns this gesture.
+        this.scrubPendingChart = null;
+        this.scrubCanvas = null;
         return;
       }
       if (dx > 8) {
+        event.preventDefault();
         this.activateScrub(this.scrubPendingChart);
       } else {
         return;
       }
     }
     if (this.activeScrubChart === null) return;
+    event.preventDefault();
 
     const delta = event.clientX - this.scrubStartX;
     this.scrubStartX = event.clientX;
@@ -565,8 +580,19 @@ export class TrendsComponent implements OnInit {
     this.shiftChartWindow(this.activeScrubChart, -dayShift);
   }
 
+  onChartTouchMove(event: TouchEvent): void {
+    const touch = event.changedTouches[0];
+    if (touch) {
+      this.onGlobalPointerMove(this.touchToPointerEvent(event, touch), true);
+    }
+  }
+
   @HostListener('window:pointerup', ['$event'])
-  onGlobalPointerUp(event: PointerEvent): void {
+  onGlobalPointerUp(event: PointerEvent, fromTouchEvent = false): void {
+    if (event.pointerType === 'touch' && !fromTouchEvent) {
+      return;
+    }
+
     const wasTap = this.scrubPendingChart !== null && this.activeScrubChart === null;
 
     if (this.activeScrubChart === 1) {
@@ -599,9 +625,27 @@ export class TrendsComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  onChartTouchEnd(event: TouchEvent): void {
+    const touch = event.changedTouches[0];
+    if (touch) {
+      this.onGlobalPointerUp(this.touchToPointerEvent(event, touch), true);
+    }
+  }
+
   @HostListener('window:pointercancel')
   onGlobalPointerCancel(): void {
     this.onGlobalPointerUp(new PointerEvent('pointercancel'));
+  }
+
+  private touchToPointerEvent(event: TouchEvent, touch: Touch): PointerEvent {
+    return {
+      pointerId: touch.identifier,
+      pointerType: 'touch',
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+      currentTarget: event.currentTarget,
+      preventDefault: () => event.preventDefault(),
+    } as PointerEvent;
   }
 
   private shiftChartWindow(chartNum: 1 | 2, shiftDays: number): void {

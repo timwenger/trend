@@ -31,6 +31,7 @@
       <div class="category-filter-input-wrap">
         <input pInputText type="text" class="category-filter-input" placeholder="Search"
           [readOnly]="mobileFilterReadOnly" (pointerdown)="enableMobileFilter($event)"
+          (touchstart)="enableMobileFilter($event)"
           (click)="enableMobileFilter($event)"
           [value]="filterText" (input)="onFilterInput($event)"
           (keydown)="onFilterKeyDown($event)"

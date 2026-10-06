@@ -15,6 +15,7 @@ import { Ripple } from 'primeng/ripple';
 import { ConfirmPopup } from 'primeng/confirmpopup';
 import { NgTemplateOutlet, CurrencyPipe, DatePipe } from '@angular/common';
 import { Dialog } from 'primeng/dialog';
+import { TouchFocusDirective } from '../touch-focus.directive';
 
 interface ManagedCategory extends Category {
   dateLastUsed: Date | null;
@@ -25,7 +26,7 @@ interface ManagedCategory extends Category {
     templateUrl: './manage-categories.component.html',
     styleUrls: ['./manage-categories.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [FormsModule, ReactiveFormsModule, Bind, InputText, RadioButton, Checkbox, Button, Table, SortableColumn, SortIcon, EditableRow, CellEditor, ButtonDirective, Ripple, InitEditableRow, ButtonIcon, SaveEditableRow, CancelEditableRow, ConfirmPopup, ButtonLabel, NgTemplateOutlet, Dialog, CurrencyPipe, DatePipe]
+    imports: [FormsModule, ReactiveFormsModule, Bind, InputText, RadioButton, Checkbox, Button, Table, SortableColumn, SortIcon, EditableRow, CellEditor, ButtonDirective, Ripple, InitEditableRow, ButtonIcon, SaveEditableRow, CancelEditableRow, ConfirmPopup, ButtonLabel, NgTemplateOutlet, Dialog, CurrencyPipe, DatePipe, TouchFocusDirective]
 })
 export class ManageCategoriesComponent implements OnInit {
   addCategoryForm!: UntypedFormGroup;

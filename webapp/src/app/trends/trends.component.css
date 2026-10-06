@@ -203,7 +203,8 @@
 
 .scrub-enabled {
   cursor: grab;
-  touch-action: none;
+  touch-action: pan-y;
+  overscroll-behavior-x: contain;
 }
 
 .scrub-enabled:active {
