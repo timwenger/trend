@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AuthService } from '@auth0/auth0-angular';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { TopBarComponent } from './top-bar.component';
@@ -12,7 +13,8 @@ describe('TopBarComponent', () => {
     await TestBed.configureTestingModule({
       imports: [TopBarComponent],
       providers: [
-        { provide: AuthService, useValue: { isAuthenticated$: of(false) } }
+        { provide: AuthService, useValue: { isAuthenticated$: of(true) } },
+        provideRouter([]),
       ]
     })
     .compileComponents();
@@ -39,5 +41,26 @@ describe('TopBarComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('uses exact route matching for navigation items', () => {
+    const navigationItems = component.menuItems.filter(item => item.routerLink);
+
+    expect(navigationItems.every(item => item.routerLinkActiveOptions?.exact)).toBe(true);
+  });
+
+  it('closes the mobile menu when touching outside it', () => {
+    const hide = vi.fn();
+    component['menubar'] = { mobileActive: true, hide } as never;
+    const outside = document.createElement('div');
+    document.body.appendChild(outside);
+    const event = new TouchEvent('touchstart');
+    Object.defineProperty(event, 'target', { value: outside });
+
+    component.onDocumentTouchStart(event);
+
+    expect(component['menubar'].mobileActive).toBe(false);
+    expect(hide).toHaveBeenCalledWith(event);
+    outside.remove();
   });
 });

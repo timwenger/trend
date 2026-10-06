@@ -1,8 +1,8 @@
-<div class="top-bar-container" [class.logged-out]="!isLoggedIn">
+<div class="top-bar-container">
   <div class="top-bar-title">
     <h1>Trend</h1>
   </div>
-  <p-menubar [model]="menuItems">
+  <p-menubar #menubar [model]="menuItems">
     <ng-template #end>
       @if (!this.isLoggedIn) {
         <button pButton class="login-button" (click)="login()">

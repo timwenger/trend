@@ -54,20 +54,17 @@ p-menubar {
 
   .top-bar-title {
     position: absolute;
-    left: 50px;
+    right: 1rem;
     top: 50%;
     transform: translateY(-50%);
     z-index: 1001;
+    text-align: right;
   }
 
   .top-bar-title h1 {
     font-size: 1.4rem;
     margin: 0;
     padding: 0;
-  }
-
-  .top-bar-container.logged-out .top-bar-title {
-    left: 175px;
   }
 
   p-menubar {
@@ -139,6 +136,14 @@ p-menubar {
   }
 
   :host ::ng-deep .p-menubar .p-menuitem > .p-menuitem-content:hover {
+    background: #2a2a2a !important;
+  }
+
+  :host ::ng-deep .p-menubar .p-menubar-item.p-focus:not(:has(.p-menubar-item-link-active)) > .p-menubar-item-content {
+    background: transparent !important;
+  }
+
+  :host ::ng-deep .p-menubar .p-menubar-item-link-active {
     background: #2a2a2a !important;
   }
 
