@@ -13,6 +13,7 @@ import { Button } from 'primeng/button';
 import { DatePicker } from 'primeng/datepicker';
 import { Checkbox } from 'primeng/checkbox';
 import { BaseChartDirective } from 'ng2-charts';
+import { DatePickerTouchDismissDirective } from '../datepicker-touch-dismiss.directive';
 
 interface AxisBounds {
   yMin?: number;
@@ -34,6 +35,7 @@ interface AxisBounds {
         FormsModule,
         Button,
         DatePicker,
+        DatePickerTouchDismissDirective,
         Checkbox,
         BaseChartDirective,
         NgFor,

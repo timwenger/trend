@@ -1,5 +1,6 @@
 <p-multiselect #multiSelect class="w-full"
   (pointerdown)="prepareMobilePanel()"
+  (touchstart)="prepareMobilePanel()"
   [options]="filteredOptions"
   optionLabel="categoryName"
   display="chip"

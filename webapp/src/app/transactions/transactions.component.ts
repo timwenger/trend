@@ -14,6 +14,7 @@ import { Ripple } from 'primeng/ripple';
 import { ConfirmPopup } from 'primeng/confirmpopup';
 import { CurrencyPipe, DatePipe } from '@angular/common';
 import { TouchFocusDirective } from '../touch-focus.directive';
+import { DatePickerTouchDismissDirective } from '../datepicker-touch-dismiss.directive';
 
 
 @Component({
@@ -21,7 +22,7 @@ import { TouchFocusDirective } from '../touch-focus.directive';
     templateUrl: './transactions.component.html',
     styleUrls: ['./transactions.component.css'],
     changeDetection: ChangeDetectionStrategy.Eager,
-    imports: [Bind, Table, SortableColumn, SortIcon, EditableRow, CellEditor, DatePicker, FormsModule, CategoryMultiselectComponent, InputText, ButtonDirective, Ripple, InitEditableRow, ButtonIcon, SaveEditableRow, CancelEditableRow, ConfirmPopup, ButtonLabel, Button, CurrencyPipe, DatePipe, TouchFocusDirective]
+    imports: [Bind, Table, SortableColumn, SortIcon, EditableRow, CellEditor, DatePicker, FormsModule, CategoryMultiselectComponent, InputText, ButtonDirective, Ripple, InitEditableRow, ButtonIcon, SaveEditableRow, CancelEditableRow, ConfirmPopup, ButtonLabel, Button, CurrencyPipe, DatePipe, TouchFocusDirective, DatePickerTouchDismissDirective]
 })
 export class TransactionsComponent implements OnInit {
   @ViewChild('transactionTable') private transactionTable!: Table;
@@ -184,6 +185,7 @@ export class TransactionsComponent implements OnInit {
       return;
     }
 
+    this.dismissedOverlayPointerId = null;
     this.cancelMobileEditHold();
     this.holdTriggered = false;
     this.mobilePointerId = event.pointerId;

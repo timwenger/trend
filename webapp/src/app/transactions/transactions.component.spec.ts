@@ -90,6 +90,37 @@ describe('TransactionsComponent', () => {
     expect(event.preventDefault).toHaveBeenCalled();
     expect(event.stopPropagation).toHaveBeenCalled();
   });
+
+  it('does not consume the first tap after dismissing an overlay', () => {
+    vi.useFakeTimers();
+    vi.spyOn(component, 'isMobile').mockReturnValue(true);
+    component.mobileActionsVisible = true;
+    const backdrop = {};
+    component.onMobileOverlayTouchStart({
+      target: backdrop,
+      currentTarget: backdrop,
+      changedTouches: [{ identifier: 7 }],
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+    } as unknown as TouchEvent, 'actions');
+    const transaction = createTransaction();
+
+    component.startMobileEditHold(
+      transaction,
+      'description',
+      pointerEvent('pointerdown', 7, 20, 20),
+    );
+    component.onDescriptionPointerUp(
+      transaction,
+      pointerEvent('pointerup', 7, 20, 20),
+      transaction.transactionDescription,
+      true,
+    );
+    vi.advanceTimersByTime(320);
+
+    expect(component.descriptionDialogVisible).toBe(true);
+    vi.useRealTimers();
+  });
 });
 
 function pointerEvent(type: string, pointerId: number, clientX: number, clientY: number): PointerEvent {

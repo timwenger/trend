@@ -66,6 +66,10 @@ p-menubar {
     padding: 0;
   }
 
+  .top-bar-container.logged-out .top-bar-title {
+    left: 175px;
+  }
+
   p-menubar {
     position: absolute;
     left: 0;

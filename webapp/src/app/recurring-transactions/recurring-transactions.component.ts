@@ -20,6 +20,7 @@ import { NgTemplateOutlet, CurrencyPipe, DatePipe } from '@angular/common';
 import { TransactionsComponent } from '../transactions/transactions.component';
 import { Dialog } from 'primeng/dialog';
 import { TouchFocusDirective } from '../touch-focus.directive';
+import { DatePickerTouchDismissDirective } from '../datepicker-touch-dismiss.directive';
 
 type RecurrenceUnit = 'days' | 'weeks' | 'months';
 
@@ -37,6 +38,7 @@ type RecurrenceUnit = 'days' | 'weeks' | 'months';
         Checkbox,
         InputText,
         TouchFocusDirective,
+        DatePickerTouchDismissDirective,
         Select,
         CategoryMultiselectComponent,
         Button,
@@ -71,6 +73,8 @@ export class RecurringTransactionsComponent implements OnInit {
 
   allCategories: Category[] = [];
   transactionRules: TransactionRule[] = [];
+  activeRules: TransactionRule[] = [];
+  inactiveRules: TransactionRule[] = [];
   pendingTransactions: Transaction[] = [];
   editingRule: TransactionRule | null = null;
   reactivationTarget: TransactionRule | null = null;
@@ -105,14 +109,6 @@ export class RecurringTransactionsComponent implements OnInit {
         this.ruleForm.controls.endDate.disable();
       }
     });
-  }
-
-  get activeRules(): TransactionRule[] {
-    return this.transactionRules.filter(rule => !rule.isInactive);
-  }
-
-  get inactiveRules(): TransactionRule[] {
-    return this.transactionRules.filter(rule => rule.isInactive);
   }
 
   get isEditingRule(): boolean {
@@ -456,16 +452,22 @@ export class RecurringTransactionsComponent implements OnInit {
       })))
       .subscribe(({ categories, rules, pending }) => {
         this.allCategories = categories;
-        this.transactionRules = this.normalizeRules(rules);
+        this.setTransactionRules(rules);
         this.setPendingTransactions(pending);
       });
   }
 
   private loadRulesAndPending(): void {
     this.apiService.getTransactionRules().subscribe(rules => {
-      this.transactionRules = this.normalizeRules(rules);
+      this.setTransactionRules(rules);
       this.loadPending();
     });
+  }
+
+  private setTransactionRules(rules: TransactionRule[]): void {
+    this.transactionRules = this.normalizeRules(rules);
+    this.activeRules = this.transactionRules.filter(rule => !rule.isInactive);
+    this.inactiveRules = this.transactionRules.filter(rule => rule.isInactive);
   }
 
   private loadPending(): void {

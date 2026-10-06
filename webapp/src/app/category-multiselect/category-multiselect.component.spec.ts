@@ -5,6 +5,30 @@ import { Category } from '../category';
 import { CategoryMultiselectComponent } from './category-multiselect.component';
 
 describe('CategoryMultiselectComponent', () => {
+  it('disables the hidden trigger input before a mobile category panel opens', () => {
+    vi.stubGlobal('window', {
+      matchMedia: () => ({ matches: true }),
+    });
+    const triggerInput = document.createElement('input');
+    const blur = vi.spyOn(triggerInput, 'blur');
+    const component = new CategoryMultiselectComponent(
+      {
+        nativeElement: {
+          querySelector: () => triggerInput,
+        },
+      } as never,
+      {} as never,
+      {} as never,
+    );
+
+    component.prepareMobilePanel();
+
+    expect(triggerInput.readOnly).toBe(true);
+    expect(triggerInput.inputMode).toBe('none');
+    expect(blur).toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
   it('puts additional options above pinned and active categories', () => {
     vi.stubGlobal('window', {
       matchMedia: () => ({ matches: false }),
