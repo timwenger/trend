@@ -25,6 +25,7 @@ export class AddTransactionComponent implements OnInit {
   allCategories: Category[] = [];
   noCategories: boolean = false;
   @Output() transactionAdded = new EventEmitter<Transaction>();
+  @Output() keyboardNavigationReady = new EventEmitter<void>();
 
   constructor(
     private apiService: ApiService,
@@ -37,6 +38,7 @@ export class AddTransactionComponent implements OnInit {
         this.allCategories = categoriesReturned;
         // only create the form after the categories have been fetched.
         this.createForm();
+        setTimeout(() => this.keyboardNavigationReady.emit());
         if(categoriesReturned.length ==0)
           this.noCategories = true;
       });

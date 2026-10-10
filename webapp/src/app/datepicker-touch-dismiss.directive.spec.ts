@@ -82,4 +82,21 @@ describe('DatePickerTouchDismissDirective', () => {
 
     expect(hideOverlay).not.toHaveBeenCalled();
   });
+
+  it('removes only the datepicker trigger from the tab order when requested', () => {
+    const host = document.createElement('div');
+    const input = document.createElement('input');
+    const button = document.createElement('button');
+    host.append(input, button);
+    const directive = new DatePickerTouchDismissDirective(
+      {} as never,
+      new ElementRef(host),
+    );
+    directive.skipTriggerTab = true;
+
+    directive.ngAfterViewInit();
+
+    expect(input.tabIndex).toBe(0);
+    expect(button.tabIndex).toBe(-1);
+  });
 });

@@ -66,6 +66,27 @@ describe('CategoryMultiselectComponent', () => {
     vi.unstubAllGlobals();
   });
 
+  it('keeps selected category remove controls out of the tab order', () => {
+    vi.stubGlobal('window', {
+      matchMedia: () => ({ matches: false }),
+    });
+    const host = document.createElement('div');
+    const removeControl = document.createElement('span');
+    removeControl.className = 'p-chip-remove-icon';
+    removeControl.tabIndex = 0;
+    host.appendChild(removeControl);
+    const component = new CategoryMultiselectComponent(
+      { nativeElement: host } as never,
+      {} as never,
+      {} as never,
+    );
+
+    component.ngAfterViewChecked();
+
+    expect(removeControl.tabIndex).toBe(-1);
+    vi.unstubAllGlobals();
+  });
+
   it('makes a category inactive from its dropdown option', () => {
     const category = createCategory('category', 'Category');
     const apiService = {

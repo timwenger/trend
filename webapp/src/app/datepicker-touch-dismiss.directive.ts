@@ -1,14 +1,21 @@
-import { Directive, ElementRef, HostListener } from '@angular/core';
+import { AfterViewInit, booleanAttribute, Directive, ElementRef, HostListener, Input } from '@angular/core';
 import { DatePicker } from 'primeng/datepicker';
 
 @Directive({
   selector: 'p-datepicker',
 })
-export class DatePickerTouchDismissDirective {
+export class DatePickerTouchDismissDirective implements AfterViewInit {
+  @Input({ transform: booleanAttribute }) skipTriggerTab: boolean = false;
+
   constructor(
     private readonly datePicker: DatePicker,
     private readonly elementRef: ElementRef<HTMLElement>,
   ) {}
+
+  ngAfterViewInit(): void {
+    this.updateTabOrder();
+    queueMicrotask(() => this.updateTabOrder());
+  }
 
   @HostListener('touchstart')
   preventMobileKeyboard(): void {
@@ -59,5 +66,15 @@ export class DatePickerTouchDismissDirective {
 
   private getInput(): HTMLInputElement | null {
     return this.elementRef.nativeElement.querySelector('input');
+  }
+
+  private updateTabOrder(): void {
+    if (!this.skipTriggerTab) {
+      return;
+    }
+
+    this.elementRef.nativeElement
+      .querySelectorAll<HTMLElement>('button')
+      .forEach(element => element.tabIndex = -1);
   }
 }

@@ -2,6 +2,7 @@ import '@angular/compiler';
 import { TransactionsFilterComponent } from './transactions-filter.component';
 import { Category } from '../category';
 import { Transaction } from '../transaction';
+import { ElementRef } from '@angular/core';
 
 describe('TransactionsFilterComponent', () => {
   it('builds a category filter for a single Either category', () => {
@@ -76,10 +77,55 @@ describe('TransactionsFilterComponent', () => {
 
     expect(component.selectedCategoryTargets).toEqual([]);
   });
+
+  it('wraps Tab from the last filter control to the previous-date button', () => {
+    const { component, host } = createComponentWithHost();
+    const first = addFirstDateInput(host);
+    const last = addButton(host, 'find-submit');
+    const focus = vi.spyOn(first, 'focus');
+    const activeElement = vi.spyOn(document, 'activeElement', 'get').mockReturnValue(last);
+    const event = new KeyboardEvent('keydown', { key: 'Tab', cancelable: true });
+
+    component.wrapKeyboardNavigation(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(focus).toHaveBeenCalledOnce();
+    activeElement.mockRestore();
+    host.remove();
+  });
+
+  it('wraps Shift+Tab from the previous-date button to the last filter control', () => {
+    const { component, host } = createComponentWithHost();
+    const first = addFirstDateInput(host);
+    const last = addButton(host, 'find-submit');
+    const focus = vi.spyOn(last, 'focus');
+    const activeElement = vi.spyOn(document, 'activeElement', 'get').mockReturnValue(first);
+    const event = new KeyboardEvent('keydown', {
+      key: 'Tab',
+      shiftKey: true,
+      cancelable: true,
+    });
+
+    component.wrapKeyboardNavigation(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(focus).toHaveBeenCalledOnce();
+    activeElement.mockRestore();
+    host.remove();
+  });
 });
 
 function createComponent(): TransactionsFilterComponent {
-  return new TransactionsFilterComponent(
+  return createComponentWithHost().component;
+}
+
+function createComponentWithHost(): {
+  component: TransactionsFilterComponent;
+  host: HTMLElement;
+} {
+  const host = document.createElement('div');
+  document.body.appendChild(host);
+  const component = new TransactionsFilterComponent(
     {} as never,
     {
       getShortDate: (date: Date) =>
@@ -87,7 +133,28 @@ function createComponent(): TransactionsFilterComponent {
     } as never,
     {} as never,
     {} as never,
+    new ElementRef(host),
   );
+  return { component, host };
+}
+
+function addButton(host: HTMLElement, containerClass: string): HTMLButtonElement {
+  const button = document.createElement('button');
+  const container = document.createElement('div');
+  container.className = containerClass;
+  container.appendChild(button);
+  host.appendChild(container);
+  return button;
+}
+
+function addFirstDateInput(host: HTMLElement): HTMLInputElement {
+  const container = document.createElement('div');
+  container.className = 'add-date';
+  const input = document.createElement('input');
+  input.className = 'p-datepicker-input';
+  container.appendChild(input);
+  host.appendChild(container);
+  return input;
 }
 
 function createCategory(id: string, categoryName: string, isIncome: boolean | null): Category {

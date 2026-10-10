@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, forwardRef, Input, OnChanges, OnDestroy, Output, SimpleChanges, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, forwardRef, Input, OnChanges, OnDestroy, Output, SimpleChanges, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { MultiSelect } from 'primeng/multiselect';
 import { Category, compareCategories } from '../category';
@@ -36,7 +36,7 @@ import { TouchFocusDirective } from '../touch-focus.directive';
         ButtonLabel,
     ],
 })
-export class CategoryMultiselectComponent implements AfterViewInit, ControlValueAccessor, OnChanges, OnDestroy {
+export class CategoryMultiselectComponent implements AfterViewChecked, AfterViewInit, ControlValueAccessor, OnChanges, OnDestroy {
   @ViewChild('multiSelect') private multiSelect!: MultiSelect;
 
   @Input() options: Category[] = [];
@@ -117,6 +117,12 @@ export class CategoryMultiselectComponent implements AfterViewInit, ControlValue
       this.disableMobileTriggerInput();
       setTimeout(() => this.disableMobileTriggerInput());
     }
+  }
+
+  ngAfterViewChecked(): void {
+    this.elementRef.nativeElement
+      .querySelectorAll<HTMLElement>('.p-chip-remove-icon')
+      .forEach(element => element.tabIndex = -1);
   }
 
   ngOnDestroy(): void {

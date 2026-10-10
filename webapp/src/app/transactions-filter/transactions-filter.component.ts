@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ElementRef, HostListener } from '@angular/core';
 import { AbstractControl, UntypedFormControl, UntypedFormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ApiService } from '../api.service';
 import { Category, getCategoryTransactionType } from '../category';
@@ -66,6 +66,7 @@ export class TransactionsFilterComponent implements OnInit {
     private utilityService: UtilityService,
     private confirmationService: ConfirmationService,
     private toastService: PrimeMessageService,
+    private elementRef: ElementRef<HTMLElement>,
   ) { }
 
   ngOnInit(): void {
@@ -128,6 +129,57 @@ export class TransactionsFilterComponent implements OnInit {
 
   setMatch(match: 'All' | 'Any'): void {
     this.filterForm.controls['match'].setValue(match);
+  }
+
+  onMatchKeyDown(event: KeyboardEvent): void {
+    let match: 'All' | 'Any' | undefined;
+    if (event.key === 'ArrowLeft' || event.key === 'Home') {
+      match = 'All';
+    } else if (event.key === 'ArrowRight' || event.key === 'End') {
+      match = 'Any';
+    }
+
+    if (!match) {
+      return;
+    }
+
+    event.preventDefault();
+    this.setMatch(match);
+    this.elementRef.nativeElement
+      .querySelector<HTMLButtonElement>(`.find-match-options button[data-match="${match}"]`)
+      ?.focus();
+  }
+
+  focusInitialControl(): void {
+    this.getKeyboardBoundaryControls().first?.focus();
+  }
+
+  @HostListener('keydown', ['$event'])
+  wrapKeyboardNavigation(event: KeyboardEvent): void {
+    if (event.key !== 'Tab') {
+      return;
+    }
+
+    const { first, last } = this.getKeyboardBoundaryControls();
+    const activeElement = document.activeElement;
+    const wrapsBackward = event.shiftKey && activeElement === first;
+    const wrapsForward = !event.shiftKey && activeElement === last;
+    if (!wrapsBackward && !wrapsForward) {
+      return;
+    }
+
+    event.preventDefault();
+    (wrapsBackward ? last : first)?.focus();
+  }
+
+  private getKeyboardBoundaryControls(): {
+    first: HTMLElement | null;
+    last: HTMLElement | null;
+  } {
+    return {
+      first: this.elementRef.nativeElement.querySelector<HTMLElement>('.add-date .p-datepicker-input'),
+      last: this.elementRef.nativeElement.querySelector<HTMLElement>('.find-submit button'),
+    };
   }
 
   onTransactionAdded(newTransaction: Transaction): void {
