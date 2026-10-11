@@ -238,9 +238,23 @@ td {
 		touch-action: none;
 	}
 
+	.mobile-edit-trigger:active,
+	.description-preview:active {
+		animation: mobile-transaction-hold 200ms linear;
+	}
+
 	:host ::ng-deep .mobile-field-dialog,
 	:host ::ng-deep .mobile-description-dialog {
 		margin-top: max(env(safe-area-inset-top), 0.5rem);
+	}
+
+	@keyframes mobile-transaction-hold {
+		from {
+			opacity: 1;
+		}
+		to {
+			opacity: 1;
+		}
 	}
 
 	:host ::ng-deep .mobile-field-dialog .p-dialog-content,

@@ -94,6 +94,20 @@ describe('TransactionsFilterComponent', () => {
     host.remove();
   });
 
+  it('focuses the previous-date button when the page controls become ready', () => {
+    const { component, host } = createComponentWithHost();
+    addFirstDateInput(host);
+    const previousDate = document.createElement('button');
+    previousDate.className = 'date-nav-btn';
+    host.appendChild(previousDate);
+    const focus = vi.spyOn(previousDate, 'focus');
+
+    component.focusInitialControl();
+
+    expect(focus).toHaveBeenCalledOnce();
+    host.remove();
+  });
+
   it('wraps Shift+Tab from the previous-date button to the last filter control', () => {
     const { component, host } = createComponentWithHost();
     const first = addFirstDateInput(host);

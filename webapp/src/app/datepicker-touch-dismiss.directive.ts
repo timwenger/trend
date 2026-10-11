@@ -33,6 +33,20 @@ export class DatePickerTouchDismissDirective implements AfterViewInit {
 
   @HostListener('document:touchstart', ['$event'])
   dismissOnOutsideTouch(event: TouchEvent): void {
+    this.dismissOnOutsideInteraction(event);
+  }
+
+  @HostListener('document:pointerdown', ['$event'])
+  dismissOnOutsidePointerDown(event: PointerEvent): void {
+    this.dismissOnOutsideInteraction(event);
+  }
+
+  @HostListener('document:click', ['$event'])
+  dismissOnOutsideClick(event: MouseEvent): void {
+    this.dismissOnOutsideInteraction(event);
+  }
+
+  private dismissOnOutsideInteraction(event: Event): void {
     if (!this.datePicker.overlayVisible()) {
       return;
     }

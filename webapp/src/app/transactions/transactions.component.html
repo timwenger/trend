@@ -34,7 +34,11 @@
             (touchstart)="startMobileEditTouchHold(transaction, 'date', $event)"
             (touchmove)="onMobileEditTouchMove($event)"
             (touchend)="onMobileEditTouchEnd(transaction, 'date', $event)"
-            (click)="suppressMobileTriggerClick($event)"
+            (mousedown)="startMobileMouseHold(transaction, 'date', $event)"
+            (mousemove)="onMobileMouseMove($event)"
+            (mouseup)="onMobileMouseUp($event)"
+            (click)="onMobileMouseClick(transaction, 'date', $event)"
+            (animationend)="onMobileHoldAnimationEnd(transaction, 'date')"
             (pointerleave)="cancelMobileEditHold()"
             (pointercancel)="cancelMobileEditHold()">
             {{transaction.dateOfTransaction | date}}
@@ -64,7 +68,11 @@
             (touchstart)="startMobileEditTouchHold(transaction, 'category', $event)"
             (touchmove)="onMobileEditTouchMove($event)"
             (touchend)="onMobileEditTouchEnd(transaction, 'category', $event)"
-            (click)="suppressMobileTriggerClick($event)"
+            (mousedown)="startMobileMouseHold(transaction, 'category', $event)"
+            (mousemove)="onMobileMouseMove($event)"
+            (mouseup)="onMobileMouseUp($event)"
+            (click)="onMobileMouseClick(transaction, 'category', $event)"
+            (animationend)="onMobileHoldAnimationEnd(transaction, 'category')"
             (pointerleave)="cancelMobileEditHold()"
             (pointercancel)="cancelMobileEditHold()">
             @for (category of transaction.categories; track category; let last = $last) {
@@ -90,7 +98,11 @@
             (touchstart)="startMobileEditTouchHold(transaction, 'amount', $event)"
             (touchmove)="onMobileEditTouchMove($event)"
             (touchend)="onMobileEditTouchEnd(transaction, 'amount', $event)"
-            (click)="suppressMobileTriggerClick($event)"
+            (mousedown)="startMobileMouseHold(transaction, 'amount', $event)"
+            (mousemove)="onMobileMouseMove($event)"
+            (mouseup)="onMobileMouseUp($event)"
+            (click)="onMobileMouseClick(transaction, 'amount', $event)"
+            (animationend)="onMobileHoldAnimationEnd(transaction, 'amount')"
             (pointerleave)="cancelMobileEditHold()"
             (pointercancel)="cancelMobileEditHold()">
             {{transaction.amount | currency}}
@@ -112,7 +124,11 @@
             (touchstart)="startMobileEditTouchHold(transaction, 'description', $event)"
             (touchmove)="onMobileEditTouchMove($event)"
             (touchend)="onDescriptionTouchEnd(transaction, $event, transaction.transactionDescription)"
-            (click)="suppressMobileTriggerClick($event)"
+            (mousedown)="startMobileMouseHold(transaction, 'description', $event)"
+            (mousemove)="onMobileMouseMove($event)"
+            (mouseup)="onMobileMouseUp($event)"
+            (click)="onMobileMouseClick(transaction, 'description', $event, transaction.transactionDescription)"
+            (animationend)="onMobileHoldAnimationEnd(transaction, 'description')"
             (pointerleave)="cancelMobileEditHold()"
             (pointercancel)="cancelMobileEditHold()">
             @if (transaction.transactionDescription && transaction.transactionDescription.trim().length > 0) {
@@ -181,7 +197,8 @@
 @if (mobileActionsVisible) {
   <div class="mobile-field-overlay mobile-actions-overlay"
     (pointerdown)="onMobileOverlayPointerDown($event, 'actions')"
-    (touchstart)="onMobileOverlayTouchStart($event, 'actions')">
+    (touchstart)="onMobileOverlayTouchStart($event, 'actions')"
+    (click)="onMobileOverlayClick($event, 'actions')">
     <div class="mobile-field-editor mobile-transaction-actions"
       (pointerdown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
       <button pButton type="button" class="w-full"
@@ -203,7 +220,8 @@
 @if (mobileEditDialogVisible && mobileEditField === 'date') {
   <div class="mobile-date-overlay"
     (pointerdown)="onMobileOverlayPointerDown($event, 'edit')"
-    (touchstart)="onMobileOverlayTouchStart($event, 'edit')">
+    (touchstart)="onMobileOverlayTouchStart($event, 'edit')"
+    (click)="onMobileOverlayClick($event, 'edit')">
     <div class="mobile-date-overlay-calendar"
       (pointerdown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
       <p-datepicker [(ngModel)]="mobileEditDate" [inline]="true" [readonlyInput]="true"
@@ -215,7 +233,8 @@
 @if (mobileEditDialogVisible && mobileEditField === 'category') {
   <div class="mobile-category-overlay"
     (pointerdown)="onMobileOverlayPointerDown($event, 'edit')"
-    (touchstart)="onMobileOverlayTouchStart($event, 'edit')">
+    (touchstart)="onMobileOverlayTouchStart($event, 'edit')"
+    (click)="onMobileOverlayClick($event, 'edit')">
     <div class="mobile-category-editor"
       (pointerdown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
       <h3>Edit Categories</h3>
@@ -236,7 +255,8 @@
 @if (mobileEditDialogVisible && mobileEditField === 'amount') {
   <div class="mobile-field-overlay"
     (pointerdown)="onMobileOverlayPointerDown($event, 'edit')"
-    (touchstart)="onMobileOverlayTouchStart($event, 'edit')">
+    (touchstart)="onMobileOverlayTouchStart($event, 'edit')"
+    (click)="onMobileOverlayClick($event, 'edit')">
     <div class="mobile-field-editor"
       (pointerdown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
       <h3>Edit Amount</h3>
@@ -256,7 +276,8 @@
 @if (mobileEditDialogVisible && mobileEditField === 'description') {
   <div class="mobile-field-overlay"
     (pointerdown)="onMobileOverlayPointerDown($event, 'edit')"
-    (touchstart)="onMobileOverlayTouchStart($event, 'edit')">
+    (touchstart)="onMobileOverlayTouchStart($event, 'edit')"
+    (click)="onMobileOverlayClick($event, 'edit')">
     <div class="mobile-field-editor"
       (pointerdown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
       <h3>Edit Description</h3>
@@ -273,7 +294,8 @@
 @if (descriptionDialogVisible) {
   <div class="mobile-field-overlay"
     (pointerdown)="onMobileOverlayPointerDown($event, 'description')"
-    (touchstart)="onMobileOverlayTouchStart($event, 'description')">
+    (touchstart)="onMobileOverlayTouchStart($event, 'description')"
+    (click)="onMobileOverlayClick($event, 'description')">
     <div class="mobile-field-editor"
       (pointerdown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
       <h3>Description</h3>
@@ -288,7 +310,8 @@
 @if (categoryDialogVisible) {
   <div class="mobile-field-overlay"
     (pointerdown)="onMobileOverlayPointerDown($event, 'category')"
-    (touchstart)="onMobileOverlayTouchStart($event, 'category')">
+    (touchstart)="onMobileOverlayTouchStart($event, 'category')"
+    (click)="onMobileOverlayClick($event, 'category')">
     <div class="mobile-field-editor"
       (pointerdown)="$event.stopPropagation()" (click)="$event.stopPropagation()">
       <h3>Categories</h3>

@@ -46,16 +46,175 @@ describe('TransactionsComponent', () => {
     vi.useRealTimers();
   });
 
+  it('opens the mobile editor on a double click in a narrow browser', () => {
+    vi.useFakeTimers();
+    vi.spyOn(component, 'isMobile').mockReturnValue(true);
+    const transaction = createTransaction();
+
+    component.onMobileMouseClick(transaction, 'amount', mouseEvent('click', 1));
+    component.onMobileMouseClick(transaction, 'amount', mouseEvent('click', 2));
+    vi.runAllTimers();
+
+    expect(component.mobileEditDialogVisible).toBe(true);
+    expect(component.mobileEditField).toBe('amount');
+    vi.useRealTimers();
+  });
+
+  it('opens category details on a single click in a narrow browser', () => {
+    vi.useFakeTimers();
+    vi.spyOn(component, 'isMobile').mockReturnValue(true);
+    const transaction = createTransaction();
+
+    component.onMobileMouseClick(transaction, 'category', mouseEvent('click', 1));
+    vi.advanceTimersByTime(320);
+
+    expect(component.categoryDialogVisible).toBe(true);
+    vi.useRealTimers();
+  });
+
+  it('opens description details on a single click in a narrow browser', () => {
+    vi.useFakeTimers();
+    vi.spyOn(component, 'isMobile').mockReturnValue(true);
+    const transaction = createTransaction();
+
+    component.onMobileMouseClick(
+      transaction,
+      'description',
+      mouseEvent('click', 1),
+      transaction.transactionDescription,
+    );
+    vi.advanceTimersByTime(320);
+
+    expect(component.descriptionDialogVisible).toBe(true);
+    vi.useRealTimers();
+  });
+
   it('opens mobile actions after a stationary hold', () => {
     vi.useFakeTimers();
     vi.spyOn(component, 'isMobile').mockReturnValue(true);
     const transaction = createTransaction();
 
     component.startMobileEditHold(transaction, 'description', pointerEvent('pointerdown', 1, 20, 20));
-    vi.advanceTimersByTime(450);
+    vi.advanceTimersByTime(199);
+    expect(component.mobileActionsVisible).toBe(false);
+    vi.advanceTimersByTime(1);
 
     expect(component.mobileActionsVisible).toBe(true);
     expect(component.mobileActionTarget).toBe(transaction);
+    vi.useRealTimers();
+  });
+
+  it('opens mobile actions after a stationary mouse hold in a narrow browser', () => {
+    vi.useFakeTimers();
+    vi.spyOn(component, 'isMobile').mockReturnValue(true);
+    const activeTrigger = vi.spyOn(
+      component['elementRef'].nativeElement,
+      'querySelector',
+    ).mockReturnValue({} as Element);
+    const transaction = createTransaction();
+
+    component.startMobileMouseHold(
+      transaction,
+      'description',
+      mouseEvent('mousedown', 1),
+    );
+    vi.advanceTimersByTime(199);
+    expect(component.mobileActionsVisible).toBe(false);
+    vi.advanceTimersByTime(1);
+    vi.advanceTimersByTime(800);
+    component.onMobileMouseUp(mouseEvent('mouseup', 1));
+    activeTrigger.mockReturnValue(null);
+
+    expect(component.mobileActionsVisible).toBe(true);
+    expect(component.mobileActionTarget).toBe(transaction);
+
+    component.onMobileMouseClick(
+      transaction,
+      'description',
+      mouseEvent('click', 1),
+      transaction.transactionDescription,
+    );
+    vi.advanceTimersByTime(320);
+
+    expect(component.mobileActionsVisible).toBe(true);
+    expect(component.descriptionDialogVisible).toBe(false);
+    vi.useRealTimers();
+  });
+
+  it.each(['date', 'category', 'amount'] as const)(
+    'opens mobile actions when the %s field is held with a mouse',
+    (field) => {
+      vi.useFakeTimers();
+      vi.spyOn(component, 'isMobile').mockReturnValue(true);
+      const transaction = createTransaction();
+
+      component.startMobileMouseHold(transaction, field, mouseEvent('mousedown', 1));
+      vi.advanceTimersByTime(200);
+
+      expect(component.mobileActionsVisible).toBe(true);
+      expect(component.mobileActionField).toBe(field);
+      vi.useRealTimers();
+    },
+  );
+
+  it.each(['date', 'category', 'amount', 'description'] as const)(
+    'opens mobile actions when the %s active-state hold completes',
+    (field) => {
+      vi.spyOn(component, 'isMobile').mockReturnValue(true);
+      const transaction = createTransaction();
+
+      component.onMobileHoldAnimationEnd(transaction, field);
+
+      expect(component.mobileActionsVisible).toBe(true);
+      expect(component.mobileActionTarget).toBe(transaction);
+      expect(component.mobileActionField).toBe(field);
+    },
+  );
+
+  it('does not close held-field actions when the release click lands on the backdrop', () => {
+    vi.useFakeTimers();
+    vi.spyOn(component, 'isMobile').mockReturnValue(true);
+    const activeTrigger = vi.spyOn(
+      component['elementRef'].nativeElement,
+      'querySelector',
+    ).mockReturnValue({} as Element);
+    const transaction = createTransaction();
+    component.startMobileMouseHold(transaction, 'amount', mouseEvent('mousedown', 1));
+    vi.advanceTimersByTime(1000);
+    component.onDocumentMouseUp();
+    activeTrigger.mockReturnValue(null);
+    const backdrop = {};
+    const event = {
+      target: backdrop,
+      currentTarget: backdrop,
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+    } as unknown as MouseEvent;
+
+    component.onMobileOverlayClick(event, 'actions');
+
+    expect(component.mobileActionsVisible).toBe(true);
+    expect(event.preventDefault).toHaveBeenCalled();
+    vi.useRealTimers();
+  });
+
+  it('allows an intentional backdrop click after hold-release suppression expires', () => {
+    vi.useFakeTimers();
+    vi.spyOn(component, 'isMobile').mockReturnValue(true);
+    const transaction = createTransaction();
+    component.onMobileHoldAnimationEnd(transaction, 'amount');
+    vi.advanceTimersByTime(525);
+    const backdrop = {};
+    const event = {
+      target: backdrop,
+      currentTarget: backdrop,
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+    } as unknown as MouseEvent;
+
+    component.onMobileOverlayClick(event, 'actions');
+
+    expect(component.mobileActionsVisible).toBe(false);
     vi.useRealTimers();
   });
 
@@ -66,7 +225,7 @@ describe('TransactionsComponent', () => {
 
     component.startMobileEditHold(transaction, 'description', pointerEvent('pointerdown', 1, 20, 20));
     component.onMobileEditPointerMove(pointerEvent('pointermove', 1, 20, 40));
-    vi.advanceTimersByTime(450);
+    vi.advanceTimersByTime(200);
     component.onDescriptionPointerUp(transaction, pointerEvent('pointerup', 1, 20, 40), 'Description', true);
 
     expect(component.mobileActionsVisible).toBe(false);
@@ -91,6 +250,38 @@ describe('TransactionsComponent', () => {
     expect(component.mobileActionsVisible).toBe(false);
     expect(event.preventDefault).toHaveBeenCalled();
     expect(event.stopPropagation).toHaveBeenCalled();
+  });
+
+  it('closes a mobile popup when the backdrop is clicked', () => {
+    vi.spyOn(component, 'isMobile').mockReturnValue(true);
+    component.descriptionDialogVisible = true;
+    const backdrop = {};
+    const event = {
+      target: backdrop,
+      currentTarget: backdrop,
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+    } as unknown as MouseEvent;
+
+    component.onMobileOverlayClick(event, 'description');
+
+    expect(component.descriptionDialogVisible).toBe(false);
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(event.stopPropagation).toHaveBeenCalled();
+  });
+
+  it('keeps a mobile popup open when its content is clicked', () => {
+    component.descriptionDialogVisible = true;
+    const event = {
+      target: {},
+      currentTarget: {},
+      preventDefault: vi.fn(),
+      stopPropagation: vi.fn(),
+    } as unknown as MouseEvent;
+
+    component.onMobileOverlayClick(event, 'description');
+
+    expect(component.descriptionDialogVisible).toBe(true);
   });
 
   it('does not consume the first tap after dismissing an overlay', () => {
@@ -196,11 +387,17 @@ describe('TransactionsComponent', () => {
   });
 });
 
-function pointerEvent(type: string, pointerId: number, clientX: number, clientY: number): PointerEvent {
+function pointerEvent(
+  type: string,
+  pointerId: number,
+  clientX: number,
+  clientY: number,
+  pointerType: 'touch' | 'mouse' = 'touch',
+): PointerEvent {
   return {
     type,
     pointerId,
-    pointerType: 'touch',
+    pointerType,
     clientX,
     clientY,
     preventDefault: vi.fn(),
@@ -214,6 +411,18 @@ function touchEvent(identifier: number, clientX: number, clientY: number): Touch
     preventDefault: vi.fn(),
     stopPropagation: vi.fn(),
   } as unknown as TouchEvent;
+}
+
+function mouseEvent(type: string, detail: number): MouseEvent {
+  return {
+    type,
+    detail,
+    button: 0,
+    clientX: 20,
+    clientY: 20,
+    preventDefault: vi.fn(),
+    stopPropagation: vi.fn(),
+  } as unknown as MouseEvent;
 }
 
 function createTransaction(): Transaction {

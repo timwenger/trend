@@ -61,6 +61,9 @@ export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
   private mobileTouchLastY = 0;
   private mobilePointerMoved = false;
   private mobilePointerScrollPosition: { x: number; y: number } | null = null;
+  private suppressNextMouseClick = false;
+  private suppressMouseClickTimer: ReturnType<typeof setTimeout> | null = null;
+  private mouseHoldReleasePollTimer: ReturnType<typeof setInterval> | null = null;
   private lastTapAt: number = 0;
   private lastTapKey: string = '';
   private categoryTapTimer: ReturnType<typeof setTimeout> | null = null;
@@ -96,6 +99,9 @@ export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.elementRef.nativeElement.removeEventListener('touchstart', this.preventMobileTriggerTouchDefault, {
       capture: true
     });
+    if (this.mouseHoldReleasePollTimer) {
+      clearInterval(this.mouseHoldReleasePollTimer);
+    }
   }
 
 
@@ -203,10 +209,38 @@ export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
     field: 'date' | 'category' | 'amount' | 'description',
     event: PointerEvent,
   ) {
-    if (!this.isMobile()) {
+    if (!this.isMobile() || event.pointerType === 'mouse') {
       return;
     }
 
+    this.beginMobileEditHold(
+      transaction,
+      field,
+      event.pointerId,
+      event.clientX,
+      event.clientY,
+    );
+  }
+
+  startMobileMouseHold(
+    transaction: Transaction,
+    field: 'date' | 'category' | 'amount' | 'description',
+    event: MouseEvent,
+  ): void {
+    if (!this.isMobile() || event.button !== 0) {
+      return;
+    }
+
+    this.beginMobileEditHold(transaction, field, -1, event.clientX, event.clientY);
+  }
+
+  private beginMobileEditHold(
+    transaction: Transaction,
+    field: 'date' | 'category' | 'amount' | 'description',
+    pointerId: number,
+    clientX: number,
+    clientY: number,
+  ): void {
     const scrollPosition = { x: window.scrollX, y: window.scrollY };
     this.mobilePointerScrollPosition = scrollPosition;
     const activeElement = document.activeElement;
@@ -220,20 +254,54 @@ export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.dismissedOverlayPointerId = null;
     this.cancelMobileEditHold();
     this.holdTriggered = false;
-    this.mobilePointerId = event.pointerId;
-    this.mobilePointerStartX = event.clientX;
-    this.mobilePointerStartY = event.clientY;
+    this.suppressNextMouseClick = false;
+    if (this.suppressMouseClickTimer) {
+      clearTimeout(this.suppressMouseClickTimer);
+      this.suppressMouseClickTimer = null;
+    }
+    this.mobilePointerId = pointerId;
+    this.mobilePointerStartX = clientX;
+    this.mobilePointerStartY = clientY;
     this.mobilePointerMoved = false;
     this.holdTimer = setTimeout(() => {
       if (this.mobilePointerMoved) {
         return;
       }
-      this.holdTriggered = true;
-      this.mobileActionTarget = transaction;
-      this.mobileActionField = field;
-      this.mobileActionsVisible = true;
-      this.activateDialogHistory();
-    }, 450);
+      this.showMobileActions(transaction, field);
+    }, 200);
+  }
+
+  onMobileHoldAnimationEnd(
+    transaction: Transaction,
+    field: 'date' | 'category' | 'amount' | 'description',
+  ): void {
+    if (!this.isMobile()) {
+      return;
+    }
+
+    this.cancelMobileEditHold();
+    this.showMobileActions(transaction, field);
+  }
+
+  private showMobileActions(
+    transaction: Transaction,
+    field: 'date' | 'category' | 'amount' | 'description',
+  ): void {
+    if (
+      this.mobileActionsVisible &&
+      this.mobileActionTarget === transaction &&
+      this.mobileActionField === field
+    ) {
+      return;
+    }
+
+    this.holdTriggered = true;
+    this.markMouseClickForSuppression();
+    this.mobileActionTarget = transaction;
+    this.mobileActionField = field;
+    this.mobileActionsVisible = true;
+    this.activateDialogHistory();
+    this.monitorMouseHoldRelease();
   }
 
   startMobileEditTouchHold(
@@ -252,13 +320,25 @@ export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onMobileEditPointerMove(event: PointerEvent): void {
-    if (event.pointerId !== this.mobilePointerId || this.mobilePointerMoved) {
+    if (event.pointerType === 'mouse') {
+      return;
+    }
+
+    this.updateMobileEditMovement(event.pointerId, event.clientX, event.clientY);
+  }
+
+  onMobileMouseMove(event: MouseEvent): void {
+    this.updateMobileEditMovement(-1, event.clientX, event.clientY);
+  }
+
+  private updateMobileEditMovement(pointerId: number, clientX: number, clientY: number): void {
+    if (pointerId !== this.mobilePointerId || this.mobilePointerMoved) {
       return;
     }
 
     const distance = Math.hypot(
-      event.clientX - this.mobilePointerStartX,
-      event.clientY - this.mobilePointerStartY,
+      clientX - this.mobilePointerStartX,
+      clientY - this.mobilePointerStartY,
     );
     if (distance > 10) {
       this.mobilePointerMoved = true;
@@ -320,13 +400,67 @@ export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  suppressMobileTriggerClick(event: Event): void {
+  onMobileMouseUp(event: MouseEvent): void {
+    if (!this.isMobile() || event.button !== 0) {
+      return;
+    }
+
+    this.cancelMobileEditHold();
+    if (this.mobilePointerMoved) {
+      this.resetMobilePointer();
+      return;
+    }
+
+    if (this.holdTriggered) {
+      this.armMouseClickSuppressionTimeout();
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    this.resetMobilePointer();
+  }
+
+  onMobileMouseClick(
+    transaction: Transaction,
+    field: 'date' | 'category' | 'amount' | 'description',
+    event: MouseEvent,
+    description?: string | null,
+  ): void {
     if (!this.isMobile()) {
       return;
     }
 
     event.preventDefault();
     event.stopPropagation();
+    if (this.consumeSuppressedMouseClick()) {
+      return;
+    }
+
+    if (event.detail >= 2) {
+      this.cancelPendingCategoryTap();
+      this.cancelPendingDescriptionTap();
+      const scrollPosition = { x: window.scrollX, y: window.scrollY };
+      setTimeout(() => this.openMobileFieldEditor(
+        transaction,
+        field,
+        undefined,
+        scrollPosition,
+      ));
+      return;
+    }
+
+    if (field === 'category') {
+      this.cancelPendingCategoryTap();
+      this.categoryTapTimer = setTimeout(() => {
+        this.openCategoryDialog(transaction.categories);
+        this.categoryTapTimer = null;
+      }, 320);
+    } else if (field === 'description') {
+      this.cancelPendingDescriptionTap();
+      this.descriptionTapTimer = setTimeout(() => {
+        this.openDescriptionDialog(event, description);
+        this.descriptionTapTimer = null;
+      }, 320);
+    }
   }
 
   onMobileEditPointerUp(
@@ -341,6 +475,9 @@ export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const pointerEvent = event as PointerEvent;
     if (pointerEvent.pointerType === 'touch' && !fromTouchEvent) {
+      return;
+    }
+    if (pointerEvent.pointerType === 'mouse') {
       return;
     }
 
@@ -364,11 +501,7 @@ export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.holdTriggered) {
       this.holdTriggered = false;
-      this.resetMobilePointer();
-      return;
-    }
-
-    if (pointerEvent.pointerType === 'mouse') {
+      this.armMouseClickSuppressionTimeout();
       this.resetMobilePointer();
       return;
     }
@@ -550,6 +683,22 @@ export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  onMobileOverlayClick(
+    event: MouseEvent,
+    overlay: 'actions' | 'edit' | 'description' | 'category'
+  ): void {
+    if (event.target !== event.currentTarget) {
+      return;
+    }
+    if (this.consumeSuppressedMouseClick()) {
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    this.dismissMobileOverlay(event, overlay, -1);
+  }
+
   private dismissMobileOverlay(
     event: Event,
     overlay: 'actions' | 'edit' | 'description' | 'category',
@@ -618,6 +767,9 @@ export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (pointerEvent.pointerType === 'touch' && !fromTouchEvent) {
       return;
     }
+    if (pointerEvent.pointerType === 'mouse') {
+      return;
+    }
 
     this.cancelMobileEditHold();
 
@@ -640,12 +792,6 @@ export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.holdTriggered) {
       this.holdTriggered = false;
       event.preventDefault();
-      this.resetMobilePointer();
-      return;
-    }
-
-    if (pointerEvent.pointerType === 'mouse') {
-      this.openDescriptionDialog(event, description);
       this.resetMobilePointer();
       return;
     }
@@ -704,6 +850,55 @@ export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mobilePointerScrollPosition = null;
   }
 
+  private markMouseClickForSuppression(): void {
+    this.suppressNextMouseClick = true;
+    if (this.suppressMouseClickTimer) {
+      clearTimeout(this.suppressMouseClickTimer);
+      this.suppressMouseClickTimer = null;
+    }
+  }
+
+  private armMouseClickSuppressionTimeout(): void {
+    this.markMouseClickForSuppression();
+    this.suppressMouseClickTimer = setTimeout(() => {
+      this.suppressNextMouseClick = false;
+      this.holdTriggered = false;
+      this.suppressMouseClickTimer = null;
+    }, 500);
+  }
+
+  private monitorMouseHoldRelease(): void {
+    if (this.mouseHoldReleasePollTimer) {
+      clearInterval(this.mouseHoldReleasePollTimer);
+    }
+    this.mouseHoldReleasePollTimer = setInterval(() => {
+      const activeTrigger = this.elementRef.nativeElement.querySelector(
+        '.mobile-edit-trigger:active, .description-preview:active',
+      );
+      if (activeTrigger) {
+        return;
+      }
+
+      clearInterval(this.mouseHoldReleasePollTimer!);
+      this.mouseHoldReleasePollTimer = null;
+      this.armMouseClickSuppressionTimeout();
+    }, 25);
+  }
+
+  private consumeSuppressedMouseClick(): boolean {
+    if (!this.suppressNextMouseClick) {
+      return false;
+    }
+
+    this.suppressNextMouseClick = false;
+    this.holdTriggered = false;
+    if (this.suppressMouseClickTimer) {
+      clearTimeout(this.suppressMouseClickTimer);
+      this.suppressMouseClickTimer = null;
+    }
+    return true;
+  }
+
   private restoreMobilePointerScrollPosition(): void {
     const position = this.mobilePointerScrollPosition;
     if (position) {
@@ -747,6 +942,13 @@ export class TransactionsComponent implements OnInit, AfterViewInit, OnDestroy {
   onDocumentPointerUp(event: PointerEvent): void {
     if (event.pointerId === this.dismissedOverlayPointerId) {
       this.dismissedOverlayPointerId = null;
+    }
+  }
+
+  @HostListener('document:mouseup')
+  onDocumentMouseUp(): void {
+    if (this.suppressNextMouseClick) {
+      this.armMouseClickSuppressionTimeout();
     }
   }
 

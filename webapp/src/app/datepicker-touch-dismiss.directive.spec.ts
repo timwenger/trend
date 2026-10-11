@@ -83,6 +83,70 @@ describe('DatePickerTouchDismissDirective', () => {
     expect(hideOverlay).not.toHaveBeenCalled();
   });
 
+  it('closes an open calendar when the pointer is pressed outside it', () => {
+    const host = document.createElement('div');
+    const input = document.createElement('input');
+    host.appendChild(input);
+    const outside = document.createElement('button');
+    const hideOverlay = vi.fn();
+    const directive = new DatePickerTouchDismissDirective(
+      {
+        overlayVisible: () => true,
+        overlay: document.createElement('div'),
+        hideOverlay,
+      } as never,
+      new ElementRef(host),
+    );
+
+    directive.dismissOnOutsidePointerDown(
+      { target: outside } as unknown as PointerEvent,
+    );
+
+    expect(hideOverlay).toHaveBeenCalledOnce();
+  });
+
+  it('closes an open calendar when an outside click has no pointer event', () => {
+    const host = document.createElement('div');
+    const outside = document.createElement('button');
+    const hideOverlay = vi.fn();
+    const directive = new DatePickerTouchDismissDirective(
+      {
+        overlayVisible: () => true,
+        overlay: document.createElement('div'),
+        hideOverlay,
+      } as never,
+      new ElementRef(host),
+    );
+
+    directive.dismissOnOutsideClick(
+      { target: outside } as unknown as MouseEvent,
+    );
+
+    expect(hideOverlay).toHaveBeenCalledOnce();
+  });
+
+  it('keeps an open calendar visible when the pointer is pressed inside it', () => {
+    const host = document.createElement('div');
+    const overlay = document.createElement('div');
+    const date = document.createElement('button');
+    overlay.appendChild(date);
+    const hideOverlay = vi.fn();
+    const directive = new DatePickerTouchDismissDirective(
+      {
+        overlayVisible: () => true,
+        overlay,
+        hideOverlay,
+      } as never,
+      new ElementRef(host),
+    );
+
+    directive.dismissOnOutsidePointerDown(
+      { target: date } as unknown as PointerEvent,
+    );
+
+    expect(hideOverlay).not.toHaveBeenCalled();
+  });
+
   it('removes only the datepicker trigger from the tab order when requested', () => {
     const host = document.createElement('div');
     const input = document.createElement('input');

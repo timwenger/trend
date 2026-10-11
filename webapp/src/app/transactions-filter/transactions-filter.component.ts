@@ -151,7 +151,9 @@ export class TransactionsFilterComponent implements OnInit {
   }
 
   focusInitialControl(): void {
-    this.getKeyboardBoundaryControls().first?.focus();
+    this.elementRef.nativeElement
+      .querySelector<HTMLElement>('.date-nav-btn')
+      ?.focus();
   }
 
   @HostListener('keydown', ['$event'])
