@@ -4,6 +4,9 @@
 
 personal/
 Trend.API/appsettings.json
+.env
+.env.*
+!.env.example
 
 
 
@@ -311,7 +314,7 @@ webapp/src/environments/primeui-license.generated.ts
 *.dsw
 *.dsp
 
-# Visual Studio 6 technical files 
+# Visual Studio 6 technical files
 *.ncb
 *.aps
 
