@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Trend.API.Models;
@@ -8,7 +7,6 @@ using Trend.API.Services;
 namespace Trend.API.Controllers
 {
     [ApiController]
-    [EnableCors("ProductionOrDevEnvironment")]
     [Authorize(Policy = "CanWriteToTransactions")]
     [Route("api/[controller]")]
     public class TransactionRulesController : ControllerBase

@@ -6,13 +6,6 @@ using System.Security.Claims;
 using Trend.API.Models;
 using Trend.API.Services;
 
-/*
- * Note: Commits made to this production branch will trigger the following github action
- * production_trendapi20221210154024.yml
- * which will re-publish this ASP.NET app to Azure
- */
-
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -22,20 +15,6 @@ string accountKey = builder.Configuration["DbContext:COSMOS_KEY"] ?? string.Empt
 TrendDbContext dbContext = new TrendDbContext(endpoint, accountKey);
 builder.Services.AddSingleton<TrendDbContext>(dbContext);
 builder.Services.AddSingleton<TransactionRuleService>();
-
-//https://docs.microsoft.com/en-us/aspnet/core/security/cors?view=aspnetcore-6.0#attr
-builder.Services.AddCors(options =>
-{
-    string allowedOrigins = builder.Configuration["Cors:AllowedOrigins"] ?? string.Empty;
-
-    options.AddPolicy("ProductionOrDevEnvironment",
-        policy =>
-        {
-            policy.WithOrigins(allowedOrigins)
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-        });
-});
 
 // Auth0 Authentication
 // https://auth0.com/docs/quickstart/backend/aspnet-core-webapi-2/01-authorization
@@ -83,11 +62,12 @@ var app = builder.Build();
 
 
 // Configure the HTTP request pipeline.
-app.UseHttpsRedirection();
+if (builder.Configuration.GetValue("HttpsRedirection:Enabled", true))
+{
+    app.UseHttpsRedirection();
+}
 app.UseRouting();
 #region These calls must go between UseRouting and UseEndPoints
-// Apply the named CORS policy
-app.UseCors("ProductionOrDevEnvironment");
 app.UseAuthentication();
 app.UseAuthorization();
 #endregion

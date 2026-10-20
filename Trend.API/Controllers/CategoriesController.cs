@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Trend.API.Models;
 using Trend.API.Filters;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Trend.API.Services;
@@ -11,7 +10,6 @@ using Trend.API.Services;
 namespace Trend.API.Controllers
 {
     [ApiController]
-    [EnableCors("ProductionOrDevEnvironment")]
     [Authorize(Policy = "CanWriteToCategories")]
     [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
