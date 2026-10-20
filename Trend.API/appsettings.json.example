@@ -7,14 +7,10 @@
     "Domain": "your-auth0-domain.auth0.com",
     "ApiIdentifier": "your-api-identifier"
   },
-  "Cors": {
-    "AllowedOrigins": "http://localhost:4200"
-  },
   "Logging": {
     "LogLevel": {
       "Default": "Information",
       "Microsoft.AspNetCore": "Warning"
     }
-  },
-  "AllowedOrigins": "<For CORS: your url of your web app when developing>"
+  }
 }

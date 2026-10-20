@@ -1,0 +1,30 @@
+name: trend
+
+services:
+  trend-webapp:
+    build:
+      context: ./webapp
+      secrets:
+        - primeui_license
+    ports:
+      - "${TREND_LAN_IP:?Set TREND_LAN_IP to 127.0.0.1 for Tailscale Serve}:${TREND_PORT:-8080}:8080"
+    depends_on:
+      - trend-api
+    restart: unless-stopped
+
+  trend-api:
+    build:
+      context: ./Trend.API
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: "8080"
+      HttpsRedirection__Enabled: "false"
+      DbContext__COSMOS_ENDPOINT: ${COSMOS_ENDPOINT:?Set COSMOS_ENDPOINT}
+      DbContext__COSMOS_KEY: ${COSMOS_KEY:?Set COSMOS_KEY}
+      Auth0__Domain: ${AUTH0_DOMAIN:?Set AUTH0_DOMAIN}
+      Auth0__ApiIdentifier: ${AUTH0_API_IDENTIFIER:?Set AUTH0_API_IDENTIFIER}
+    restart: unless-stopped
+
+secrets:
+  primeui_license:
+    environment: PRIMEUI_LICENSE

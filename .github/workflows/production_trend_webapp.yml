@@ -1,13 +1,13 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy Node.js app to Azure Web App - trendapp
+name: Validate Angular production build
 
 on:
   push:
     branches:
       - production
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -21,37 +21,17 @@ jobs:
         with:
           node-version: '24.x'
 
-      - name: npm install, build
+      - name: Install, test, and build
         env:
           PRIMEUI_LICENSE: ${{ secrets.PRIMEUI_LICENSE }}
         run: |
           npm ci
+          npm test -- --watch=false
           npm run build -- --configuration production
         working-directory: webapp/
 
-      - name: Upload artifact for deployment job
+      - name: Upload production build
         uses: actions/upload-artifact@v7
         with:
           name: node-app
           path: webapp/dist/webapp/browser
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v8
-        with:
-          name: node-app
-
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'trendapp'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D553BEEB5A8D4BA8A324BEC7987F580F }}
-          package: .

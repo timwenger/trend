@@ -1,0 +1,8 @@
+bin/
+obj/
+Properties/
+appsettings*.json
+!appsettings.json.example
+.env*
+*.user
+*.zip

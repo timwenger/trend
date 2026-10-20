@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.angular/
+coverage/
+.env*
+src/environments/primeui-license.generated.ts
+*.log
+*.zip

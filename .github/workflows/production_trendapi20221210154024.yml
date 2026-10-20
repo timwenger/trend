@@ -1,7 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy ASP.Net Core app to Azure Web App - TrendAPI20221210154024
+name: Validate .NET API production build
 
 on:
   push:
@@ -9,11 +6,12 @@ on:
       - production
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
-    runs-on: windows-latest
-    permissions:
-      contents: read #This is required for actions/checkout
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v7
@@ -26,39 +24,14 @@ jobs:
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
+      - name: Test
+        run: dotnet test Trend.Test/Trend.Test.csproj --configuration Release --no-build
+
       - name: dotnet publish
         run: dotnet publish Trend.API/Trend.API.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
-      - name: Upload artifact for deployment job
+      - name: Upload published API
         uses: actions/upload-artifact@v7
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
-
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v8
-        with:
-          name: .net-app
-
-      - name: Login to Azure
-        uses: azure/login@v3
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_71128DAEA132475D9572FE805588FEE0 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_992601BC63E9400CAB7911B19B4C6034 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_ECBB2C9EB552420D8000AFAA4817B6CE }}
-
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: 'TrendAPI20221210154024'
-          slot-name: 'Production'
-          package: .

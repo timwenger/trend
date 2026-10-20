@@ -1,6 +1,20 @@
 # trend
  trend your monthly transactions for a better understanding of your finances
 
+## Linux Server Deployment
+
+Follow the [Linux Docker deployment guide](docs/docker-deployment.md) to get the
+complete application running on your server:
+
+1. [Clone, configure credentials, build, and start both containers](docs/docker-deployment.md#initial-deployment).
+2. [Enable Tailscale Serve HTTPS and configure Auth0 login](docs/docker-deployment.md#tailscale-serve-and-auth0).
+3. [Check status and logs, update the app, or stop it](docs/docker-deployment.md#operations).
+
+Run the frontend and API as one Docker Compose application on a Linux server,
+with private HTTPS access through Tailscale Serve. Nginx serves Angular and proxies
+same-origin API requests; Tailscale manages the HTTPS certificate for Auth0 login.
+Cosmos DB remains in Azure. GitHub Actions validate builds and tests; they no longer deploy to Azure.
+Existing Azure App Services can remain running alongside the Docker deployment.
 
 ## Development getting started
 
@@ -14,29 +28,24 @@
 
 - Hit one of the Visual Studio green arrows to run or debug the server, which listens on: https://localhost:7247
 
-#### Production deployment
-- The production API is deployed to Azure Web App via GitHub Actions when you push to the `production` branch
-- **There's no point to create `appsettings.Production.json`** — production configuration is managed via Azure App Service settings:
-  - Go to Azure Portal > Your app Service > API > CORS, and add the webapp's url to the Allowed Origins list
-  - Go to Azure Portal > Your app Service > Settings > Environment variables, and add the following (Note the double _ _ between json nested layers)
-    - `DbContext__COSMOS_ENDPOINT`
-    - `DbContext__COSMOS_KEY`
-    - `Auth0__Domain`
-    - `Auth0__ApiIdentifier`
-
 ### The webapp (angular)
-- Install Node 20, 22, or 24
+- Install Node 24
 - `cd webapp`
 - Install cli globally on your machine: `npm install -g @angular/cli@latest`
 - Install project dependencies: `npm install`
 - Start the dev server with hot reloading: `npm start`
 
+Open `http://localhost:4200` with the backend running or debugging at
+`https://localhost:7247`. The Angular development server proxies `/api/**` to the
+backend using [proxy.conf.json](webapp/proxy.conf.json), so API calls and Auth0
+tokens use the frontend's origin without API CORS. Backend breakpoints still work.
+The proxy accepts the local development certificate; this setting applies only
+to the development server, not production HTTPS.
+
 Tests:
 - Run `npm test` to execute the unit tests via [Vitest](https://vitest.dev/).
 
-Publish:
-- manually:
-    - create a production build: `ng build`
-    - then copy the contents from the `dist/` directory
-- automatically:
-    - push to production branch to kick off the github action.
+Production build: `npm run build -- --configuration production` writes static files
+to `webapp/dist/webapp/browser`. The production container serves these with Nginx,
+not the Angular development server. This command builds only the frontend; for
+the full Linux server deployment, follow the [deployment guide](docs/docker-deployment.md).
